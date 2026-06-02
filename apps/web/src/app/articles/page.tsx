@@ -2,8 +2,11 @@ import Link from 'next/link';
 import { CATEGORIES, CATEGORY_LABEL, type Category } from '@parenting-newsletter/shared';
 import { getRecentArticles } from '@/src/data/articles';
 import { ArticleCard } from '@/src/components/ArticleCard';
+import { Pagination } from '@/src/components/Pagination';
 
-type SearchParams = { category?: string };
+type SearchParams = { category?: string; page?: string };
+
+const PAGE_SIZE = 24; // 2·3열 그리드에 모두 나눠떨어짐
 
 export default async function ArticlesIndexPage({
   searchParams,
@@ -16,6 +19,20 @@ export default async function ArticlesIndexPage({
   const filtered = filterCategory
     ? allRecent.filter((a) => a.category === filterCategory)
     : allRecent;
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  // 범위 밖 page는 클램프(잘못된 URL·필터 전환 시 안전).
+  const currentPage = Math.min(Math.max(1, Number(searchParams?.page) || 1), totalPages);
+  const pageItems = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  // 페이지 링크에 카테고리 보존.
+  const hrefForPage = (page: number) => {
+    const params = new URLSearchParams();
+    if (filterCategory) params.set('category', filterCategory);
+    if (page > 1) params.set('page', String(page));
+    const qs = params.toString();
+    return qs ? `/articles?${qs}` : '/articles';
+  };
 
   const headerTitle = filterCategory
     ? `${CATEGORY_LABEL[filterCategory]} 기사`
@@ -31,11 +48,11 @@ export default async function ArticlesIndexPage({
         </p>
       </header>
 
-      <div className="mx-auto max-w-6xl mb-8 flex flex-wrap items-center gap-2 border-b border-grey-200 pb-4">
+      <div className="mx-auto max-w-6xl mb-8 flex gap-6 overflow-x-auto border-b border-line [&::-webkit-scrollbar]:hidden">
         <Link
           href="/articles"
-          className={`px-3 py-1.5 rounded-full text-body font-medium transition ${
-            !filterCategory ? 'bg-ink text-white' : 'bg-grey-100 text-ink-2 hover:bg-grey-200'
+          className={`-mb-px shrink-0 border-b-2 pb-3 text-body transition ${
+            !filterCategory ? 'border-ink font-semibold text-ink' : 'border-transparent text-ink-3 hover:text-ink'
           }`}
         >
           전체
@@ -44,10 +61,10 @@ export default async function ArticlesIndexPage({
           <Link
             key={cat}
             href={`/articles?category=${cat}`}
-            className={`px-3 py-1.5 rounded-full text-body font-medium transition ${
+            className={`-mb-px shrink-0 border-b-2 pb-3 text-body transition ${
               filterCategory === cat
-                ? 'bg-ink text-white'
-                : 'bg-grey-100 text-ink-2 hover:bg-grey-200'
+                ? 'border-ink font-semibold text-ink'
+                : 'border-transparent text-ink-3 hover:text-ink'
             }`}
           >
             {CATEGORY_LABEL[cat]}
@@ -61,10 +78,20 @@ export default async function ArticlesIndexPage({
             해당 카테고리 기사가 없습니다.
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((article) => (
-              <ArticleCard key={article.id} article={article} />
+          <div className="grid gap-x-9 gap-y-16 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-11">
+            {pageItems.map((article) => (
+              <ArticleCard key={article.id} article={article} showSummary={false} />
             ))}
+          </div>
+        )}
+
+        {totalPages > 1 && (
+          <div className="mt-10">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              hrefForPage={hrefForPage}
+            />
           </div>
         )}
       </section>

@@ -289,3 +289,33 @@ MVP 파이프라인 비포함. `runAgent`의 `AgentName` 타입(현재 `research
 ### 실행 환경 메모
 - env 로딩: `node --env-file=../../.env --import tsx src/index.ts` (apps/api·agents/research dev)
 - API 키 검증: Max Agent SDK 자동 흡수 2026-06-15 시작. 그 전 research 실 호출 검증은 별도 크레딧 필요.
+
+## 9. 아카이브 라이프사이클 (보존·노출·색인) — \[기획 확정 2026-06-02, 미구현]
+
+> 근거·전략 = STRATEGY §11.3. 원칙 = **저장(무기한)·노출(타입별 은퇴)·색인(에버그린만)을 분리.** 저장 비용은 무시(요약만 저장, 10년 ~250MB ≪ Supabase 한도).
+
+### 9.1 3계층 분리
+| 계층 | 정책 | 구현 |
+|---|---|---|
+| **저장(DB)** | 무기한 보관 (삭제·TTL 없음) | 변경 없음 — 기본값 |
+| **노출(웹 아카이브)** | 콘텐츠타입별 "은퇴" 시 목록에서 제외 | 쿼리 필터 (아래 9.2) |
+| **색인(SEO)** | 만료 콘텐츠 `noindex` (삭제 아님), 에버그린 유지 | 페이지 메타 robots (아래 9.3) |
+
+### 9.2 노출 은퇴 규칙 (기존 필드로 계산, 새 컬럼 불필요)
+- **Event**: `eventEndDate`(없으면 `eventStartDate`) + 버퍼(예: 7일) 경과 시 아카이브 목록 제외. (홈/캐치업엔 이미 시의성 윈도우로 안 뜸.)
+- **Policy**: 무기한 노출(대체 점검은 수동/후속). 
+- **Market·Insight**: `publishedAt` 기준 N개월(예: 6) 후 점진 강등(노출은 유지하되 색인 9.3).
+- **Guide**: 무기한 노출(에버그린).
+- 구현 위치 = 아카이브 데이터 레이어(`getRecentArticles`/`/issues`) 필터. soft 규칙(상수는 shared config).
+
+### 9.3 색인(SEO) 규칙
+- **에버그린(Guide·유효 Policy)** → 색인 유지(롱테일·도메인 권위).
+- **만료(지난 Event·대체 Policy·노후 Market/Insight)** → 해당 상세 페이지 `<meta robots="noindex">`. 삭제·301 아님(URL·신뢰 보존).
+- 동적 sitemap에서 noindex 대상 제외.
+- 점검 주기 = 3~6개월(업계 표준 content pruning).
+
+### 9.4 링크 로트 연계 (STRATEGY §11.2)
+- 아카이브 노출 기사 중 원문 링크 죽은 것 = `factcheck.ts` 확장 링크 헬스체크로 플래그 → 상세에서 "원문 사이트에서 읽기" 버튼 제거 + 안내 문구(graceful degradation). 낡은 아카이브가 깨진 링크 안 보이게 = 브랜드 보호. (자체 body가 durable artifact라 콘텐츠는 생존.)
+
+### 9.5 미구현 — 후속 작업 단위
+- ⓐ shared config에 타입별 노출/색인 호라이즌 상수 ⓑ 아카이브 쿼리 필터(9.2) ⓒ 상세 robots 메타(9.3) ⓓ 링크 헬스체크 + graceful degradation(9.4) ⓔ sitemap 연계. SEO 근육 단계(STRATEGY/메모리 "SEO 골격 vs 근육")와 함께.
