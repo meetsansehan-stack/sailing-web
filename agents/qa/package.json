@@ -1,0 +1,16 @@
+{
+  "name": "@parenting-newsletter/agent-qa",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.3",
+    "tsx": "^4.0.0"
+  }
+}

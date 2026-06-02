@@ -1,0 +1,31 @@
+# Dependencies
+node_modules
+# pnpm-lock.yaml은 커밋 — 배포(Vercel/Railway)의 --frozen-lockfile 재현 설치에 필요
+
+# Build
+dist
+.next
+.turbo
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Prisma migrations는 커밋 — 스키마 이력·배포 재현. (CLAUDE.md: 직접 "수정" 금지일 뿐 버전관리는 함)

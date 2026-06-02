@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node"],
+    "paths": {
+      "@/*": ["./*"],
+      "@parenting-newsletter/agents-core": ["../../packages/agents-core/src"],
+      "@parenting-newsletter/db": ["../../packages/db/src"],
+      "@parenting-newsletter/shared": ["../../packages/shared/src"],
+      "@parenting-newsletter/agent-research": ["../../agents/research/src"],
+      "@parenting-newsletter/agent-curation": ["../../agents/curation/src"],
+      "@parenting-newsletter/agent-writer": ["../../agents/writer/src"],
+      "@parenting-newsletter/agent-editor": ["../../agents/editor/src"],
+      "@parenting-newsletter/agent-hooking": ["../../agents/hooking/src"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

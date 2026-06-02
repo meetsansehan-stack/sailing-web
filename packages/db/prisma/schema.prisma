@@ -1,0 +1,159 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")    // 런타임 — pgbouncer pooler 사용
+  directUrl = env("DIRECT_URL")      // prisma migrate — pooler 우회
+}
+
+// 뉴스 기사 (URL + 자체 요약·본문만 저장, 원문 전문 저장 금지)
+// 타입 정의는 packages/shared/src/article.ts 와 동기화 유지
+model Article {
+  id                  String    @id @default(cuid())
+  title               String
+  summary             String    @db.Text
+  body                String    @db.Text       // 카드뉴스 본문 (## 헤딩 + - 불릿 형식)
+  url                 String
+  category            String                   // Category: policy|parenting|academy|play|shows|books|market
+  contentType         String                   // ContentType: Policy|Event|Market|Insight|Guide
+  mediaType           String?                  // text|video|podcast|book (미지정 시 text)
+  durationMin         Int?                     // video/podcast 한정 — 분 단위
+  source              String
+  publishedAt         DateTime
+  credibilityScore    Float     @default(0.0)
+  issueDate           DateTime                 // 페런트웹 발행일 (Issue 식별자)
+  eventStartDate      DateTime?                // Event 한정 — 이벤트 시작일
+  eventEndDate        DateTime?                // Event 한정 — 이벤트 종료일 (시작일과 별개, 다일 행사)
+  deadline            DateTime?                // 신청·접수 마감일
+  tags                String[]
+  imageUrl            String?
+  dateCheck           Json?                    // 날짜 검증 결과(qa v0): 원문 재호출해 deadline/event 날짜 실재 확인. { checkedAt, fetchOk, deadline?, eventStartDate?, eventEndDate? : 'verified'|'unconfirmed' }
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  issues              IssueArticle[]
+  agentLogs           AgentLog[]
+
+  // 같은 발행일에 동일 원문 URL 중복 적재 방지 (curation 재실행 멱등성). SPEC §6.3
+  @@unique([issueDate, url])
+  @@index([category])
+  @@index([contentType])
+  @@index([issueDate])
+  @@index([eventStartDate])
+  @@index([eventEndDate])
+  @@index([deadline])
+  @@index([createdAt])
+  @@index([url])
+}
+
+// 예약 가능 시설 — packages/shared/src/venue.ts 와 동기화 유지
+model ReservableVenue {
+  id                  String    @id            // venue-* slug 그대로 사용
+  name                String
+  type                String                   // VenueType: museum|show|library|indoor-play|program
+  ageRange            String                   // 권장 연령. "0-7" / "3-12" 형식
+  entryMinAge         Int?                     // 실 입장 가능 최소 연령
+  region              String                   // "서울 용산구" — 첫 토큰이 REGIONS 중 하나
+  reservationUrl      String
+  reservationChannel  String                   // 운영주체명
+  operator            String                   // VenueOperator: national|metro|district
+  pricing             String                   // Pricing: free|paid|mixed
+  schedule            String?
+  description         String    @db.Text
+  credibilityScore    Float     @default(0.0)
+  tags                String[]
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([type])
+  @@index([region])
+  @@index([operator])
+  @@index([pricing])
+}
+
+// 일일 이슈 (MVP는 웹 전용 — 이메일 필드는 V2 착수 시 재추가, SPEC §7-D)
+model DailyIssue {
+  id                  String    @id @default(cuid())
+  issueDate           DateTime  @unique
+  status              String    @default("draft")  // 발행 게이트: draft(검토 전·비공개) | published(공개). 신규 이슈는 항상 draft, 운영자가 검수 후 published로 flip.
+  title               String?              // 그날의 한 줄 후킹 (hooking ← cardHook)
+  summary             String?   @db.Text   // 그날의 짧은 요약 (hooking ← homeCopy)
+  theme               String?              // 오늘의 테마 (editor가 설정)
+
+  articles            IssueArticle[]
+  agentLogs           AgentLog[]
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([issueDate])
+  @@index([status])
+}
+
+// 이슈에 포함된 기사들
+model IssueArticle {
+  id                  String    @id @default(cuid())
+  issueId             String
+  issue               DailyIssue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  
+  articleId           String
+  article             Article    @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  
+  // 에디터 에이전트가 작성한 커스텀 제목과 설명
+  customTitle         String?
+  customDescription   String?    @db.Text
+  order               Int        @default(0) // 기사 순서
+  
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+
+  @@unique([issueId, articleId])
+  @@index([issueId])
+  @@index([articleId])
+}
+
+// 에이전트 실행 로그 및 파이프라인 추적
+model AgentLog {
+  id                  String    @id @default(cuid())
+  issueId             String
+  issue               DailyIssue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  
+  agentName           String    // research, curation, editor, hooking
+  articleId           String?
+  article             Article?   @relation(fields: [articleId], references: [id], onDelete: SetNull)
+  
+  status              String    @default("pending") // pending, processing, success, failed
+  input               Json?     // 에이전트 입력
+  output              Json?     // 에이전트 출력
+  errorMessage        String?   @db.Text
+  
+  processingTimeMs    Int?      // 처리 시간
+  
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([issueId])
+  @@index([agentName])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// 에이전트 설정 및 프롬프트 버전 관리
+model AgentConfig {
+  id                  String    @id @default(cuid())
+  name                String    @unique // research, curation, editor, hooking
+  version             Int       @default(1)
+  prompt              String    @db.Text
+  schema              String    @db.Text // JSON 스키마
+  isActive            Boolean   @default(true)
+  
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+}

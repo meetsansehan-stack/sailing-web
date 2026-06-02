@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm dev *)",
+      "Bash(PATH=/Users/songhee/.nvm/versions/node/v26.1.0/bin:__TRACKED_VAR__ pnpm dev)",
+      "Bash(PATH=/Users/songhee/.nvm/versions/node/v26.1.0/bin:__TRACKED_VAR__ ./node_modules/.bin/next dev)",
+      "Bash(curl -s -o /dev/null -w \"HOME: %{http_code}\\\\n\" http://localhost:3000/)",
+      "Bash(curl -s -o /dev/null -w \"DETAIL\\(공교육-1\\): %{http_code}\\\\n\" \"http://localhost:3000/articles/$\\(printf '공교육-1')",
+      "Bash(grep -o \"유아 무상교육.\\\\{0,40\\\\}\")",
+      "Bash(curl -s \"http://localhost:3000/articles/$\\(printf '공교육-1')",
+      "Read(//private/tmp/**)",
+      "Bash(curl -s -o /tmp/h.html -w \"home → %{http_code}\\\\n\" \"http://localhost:3000/\")",
+      "Bash(curl -s -o /dev/null -w \"GET localhost:3000 → %{http_code}\\\\n\" http://localhost:3000)",
+      "Bash(curl -s http://localhost:3001/api/issues)",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(lsof -ti:3001)",
+      "Bash(xargs kill -9)",
+      "Bash(lsof -ti:3000)",
+      "Bash(xargs -0 perl -i -pe ' *)",
+      "Bash(echo \"exit $?\")",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\).on\\('end',\\(\\)=>{const r=JSON.parse\\(d\\); console.log\\('검증 기사:',r.checked\\); for\\(const x of r.results\\){console.log\\(' -',x.id, JSON.stringify\\(x.check\\)\\);}}\\)\")",
+      "Bash(node -e 'const v=require\\(\"fs\"\\).readFileSync\\(\".env\",\"utf8\"\\).match\\(/PREVIEW_TOKEN=\\(.*\\)/\\); console.log\\(v? \"set, len=\"+\\(v[1].replace\\(/[\\\\\"\\\\x27]/g,\"\"\\).trim\\(\\).length\\) : \"absent\"\\)')",
+      "Bash(railway --version)",
+      "Bash(echo \"railway: $\\(railway --version 2>/dev/null || echo none\\)\")",
+      "Bash(vercel --version)",
+      "Bash(echo \"vercel: $\\(vercel --version 2>/dev/null || echo none\\)\")",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(grep -iE \"\\\\.env\\($|[^.]\\)\")",
+      "Bash(git diff *)",
+      "Bash(xargs -0 ls -la)",
+      "Bash(sort -k5 -n -r)",
+      "Bash(awk '{print $5, $9}')"
+    ]
+  }
+}

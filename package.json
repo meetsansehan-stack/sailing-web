@@ -1,0 +1,16 @@
+{
+  "name": "parenting-newsletter",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Daily parenting newsletter service",
+  "scripts": {
+    "pipeline:run": "node scripts/pipeline.js",
+    "agent:test": "node scripts/agent-test.js",
+    "pipeline:dry-run": "node scripts/pipeline-dry-run.js"
+  },
+  "devDependencies": {
+    "@anthropic-ai/sdk": "^0.17.1",
+    "typescript": "^5.3.3",
+    "zod": "^3.22.4"
+  }
+}
