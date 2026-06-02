@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { generateStructured, runAgent } from '@parenting-newsletter/agents-core';
+import { generateStructured, runAgent, AGENT_MODELS } from '@parenting-newsletter/agents-core';
 import { prisma } from '@parenting-newsletter/db';
 import { PUBLISH_MIN, PUBLISH_MAX, kstIssueDate, issueDateString } from '@parenting-newsletter/shared';
 import {
@@ -122,6 +122,7 @@ export async function runCuration(opts: CurationRunOptions = {}) {
         outputSchema: CurationAgentOutputSchema,
         outputJsonSchema: CURATION_OUTPUT_JSON_SCHEMA,
         allowedTools: [], // 선별 판단만 — 외부 도구 불필요
+        model: AGENT_MODELS.curation,
       });
 
       // DailyIssue id 확보 (runAgent가 이미 upsert함).

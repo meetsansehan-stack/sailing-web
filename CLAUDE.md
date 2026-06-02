@@ -155,7 +155,7 @@ type Issue = {
 - Frontend: Next.js 14, TypeScript, Tailwind CSS
 - Backend: Node.js, Hono
 - DB: PostgreSQL, Prisma, Redis (선택)
-- AI: Claude API (claude-sonnet-4-20250514)
+- AI: Claude Agent SDK. 에이전트별 모델 = `packages/agents-core/src/models.ts` 단일 소스 (성능·효율 기준: 큐레이션·집필·에디터·후킹=Opus 4.8 / 리서치·QA=Sonnet 4.6, env로 개별 오버라이드). 실호출 검증은 Gate①(결제/카드) 이후.
 - Deploy: Vercel + Railway
 
 ## 에이전트 파이프라인

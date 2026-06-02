@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { generateStructured, runAgent } from '@parenting-newsletter/agents-core';
+import { generateStructured, runAgent, AGENT_MODELS } from '@parenting-newsletter/agents-core';
 import { prisma } from '@parenting-newsletter/db';
 import { kstIssueDate, issueDateString } from '@parenting-newsletter/shared';
 import {
@@ -107,6 +107,7 @@ export async function runWriter(opts: WriterRunOptions) {
         outputSchema: WriterAgentOutputSchema,
         outputJsonSchema: WRITER_OUTPUT_JSON_SCHEMA,
         allowedTools: ['WebFetch'],
+        model: AGENT_MODELS.writer,
       });
 
       // 집필 성공 → Article.body 갱신. 실패하면 runAgent가 failed로 기록.

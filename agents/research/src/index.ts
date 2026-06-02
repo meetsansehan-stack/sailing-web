@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { generateStructured, runAgent } from '@parenting-newsletter/agents-core';
+import { generateStructured, runAgent, AGENT_MODELS } from '@parenting-newsletter/agents-core';
 import { CATEGORIES, RESEARCH_TARGET, kstIssueDate, type Category } from '@parenting-newsletter/shared';
 import {
   ResearchAgentInputSchema,
@@ -100,6 +100,7 @@ export async function runResearch(opts: ResearchRunOptions = {}) {
         outputSchema: ResearchAgentOutputSchema,
         outputJsonSchema: RESEARCH_TOOL_INPUT_SCHEMA,
         allowedTools: ['WebSearch'],
+        model: AGENT_MODELS.research,
       });
       return data;
     },

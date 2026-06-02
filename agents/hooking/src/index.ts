@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { generateStructured, runAgent } from '@parenting-newsletter/agents-core';
+import { generateStructured, runAgent, AGENT_MODELS } from '@parenting-newsletter/agents-core';
 import { prisma } from '@parenting-newsletter/db';
 import { kstIssueDate, issueDateString } from '@parenting-newsletter/shared';
 import {
@@ -79,6 +79,7 @@ export async function runHooking(opts: HookingRunOptions = {}) {
         outputSchema: HookingAgentOutputSchema,
         outputJsonSchema: HOOKING_OUTPUT_JSON_SCHEMA,
         allowedTools: [],
+        model: AGENT_MODELS.hooking,
       });
 
       await prisma.dailyIssue.update({

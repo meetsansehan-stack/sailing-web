@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { generateStructured, runAgent } from '@parenting-newsletter/agents-core';
+import { generateStructured, runAgent, AGENT_MODELS } from '@parenting-newsletter/agents-core';
 import { prisma } from '@parenting-newsletter/db';
 import { kstIssueDate, issueDateString } from '@parenting-newsletter/shared';
 import {
@@ -105,6 +105,7 @@ export async function runEditor(opts: EditorRunOptions = {}) {
         outputSchema: EditorAgentOutputSchema,
         outputJsonSchema: EDITOR_OUTPUT_JSON_SCHEMA,
         allowedTools: [],
+        model: AGENT_MODELS.editor,
       });
 
       if (data.theme) {
