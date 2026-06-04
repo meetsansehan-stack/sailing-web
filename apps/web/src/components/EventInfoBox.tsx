@@ -3,15 +3,17 @@ import {
   type Article,
   type ReservableVenue,
 } from '@parenting-newsletter/shared';
+import { overviewBullets } from '@/src/lib/parse-body';
 
 // Event 골격 — "행사 정보" 통합 블록 (contentType=Event 전용).
 //
-// 디자인(2026-06-04 확정): v1 스타일 = 연파랑(blue-50) 박스 + 구조화 행(일시·장소·대상·입장)
-//   + 개요(summary) prose를 같은 박스에 통합 + 예약 CTA.
-//   → 구조화 행(빠른 스캔) + prose(정확 요금·대상·예매)를 한 곳에. "나눠질 이유 없음" 해소.
+// 디자인(2026-06-04 갱신): 연파랑(blue-50) 박스 = 구조화 행(일시·장소·대상·입장)
+//   + **개요 요약 불릿**(서술형 prose 대신 간단 불릿 — 한눈 요약) + 예약 CTA.
+//   요약 불릿은 본문 "* 개요" 섹션에서 가져옴(본문은 Event에서 개요를 스킵 → 중복 렌더 0).
+//   본문 핵심 콘텐츠와 내용이 겹쳐도 '요약'으로 읽혀 무리 없음(사용자 확정 2026-06-04).
 //   별도 "한눈에 보는 핵심" 박스는 Event에선 미표시(상세페이지에서 배타 처리).
 //
-// Degradation-first: 일시·summary는 항상, 장소·대상·입장·예약은 venue 매칭 시만.
+// Degradation-first: 일시·요약 불릿은 항상, 장소·대상·입장·예약은 venue 매칭 시만.
 // venue는 상위(상세페이지)에서 matchVenueForEvent로 찾아 주입 — 미매칭이면 undefined.
 
 function fmtDate(iso: string): string {
@@ -50,6 +52,9 @@ export function EventInfoBox({
     ? `${fmtDate(article.eventStartDate)} ~ ${fmtDate(article.eventEndDate)}`
     : `${fmtDate(article.eventStartDate)} 시작`;
 
+  // 요약 불릿 = 본문 "개요" 섹션. 없으면 summary prose로 폴백(degradation-first).
+  const summary = overviewBullets(article.body);
+
   return (
     <div className="mt-8 rounded-card bg-blue-50 p-5">
       <p className="text-meta font-bold tracking-wider text-blue">📅 행사 정보</p>
@@ -69,13 +74,25 @@ export function EventInfoBox({
         )}
       </div>
 
-      {/* 개요 — 정확 요금·대상연령·예매 일시(summary가 이미 보유) */}
-      {article.summary && (
+      {/* 개요 요약 — 간단 불릿(한눈 요약). 개요 불릿 없으면 summary prose 폴백 */}
+      {summary.length > 0 ? (
+        <>
+          <div className="my-4 border-t border-blue/15" />
+          <ul className="space-y-2">
+            {summary.map((item, idx) => (
+              <li key={idx} className="flex gap-2.5 text-body leading-relaxed text-ink-2">
+                <span className="mt-2 inline-block h-1 w-1 shrink-0 rounded-full bg-blue/50" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : article.summary ? (
         <>
           <div className="my-4 border-t border-blue/15" />
           <p className="text-body leading-relaxed text-ink-2">{article.summary}</p>
         </>
-      )}
+      ) : null}
 
       {/* 예약·예매 CTA — venue 매칭 시만. 미매칭은 페이지 하단 "원문 사이트에서 읽기"가 대체 */}
       {venue && (
