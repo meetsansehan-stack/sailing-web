@@ -26,10 +26,26 @@ export function parseBody(body: string): Section[] {
   return sections;
 }
 
+// 요약(prose) → 문장 단위 불릿 ("한눈에 보는 핵심" 박스용). 박스=스캔 / 본문=읽기로 기능 분리.
+export function summaryBullets(summary: string): string[] {
+  return summary
+    .split(/(?<=[.!?])\s+/)
+    .map((s) => s.trim().replace(/\.$/, ''))
+    .filter(Boolean);
+}
+
 // 첫 "* 개요" 섹션의 불릿만 추출 (Event 상단 박스의 요약 불릿용). 없으면 [].
 // Event 본문에선 개요를 스킵(ArticleBody)하고, 대신 상단 EventInfoBox가 이 불릿을 요약으로 표시.
 export function overviewBullets(body: string): string[] {
   const section = parseBody(body).find((s) => s.heading.endsWith('개요'));
+  if (!section) return [];
+  return section.blocks.flatMap((b) => (b.type === 'bullets' ? b.items : []));
+}
+
+// "## 한눈에…" 섹션 불릿 추출 (비Event "한눈에 보는 핵심" 박스용 TL;DR). 없으면 [].
+// 본문에선 이 섹션을 스킵(ArticleBody)하고 상단 박스가 가져감 = 박스(스캔)/본문(읽기) 분리.
+export function keyPointBullets(body: string): string[] {
+  const section = parseBody(body).find((s) => s.heading.startsWith('한눈에'));
   if (!section) return [];
   return section.blocks.flatMap((b) => (b.type === 'bullets' ? b.items : []));
 }

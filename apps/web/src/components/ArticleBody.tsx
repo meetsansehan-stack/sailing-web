@@ -149,7 +149,9 @@ function Blocks({ blocks, accent, metric }: { blocks: Block[]; accent?: boolean;
 
 export function ArticleBody({ body, contentType }: { body: string; contentType: ContentType }) {
   const sections = parseBody(body).filter(
-    (s) => !(contentType === 'Event' && isOverview(s.heading)),
+    (s) =>
+      !(contentType === 'Event' && isOverview(s.heading)) &&
+      !s.heading.startsWith('한눈에'), // 상단 "한눈에 보는 핵심" 박스가 가져감 (본문 중복 제거)
   );
 
   return (

@@ -7,6 +7,7 @@ import { matchVenueForEvent } from '@/src/lib/event-venue';
 import { EventInfoBox } from '@/src/components/EventInfoBox';
 import { ArticleBody } from '@/src/components/ArticleBody';
 import { credibilityTier } from '@/src/lib/credibility';
+import { summaryBullets, keyPointBullets } from '@/src/lib/parse-body';
 
 export async function generateStaticParams() {
   const articles = await getAllArticles();
@@ -108,12 +109,25 @@ export default async function ArticleDetailPage({ params, searchParams }: PagePr
 
       {/* 한눈에 보는 핵심 (요약) — Event는 summary가 EventInfoBox에 통합되므로 미표시 (중복 제거).
           조건 = EventInfoBox가 렌더되는 경우(Event + eventStartDate)와 정확히 배타. */}
-      {!(article.contentType === 'Event' && article.eventStartDate) && (
-        <div className="mt-10 rounded-card bg-blue-50 p-6">
-          <p className="text-meta font-bold tracking-wider text-blue">한눈에 보는 핵심</p>
-          <p className="mt-3 text-body leading-relaxed text-ink">{article.summary}</p>
-        </div>
-      )}
+      {!(article.contentType === 'Event' && article.eventStartDate) &&
+        (() => {
+          // 박스 = 본문 "## 한눈에" TL;DR 불릿(있으면), 없으면 summary 문장 분할로 폴백
+          const key = keyPointBullets(article.body);
+          const bullets = key.length ? key : summaryBullets(article.summary);
+          return (
+            <div className="mt-10 rounded-card bg-blue-50 p-6">
+              <p className="text-meta font-bold tracking-wider text-blue">한눈에 보는 핵심</p>
+              <ul className="mt-3 space-y-2">
+                {bullets.map((b, i) => (
+                  <li key={i} className="flex gap-2.5 text-body leading-relaxed text-ink">
+                    <span className="mt-2 inline-block h-1 w-1 shrink-0 rounded-full bg-blue/50" />
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        })()}
 
       {/* 본문 — 역할 분류(양육자 콜아웃) + Event 개요는 상단 박스가 흡수 */}
       <ArticleBody body={article.body} contentType={article.contentType} />
