@@ -19,6 +19,58 @@ function isOverview(heading: string): boolean {
   return heading.endsWith('개요');
 }
 
+// "1단계: 내용" / "2단계. 내용" 패턴 → 번호 배지 step. 매칭 안 되면 null.
+function parseStep(bullet: string): { num: string; text: string } | null {
+  const m = bullet.match(/^(\d+)\s*단계\s*[:.]?\s*(.+)$/);
+  return m ? { num: m[1], text: m[2].trim() } : null;
+}
+
+function BulletItems({ items, accent }: { items: string[]; accent?: boolean }) {
+  // 블록 전체가 "N단계:" 형식이면 번호 배지 ordered list로 (신청 단계·방법 등 액션).
+  const isSteps = items.length > 1 && items.every((it) => parseStep(it) !== null);
+  if (isSteps) {
+    return (
+      <ol className="space-y-2.5">
+        {items.map((it, i) => {
+          const step = parseStep(it)!;
+          return (
+            <li key={i} className="flex gap-3 text-body leading-relaxed text-ink-2">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue text-small font-bold text-white">
+                {step.num}
+              </span>
+              <span className="pt-0.5">{step.text}</span>
+            </li>
+          );
+        })}
+      </ol>
+    );
+  }
+
+  return (
+    <ul className="space-y-3">
+      {items.map((bullet, bidx) => {
+        const colonIdx = bullet.indexOf(':');
+        const hasKey = colonIdx > 0 && colonIdx < 20;
+        const key = hasKey ? bullet.slice(0, colonIdx).trim() : '';
+        const value = hasKey ? bullet.slice(colonIdx + 1).trim() : bullet;
+        return (
+          <li key={bidx} className="flex gap-3 text-body leading-relaxed text-ink-2">
+            <span
+              className={`mt-2.5 inline-block h-1 w-1 shrink-0 rounded-full ${
+                accent ? 'bg-green' : 'bg-grey-400'
+              }`}
+            />
+            <span>
+              {hasKey && <span className="font-semibold text-ink">{key} · </span>}
+              {value}
+            </span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 function Blocks({ blocks, accent }: { blocks: Block[]; accent?: boolean }) {
   return (
     <div className="space-y-3">
@@ -28,27 +80,7 @@ function Blocks({ blocks, accent }: { blocks: Block[]; accent?: boolean }) {
             {block.text}
           </p>
         ) : (
-          <ul key={idx} className="space-y-3">
-            {block.items.map((bullet, bidx) => {
-              const colonIdx = bullet.indexOf(':');
-              const hasKey = colonIdx > 0 && colonIdx < 20;
-              const key = hasKey ? bullet.slice(0, colonIdx).trim() : '';
-              const value = hasKey ? bullet.slice(colonIdx + 1).trim() : bullet;
-              return (
-                <li key={bidx} className="flex gap-3 text-body leading-relaxed text-ink-2">
-                  <span
-                    className={`mt-2.5 inline-block h-1 w-1 shrink-0 rounded-full ${
-                      accent ? 'bg-green' : 'bg-grey-400'
-                    }`}
-                  />
-                  <span>
-                    {hasKey && <span className="font-semibold text-ink">{key} · </span>}
-                    {value}
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
+          <BulletItems key={idx} items={block.items} accent={accent} />
         ),
       )}
     </div>
