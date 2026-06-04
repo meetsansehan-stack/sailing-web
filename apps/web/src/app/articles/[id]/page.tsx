@@ -114,8 +114,8 @@ export default async function ArticleDetailPage({ params, searchParams }: PagePr
         </div>
       )}
 
-      {/* 본문 — 일반 섹션 + 양육자 so-what 콜아웃 (ArticleBody가 역할 분류) */}
-      <ArticleBody body={article.body} />
+      {/* 본문 — 역할 분류(양육자 콜아웃) + Event 개요는 상단 박스가 흡수 */}
+      <ArticleBody body={article.body} contentType={article.contentType} />
 
       {/* 큐레이션 안내 */}
       <div className="mt-12 rounded-card bg-grey-50 p-4">
