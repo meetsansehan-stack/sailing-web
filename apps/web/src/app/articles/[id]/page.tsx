@@ -5,6 +5,7 @@ import { getAllArticles, getArticleById } from '@/src/data/articles';
 import { getAllVenues } from '@/src/data/venues';
 import { matchVenueForEvent } from '@/src/lib/event-venue';
 import { EventInfoBox } from '@/src/components/EventInfoBox';
+import { ArticleBody } from '@/src/components/ArticleBody';
 
 export async function generateStaticParams() {
   const articles = await getAllArticles();
@@ -15,25 +16,6 @@ type PageProps = {
   params: { id: string };
   searchParams?: { preview?: string };
 };
-
-type Section = { heading: string; bullets: string[] };
-
-function parseBody(body: string): Section[] {
-  const sections: Section[] = [];
-  let current: Section | null = null;
-
-  for (const raw of body.split('\n')) {
-    const line = raw.trim();
-    if (!line) continue;
-    if (line.startsWith('## ')) {
-      current = { heading: line.slice(3).trim(), bullets: [] };
-      sections.push(current);
-    } else if (line.startsWith('- ') && current) {
-      current.bullets.push(line.slice(2).trim());
-    }
-  }
-  return sections;
-}
 
 export default async function ArticleDetailPage({ params, searchParams }: PageProps) {
   // preview 토큰이 있으면 미공개(draft) 이슈의 기사도 조회 (운영자 검수). API가 토큰을 검증.
@@ -132,34 +114,8 @@ export default async function ArticleDetailPage({ params, searchParams }: PagePr
         </div>
       )}
 
-      {/* 본문 — 박스 없이 리딩 흐름 */}
-      <article className="mt-12 space-y-10">
-        {parseBody(article.body).map((section, idx) => (
-          <section key={idx}>
-            <h2 className="mb-4 flex items-center gap-2.5 text-h3 text-ink">
-              <span className="inline-block h-5 w-1 rounded-full bg-blue" />
-              {section.heading}
-            </h2>
-            <ul className="space-y-3">
-              {section.bullets.map((bullet, bidx) => {
-                const colonIdx = bullet.indexOf(':');
-                const hasKey = colonIdx > 0 && colonIdx < 20;
-                const key = hasKey ? bullet.slice(0, colonIdx).trim() : '';
-                const value = hasKey ? bullet.slice(colonIdx + 1).trim() : bullet;
-                return (
-                  <li key={bidx} className="flex gap-3 text-body leading-relaxed text-ink-2">
-                    <span className="mt-2.5 inline-block h-1 w-1 shrink-0 rounded-full bg-grey-400" />
-                    <span>
-                      {hasKey && <span className="font-semibold text-ink">{key} · </span>}
-                      {value}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-        ))}
-      </article>
+      {/* 본문 — 일반 섹션 + 양육자 so-what 콜아웃 (ArticleBody가 역할 분류) */}
+      <ArticleBody body={article.body} />
 
       {/* 큐레이션 안내 */}
       <div className="mt-12 rounded-card bg-grey-50 p-4">
