@@ -319,3 +319,55 @@ MVP 파이프라인 비포함. `runAgent`의 `AgentName` 타입(현재 `research
 
 ### 9.5 미구현 — 후속 작업 단위
 - ⓐ shared config에 타입별 노출/색인 호라이즌 상수 ⓑ 아카이브 쿼리 필터(9.2) ⓒ 상세 robots 메타(9.3) ⓓ 링크 헬스체크 + graceful degradation(9.4) ⓔ sitemap 연계. SEO 근육 단계(STRATEGY/메모리 "SEO 골격 vs 근육")와 함께.
+
+---
+
+## 10. 상세페이지 골격 (contentType별 구조화) — \[설계 확정 2026-06-04, Event만 프로토타입]
+
+> 트리거 = "카테고리별로 상세페이지 주요 정보 포맷이 다를 수 있는데 어떻게 구조화?". 실데이터 61건 분석으로 결론.
+
+### 10.1 핵심 결론 — 포맷을 결정하는 축은 category 아니라 contentType
+- **category(8) × contentType(5)는 직교이며 1:1이 아님** (실측: books는 Guide/Event/Insight로 흩어지고, play는 Event/Guide/Market로 흩어짐). → **category로 구조를 짜면 모순** (`books × Event`=도서관 프로그램을 "도서"로 렌더하면 날짜·예약이 빠지고, "행사"로 렌더하면 서지가 빠짐).
+- contentType은 애초에 "포맷 다양성"용 직교 축이고, CLAUDE.md가 이미 타입별 본문 헤딩 가이드를 정의 + 메타박스(이벤트·마감)도 이미 contentType 조건부. **포맷 정보는 contentType에 실려 있음.**
+
+### 10.2 3-레이어 모델 (한 페이지를 3축이 각자 담당)
+| 레이어 | 구동 축 | 역할 |
+|---|---|---|
+| **① 골격(Scaffold)** | **contentType** | 메타박스 + 본문 헤딩 스켈레톤 |
+| **② 도메인 보강** | **category** | 타입이 못 담는 분야 정보 (books→저자·출판사 / shows·play→예약 / academy→선긋기·통계 / policy→대상·신청채널) |
+| **③ 미디어 렌더** | **mediaType** | video·podcast→`durationMin` 배지+임베드(실측 7건) / book→표지·서지 |
+
+`books × Event` 모순도 이 모델에서 해소 = **골격은 Event(날짜·예약), 보강은 books(도서 풍미)** = 충돌 아닌 합성.
+
+### 10.3 구조를 *어디에* 두나 (A/B/C) — 검증 전 빌딩 회피
+| 방식 | 내용 | 채택 |
+|---|---|---|
+| **A. 렌더타임 처리** | 페이지가 기존 typed 필드+body 읽고 조건부 chrome | 기본 |
+| **B. 엔티티 링크** | Event→`venueId`로 기존 venue 메타 끌어옴 | Event 채택(아래 10.5) |
+| **C. 구조화 필드 신설** | 에이전트가 메타를 JSON으로 채움 | **보류** (스키마+5에이전트+환각, 파이프라인 검증 후) |
+> 원칙 = A+B 활용, C(스키마·프로덕션 마이그레이션 동반)는 파이프라인 실호출 검증 뒤로. body 컨벤션(writer가 타입별 표준 헤딩 방출, CLAUDE.md)에 기댐.
+
+### 10.4 타입별 골격 스펙 (메타박스 + 본문 헤딩)
+| 타입 | 메타박스 (상단) | 본문 헤딩 (writer 산출) | 메타박스 필드 현실 |
+|---|---|---|---|
+| **Event** | 연파랑 박스에 행(일시·장소·대상·입장) + **개요(summary) prose 통합** + 예약 CTA(10.5) | ~~행사 개요~~ **폐지**(박스가 대체) / 핵심 콘텐츠(볼거리·프로그램) / 방문 팁 | eventStart 13/13. venue 매칭 6/13(10.5) |
+| **Policy** | (현행 deadline 박스가 전부) | 시행 개요 / 달라지는 점 / **양육자 체크**(callout 승격 후보) | **구조화 필드 거의 없음**(deadline 1/11, eventStart 0) → 차별화 전부 body |
+| **Guide** | (없음) | 핵심 한 줄(callout) / 체크리스트 / 활용 팁 | 체크리스트 = 체크박스 UI 후보 |
+| **Insight** | (없음) | 분석 핵심 / 근거·데이터 / 양육자 시사점 | 근거 数 시각화 후보(선긋기: academy는 통계 비주얼) |
+| **Market** | (없음) | 시장 지표 / 핵심 트렌드 / 양육자 시사점 | 지표 강조 후보 |
+> ★ **모든 타입의 본문 처리(callout 승격·체크박스·지표 강조)는 실 body가 있어야 검증 가능 → 파이프라인(writer) 실호출 후 구현.** 시드 body=0이라 지금은 깜깜이.
+
+### 10.5 Event 골격 — 구현됨 \[프로토타입 2026-06-04]
+- **결정 ①=B (venue 링크)** 채택하되 **커버리지 = Event의 ~40-50%만** (실측 6/13). 구조적 이유: `article.source`가 venue일 때도 언론사·티켓팅(뉴스핌·인터파크)일 때도 있음 + ReservableVenue(24건)는 "반복 예약 장소" 카탈로그지 모든 행사장 아님(일회성 축제·뮤지컬은 영원히 미포함). → **Article↔Venue는 본질적 부분(partial) 관계.**
+- **해법 = degradation-first**: 일시(article 필드)는 **항상** 렌더, 장소·대상·입장·예약은 **venue 매칭 시만** 행 보강. 빈 박스 문제 소멸.
+- **★ 통합 결정(2026-06-04, 사용자 확정)**: 박스(`행사 정보`)와 별도 `한눈에 보는 핵심`(summary)이 **같은 사실을 분산**(박스 "입장:유료" vs prose "어른1.5만"). 문제는 "나눠진 것" 자체 → **한 박스에 통합**하면 해소(약한 enum 칩 + 정확 prose가 *같은 박스* 안). → **연파랑(blue-50) 박스 + 구조화 행(일시·장소·대상·입장) + 개요(summary) prose + 예약 CTA**. 구조화 행=빠른 스캔, prose=정확 요금·대상연령·예매 일시. 상세페이지의 별도 "한눈에 보는 핵심" 박스는 **Event에선 미표시**(EventInfoBox가 summary 보유). 중복 해소.
+  > venue `ageRange`/`pricing`은 공연장 전체값이라 generic(venue "3-12" vs 공연 "만5~10세")이지만, 정확값은 같은 박스 prose에 함께 있어 보완됨 — 칩=스캔, prose=정확.
+- **구현**: `apps/web/src/lib/event-venue.ts`(LCS≥6 퍼지매처, 임계값 6이 generic 행정명 자연배제) + `components/EventInfoBox.tsx`(연파랑 박스: 행+개요 prose+예약 CTA 통합) + `articles/[id]/page.tsx`(Event일 때 standalone summary 박스 배타 처리). 렌더타임만, 스키마·마이그레이션 0.
+- **⚠️ 퍼지매처 = 잠정**. 정식 = 파이프라인(curation)이 venue 카탈로그 대조해 `Article.venueId` 부여 → 퍼지매처를 `getVenueById(article.venueId)` 한 줄로 대체. API 키(결제) 풀리면 승격.
+
+### 10.6 미구현 / 보류 — 후속 작업 단위
+- ⓐ **예매 오픈일 필드**(②, Event) = 진통제 트리거("놓치기 전에 미리")의 핵심이나 **스키마+프로덕션 마이그레이션+에이전트 캡처 동반 → revealedAt 트랩 회피 위해 파이프라인 첫 실호출과 함께**. 설계는 본 절로 확정.
+- ⓑ **타입별 본문 callout/체크박스/지표 강조**(10.4) = 실 body 검증 후.
+- ⓑ′ **Event 본문 "행사 개요" 폐지 반영**(10.5 통합 결정) = CLAUDE.md 타입별 헤딩 표·`agents/writer/prompt.md`에서 Event 헤딩을 "핵심 콘텐츠/방문 팁"로 수정. **writer 실호출 시점에 반영**(body 비어 지금 검증 불가 + 정책파일·프롬프트는 효과 시점에 함께 수정해 드리프트 방지).
+- ⓒ **`venueId` 정식 링크**(10.5) = 파이프라인 매칭.
+- ⓓ **category 보강**(②): books 도서 treatment·academy 선긋기 가드·mediaType 임베드(③) = 우선순위 낮음, 데이터·검증 후.

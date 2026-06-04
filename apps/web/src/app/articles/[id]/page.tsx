@@ -2,6 +2,9 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { CATEGORY_LABEL, CONTENT_TYPE_LABEL } from '@parenting-newsletter/shared';
 import { getAllArticles, getArticleById } from '@/src/data/articles';
+import { getAllVenues } from '@/src/data/venues';
+import { matchVenueForEvent } from '@/src/lib/event-venue';
+import { EventInfoBox } from '@/src/components/EventInfoBox';
 
 export async function generateStaticParams() {
   const articles = await getAllArticles();
@@ -42,6 +45,13 @@ export default async function ArticleDetailPage({ params, searchParams }: PagePr
     notFound();
   }
 
+  // Event 골격 — venue 매칭으로 메타박스 보강 (미매칭이면 article 필드로 degrade).
+  // ⚠️ 렌더타임 퍼지매칭(프로토타입). 정식은 파이프라인 Article.venueId — lib/event-venue.ts 참조.
+  const matchedVenue =
+    article.contentType === 'Event'
+      ? matchVenueForEvent(article, await getAllVenues())
+      : undefined;
+
   const publishedLabel = new Date(article.publishedAt).toLocaleDateString('ko-KR', {
     year: 'numeric',
     month: 'long',
@@ -71,22 +81,8 @@ export default async function ArticleDetailPage({ params, searchParams }: PagePr
         <p className="mt-3 text-meta text-ink-3">{publishedLabel}</p>
       </header>
 
-      {/* 이벤트 정보 */}
-      {article.contentType === 'Event' && article.eventStartDate && (
-        <div className="mt-8 rounded-card bg-blue-50 p-5">
-          <p className="text-meta font-bold tracking-wider text-blue">📅 이벤트 정보</p>
-          <p className="mt-1.5 text-card-title font-semibold text-blue">
-            {new Date(article.eventStartDate).toLocaleDateString('ko-KR', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-              weekday: 'long',
-            })}{' '}
-            시작
-          </p>
-          <p className="mt-1 text-meta text-blue">자세한 일시·장소·예약 정보는 본문과 원문 링크 참고</p>
-        </div>
-      )}
+      {/* 이벤트 정보 — Event 골격 (venue 매칭 보강) */}
+      <EventInfoBox article={article} venue={matchedVenue} />
 
       {/* 마감 정보 */}
       {article.deadline &&
@@ -127,11 +123,14 @@ export default async function ArticleDetailPage({ params, searchParams }: PagePr
           );
         })()}
 
-      {/* 한눈에 보는 핵심 (요약) */}
-      <div className="mt-10 rounded-card bg-blue-50 p-6">
-        <p className="text-meta font-bold tracking-wider text-blue">한눈에 보는 핵심</p>
-        <p className="mt-3 text-body leading-relaxed text-ink">{article.summary}</p>
-      </div>
+      {/* 한눈에 보는 핵심 (요약) — Event는 summary가 EventInfoBox에 통합되므로 미표시 (중복 제거).
+          조건 = EventInfoBox가 렌더되는 경우(Event + eventStartDate)와 정확히 배타. */}
+      {!(article.contentType === 'Event' && article.eventStartDate) && (
+        <div className="mt-10 rounded-card bg-blue-50 p-6">
+          <p className="text-meta font-bold tracking-wider text-blue">한눈에 보는 핵심</p>
+          <p className="mt-3 text-body leading-relaxed text-ink">{article.summary}</p>
+        </div>
+      )}
 
       {/* 본문 — 박스 없이 리딩 흐름 */}
       <article className="mt-12 space-y-10">
