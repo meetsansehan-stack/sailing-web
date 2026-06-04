@@ -6,6 +6,7 @@ import { getAllVenues } from '@/src/data/venues';
 import { matchVenueForEvent } from '@/src/lib/event-venue';
 import { EventInfoBox } from '@/src/components/EventInfoBox';
 import { ArticleBody } from '@/src/components/ArticleBody';
+import { credibilityTier } from '@/src/lib/credibility';
 
 export async function generateStaticParams() {
   const articles = await getAllArticles();
@@ -125,16 +126,18 @@ export default async function ArticleDetailPage({ params, searchParams }: PagePr
         </p>
       </div>
 
-      {/* 신뢰도 · 출처 */}
-      <div className="mt-6 grid grid-cols-2 gap-4 rounded-card bg-grey-50 p-5">
-        <div>
-          <p className="mb-1 text-meta text-ink-3">신뢰도 점수</p>
-          <p className="text-h3 font-bold text-blue">{(article.credibilityScore * 100).toFixed(0)}%</p>
+      {/* 출처 · 신뢰 등급 — 점수 %(가짜 정밀도) 대신 출처 등급 배지 */}
+      <div className="mt-6 rounded-card bg-grey-50 p-5">
+        <p className="mb-2 text-meta text-ink-3">출처</p>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-card-title font-semibold text-ink">{article.source}</span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-meta font-semibold text-blue">
+            ✓ {credibilityTier(article.credibilityScore).label}
+          </span>
         </div>
-        <div>
-          <p className="mb-1 text-meta text-ink-3">출처</p>
-          <p className="text-card-title font-semibold text-ink">{article.source}</p>
-        </div>
+        <p className="mt-2 text-meta text-ink-3">
+          {credibilityTier(article.credibilityScore).desc}
+        </p>
       </div>
 
       {/* CTA */}
