@@ -126,8 +126,8 @@ export default async function ArticleDetailPage({ params, searchParams }: PagePr
         </p>
       </div>
 
-      {/* 출처 · 신뢰 등급 — 점수 %(가짜 정밀도) 대신 출처 등급 배지 */}
-      <div className="mt-6 rounded-card bg-grey-50 p-5">
+      {/* 출처 · 신뢰 등급 — 박스 없이 (점수 %(가짜 정밀도) 대신 출처 등급 배지) */}
+      <div className="mt-6">
         <p className="mb-2 text-meta text-ink-3">출처</p>
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-card-title font-semibold text-ink">{article.source}</span>
