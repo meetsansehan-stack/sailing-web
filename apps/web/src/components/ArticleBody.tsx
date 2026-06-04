@@ -19,6 +19,64 @@ function isOverview(heading: string): boolean {
   return heading.endsWith('개요');
 }
 
+// 지표 섹션 = 수치 데이터 중심(시장 지표·현황·근거·데이터·지원 단가). stat 행으로 렌더.
+// "중립 데이터 매체" 포지셔닝 — 사교육 등은 통계로 다룸(CLAUDE.md 선긋기).
+function isMetricHeading(heading: string): boolean {
+  return (
+    heading.includes('지표') ||
+    heading.includes('단가') ||
+    heading.includes('시장 현황') ||
+    heading.includes('근거·데이터')
+  );
+}
+
+// 본문 속 수치(3조 원·87만 원·+8.1%)를 파란 굵게 강조. 연도(2025년) 등 단위 없는 건 제외.
+const NUM_RE = /[+\-]?\d[\d,.]*\s*(?:조|억|만|천)?\s*(?:원|%|％|배|명|개월|시간|건|곳|위)/g;
+function emphasizeNumbers(text: string): React.ReactNode[] {
+  const out: React.ReactNode[] = [];
+  let last = 0;
+  let m: RegExpExecArray | null;
+  NUM_RE.lastIndex = 0;
+  while ((m = NUM_RE.exec(text)) !== null) {
+    if (m.index > last) out.push(text.slice(last, m.index));
+    out.push(
+      <span key={m.index} className="font-bold text-blue">
+        {m[0]}
+      </span>,
+    );
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) out.push(text.slice(last));
+  return out.length ? out : [text];
+}
+
+// 지표 stat 행 — 라벨(좌) + 수치(우, 숫자 강조). 키:값 아니면 한 줄로.
+function MetricStats({ items }: { items: string[] }) {
+  return (
+    <dl className="divide-y divide-line/70 rounded-card bg-grey-50 px-4">
+      {items.map((bullet, idx) => {
+        const colonIdx = bullet.indexOf(':');
+        const hasKey = colonIdx > 0 && colonIdx < 24;
+        if (hasKey) {
+          const key = bullet.slice(0, colonIdx).trim();
+          const value = bullet.slice(colonIdx + 1).trim();
+          return (
+            <div key={idx} className="flex items-baseline justify-between gap-4 py-3">
+              <dt className="text-body text-ink-2">{key}</dt>
+              <dd className="shrink-0 text-right text-body text-ink">{emphasizeNumbers(value)}</dd>
+            </div>
+          );
+        }
+        return (
+          <div key={idx} className="py-3 text-body leading-relaxed text-ink-2">
+            {emphasizeNumbers(bullet)}
+          </div>
+        );
+      })}
+    </dl>
+  );
+}
+
 // "1단계: 내용" / "2단계. 내용" 패턴 → 번호 배지 step. 매칭 안 되면 null.
 function parseStep(bullet: string): { num: string; text: string } | null {
   const m = bullet.match(/^(\d+)\s*단계\s*[:.]?\s*(.+)$/);
@@ -71,7 +129,7 @@ function BulletItems({ items, accent }: { items: string[]; accent?: boolean }) {
   );
 }
 
-function Blocks({ blocks, accent }: { blocks: Block[]; accent?: boolean }) {
+function Blocks({ blocks, accent, metric }: { blocks: Block[]; accent?: boolean; metric?: boolean }) {
   return (
     <div className="space-y-3">
       {blocks.map((block, idx) =>
@@ -79,6 +137,8 @@ function Blocks({ blocks, accent }: { blocks: Block[]; accent?: boolean }) {
           <p key={idx} className="text-body leading-relaxed text-ink-2">
             {block.text}
           </p>
+        ) : metric ? (
+          <MetricStats key={idx} items={block.items} />
         ) : (
           <BulletItems key={idx} items={block.items} accent={accent} />
         ),
@@ -118,7 +178,7 @@ export function ArticleBody({ body, contentType }: { body: string; contentType: 
                 🖼 이미지 영역 — 원문 이미지가 들어갈 자리
               </div>
             )}
-            <Blocks blocks={section.blocks} />
+            <Blocks blocks={section.blocks} metric={isMetricHeading(section.heading)} />
           </section>
         ),
       )}
