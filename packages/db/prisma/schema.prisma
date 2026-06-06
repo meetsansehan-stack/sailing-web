@@ -78,6 +78,34 @@ model ReservableVenue {
   @@index([pricing])
 }
 
+// 도서 컬렉션 — 기사에서 추출한 추천 도서를 기사 만료와 무관하게 보존하는 에버그린 엔티티.
+// ReservableVenue 선례: Article과 하드 FK 없이 독립 + 느슨 연결(sourceArticleIds). SPEC §12.
+// packages/shared/src/book.ts 와 동기화 유지.
+model Book {
+  id                  String    @id            // book-* slug (ISBN 기반 권장)
+  isbn                String?                  // ISBN13 — 알라딘·정보나루 enrichment 키
+  title               String
+  author              String
+  publisher           String?
+  pubYear             Int?
+  ageRange            String                   // "3-7" venue와 동일 포맷
+  coverImageUrl       String?                  // 알라딘 표지(enrichment). 없으면 카테고리 폴백
+  whyRecommended      String    @db.Text       // ★ 우리 큐레이션 — 왜 추천(세일링 보이스)
+  themes              String[]                 // 테마 태그
+  collection          String                   // 컬렉션 묶음명 "2026년 5월 그림책 10선"
+  collectionDate      String                   // YYYY-MM (정렬·그룹 키)
+  links               Json?                    // BookLink[]: 도서관(정보나루)·구매(제휴)
+  sourceArticleIds    String[]                 // 출처 기사 역링크
+  credibilityScore    Float     @default(0.0)
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([collection])
+  @@index([collectionDate])
+  @@index([isbn])
+}
+
 // 일일 이슈 (MVP는 웹 전용 — 이메일 필드는 V2 착수 시 재추가, SPEC §7-D)
 model DailyIssue {
   id                  String    @id @default(cuid())
