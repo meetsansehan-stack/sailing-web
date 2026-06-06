@@ -27,6 +27,7 @@ import issuesRoute from './routes/issues';
 import agentsRoute from './routes/agents';
 import pipelineRoute from './routes/pipeline';
 import venuesRoute from './routes/venues';
+import booksRoute from './routes/books';
 import subscribersRoute from './routes/subscribers';
 import qaRoute from './routes/qa';
 
@@ -35,6 +36,7 @@ app.route('/api/issues', issuesRoute);
 app.route('/api/agents', agentsRoute);
 app.route('/api/pipeline', pipelineRoute);
 app.route('/api/venues', venuesRoute);
+app.route('/api/books', booksRoute);
 app.route('/api/subscribers', subscribersRoute);
 app.route('/api/qa', qaRoute);
 
