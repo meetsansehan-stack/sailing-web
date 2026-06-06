@@ -32,6 +32,13 @@ function isMetricHeading(heading: string): boolean {
 
 // 본문 속 수치(3조 원·87만 원·+8.1%)를 파란 굵게 강조. 연도(2025년) 등 단위 없는 건 제외.
 const NUM_RE = /[+\-]?\d[\d,.]*\s*(?:조|억|만|천)?\s*(?:원|%|％|배|명|개월|시간|건|곳|위)/g;
+
+// 지표 헤딩이라도 불릿에 실제 수치가 없으면 stat 표가 겉돈다(정성 분석 등) → 일반 불릿으로 degrade.
+// (비-global 정규식: .test()가 상태를 안 가져 반복 호출 안전.)
+const NUM_TEST = /\d[\d,.]*\s*(?:조|억|만|천)?\s*(?:원|%|％|배|명|개월|시간|건|곳|위)/;
+function hasMetricNumber(items: string[]): boolean {
+  return items.some((it) => NUM_TEST.test(it));
+}
 function emphasizeNumbers(text: string): React.ReactNode[] {
   const out: React.ReactNode[] = [];
   let last = 0;
@@ -137,7 +144,7 @@ function Blocks({ blocks, accent, metric }: { blocks: Block[]; accent?: boolean;
           <p key={idx} className="text-body leading-relaxed text-ink-2">
             {block.text}
           </p>
-        ) : metric ? (
+        ) : metric && hasMetricNumber(block.items) ? (
           <MetricStats key={idx} items={block.items} />
         ) : (
           <BulletItems key={idx} items={block.items} accent={accent} />
