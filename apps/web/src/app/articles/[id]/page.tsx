@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { CATEGORY_LABEL, CONTENT_TYPE_LABEL } from '@parenting-newsletter/shared';
 import { getAllArticles, getArticleById } from '@/src/data/articles';
+import { getBooksByArticle } from '@/src/data/books';
 import { getAllVenues } from '@/src/data/venues';
 import { matchVenueForEvent } from '@/src/lib/event-venue';
 import { EventInfoBox } from '@/src/components/EventInfoBox';
@@ -35,6 +36,9 @@ export default async function ArticleDetailPage({ params, searchParams }: PagePr
     article.contentType === 'Event'
       ? matchVenueForEvent(article, await getAllVenues())
       : undefined;
+
+  // 이 기사에서 추출돼 도서 컬렉션에 보존된 책 (기사 만료와 무관하게 접근). 역링크.
+  const sourcedBooks = await getBooksByArticle(decodedId).catch(() => []);
 
   const publishedLabel = new Date(article.publishedAt).toLocaleDateString('ko-KR', {
     year: 'numeric',
@@ -131,6 +135,53 @@ export default async function ArticleDetailPage({ params, searchParams }: PagePr
 
       {/* 본문 — 역할 분류(양육자 콜아웃) + Event 개요는 상단 박스가 흡수 */}
       <ArticleBody body={article.body} contentType={article.contentType} />
+
+      {/* 이 기사가 소개한 책 — 도서 컬렉션 역링크 (기사 만료돼도 책은 보존). */}
+      {sourcedBooks.length > 0 && (
+        <section className="mt-14">
+          <h2 className="text-h3 font-bold text-ink">이 기사가 소개한 책</h2>
+          <p className="mb-5 mt-1 text-meta text-ink-3">
+            기사가 지나가도 도서 컬렉션에서 계속 찾아볼 수 있어요.
+          </p>
+          <div className="grid grid-cols-3 gap-x-4 gap-y-6 sm:grid-cols-4">
+            {sourcedBooks.map((b) => (
+              <Link
+                key={b.id}
+                href={`/collections/books/${encodeURIComponent(b.id)}`}
+                className="group"
+              >
+                <div className="aspect-[3/4] w-full overflow-hidden rounded-card">
+                  {b.coverImageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={b.coverImageUrl}
+                      alt=""
+                      loading="lazy"
+                      className="h-full w-full object-cover transition group-hover:opacity-90"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full flex-col items-center justify-center gap-1.5 border border-line bg-grey-50 p-2 text-center">
+                      <span className="text-2xl opacity-60" aria-hidden>
+                        📖
+                      </span>
+                      <span className="line-clamp-2 text-meta text-ink-3">{b.title}</span>
+                    </div>
+                  )}
+                </div>
+                <p className="mt-2 line-clamp-2 text-small font-medium text-ink transition group-hover:text-blue">
+                  {b.title}
+                </p>
+              </Link>
+            ))}
+          </div>
+          <Link
+            href="/collections"
+            className="mt-5 inline-block text-meta text-blue hover:underline"
+          >
+            도서 컬렉션 전체 보기 →
+          </Link>
+        </section>
+      )}
 
       {/* 큐레이션 안내 */}
       <div className="mt-12 rounded-card bg-grey-50 p-4">

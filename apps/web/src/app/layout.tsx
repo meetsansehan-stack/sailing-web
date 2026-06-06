@@ -18,12 +18,14 @@ export const metadata: Metadata = {
 const NAV = [
   { href: '/', label: '최신 뉴스' },
   { href: '/radar', label: '미리 준비' },
+  { href: '/collections', label: '도서 컬렉션' },
   { href: '/reservations', label: '예약 정보' },
 ];
 
 const FOOTER_SERVICE = [
   { href: '/', label: '홈' },
   { href: '/issues', label: '아카이브' },
+  { href: '/collections', label: '도서 컬렉션' },
   { href: '/reservations', label: '예약' },
   { href: '/letter', label: '세일링 레터' },
 ];
