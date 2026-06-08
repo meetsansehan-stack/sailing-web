@@ -24,10 +24,22 @@ export const getAllArticles = cache(async (preview?: string): Promise<Article[]>
   return data.articles;
 });
 
-export async function getArticleById(id: string, preview?: string): Promise<Article | undefined> {
-  const all = await getAllArticles(preview);
-  return all.find((a) => a.id === id);
-}
+// 상세는 전용 라우트로 직접 조회 — 벌크 리스트(getAllArticles)는 body를 비워 보내므로
+// 본문이 필요한 상세 페이지는 반드시 이 경로를 써야 함. 404면 undefined.
+export const getArticleById = cache(
+  async (id: string, preview?: string): Promise<Article | undefined> => {
+    const qs = preview ? `?preview=${encodeURIComponent(preview)}` : '';
+    const res = await fetch(`${API_BASE}/api/articles/${encodeURIComponent(id)}${qs}`, {
+      next: { revalidate: 60 },
+    });
+    if (res.status === 404) return undefined;
+    if (!res.ok) {
+      throw new Error(`Failed to fetch article ${id}: ${res.status}`);
+    }
+    const data = (await res.json()) as { article: Article };
+    return data.article;
+  },
+);
 
 export async function getArticlesByIssueDate(date: string, preview?: string): Promise<Article[]> {
   const all = await getAllArticles(preview);

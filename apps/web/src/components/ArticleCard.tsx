@@ -47,6 +47,12 @@ export function ArticleCard({
           </span>
         </div>
       )}
+      {/* hover 툴팁 — 카드엔 제목만, 설명은 hover 시 썸네일 위 2줄로(default 카드 한정). 순수 CSS. */}
+      {!featured && article.summary && (
+        <div className="pointer-events-none absolute inset-0 flex items-end bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+          <p className="line-clamp-2 text-small leading-snug text-white">{article.summary}</p>
+        </div>
+      )}
     </div>
   );
 
@@ -86,7 +92,9 @@ export function ArticleCard({
       <div className="mt-3 flex items-center gap-1.5 text-meta text-ink-3">
         <span className="truncate">{article.source}</span>
         <span>·</span>
-        <span className="shrink-0">{new Date(article.issueDate).toLocaleDateString('ko-KR')}</span>
+        {/* 우리는 외부 뉴스 큐레이터 → 원문 발행일(publishedAt)을 표시(정보·신뢰).
+            정렬·신선도는 issueDate(노출일), 표시는 원문일로 역할 분리. */}
+        <span className="shrink-0">{new Date(article.publishedAt).toLocaleDateString('ko-KR')}</span>
       </div>
     </>
   );

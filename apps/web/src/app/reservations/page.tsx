@@ -65,8 +65,8 @@ export default async function ReservationsPage({ searchParams }: { searchParams?
   const hasFilter = !!(filterType || filterPricing || filterAge || filterRegion);
 
   return (
-    <div className="px-4 py-8 sm:px-6 lg:px-8">
-      <header className="mx-auto max-w-6xl pt-6 pb-8">
+    <div>
+      <header className="mx-auto max-w-6xl pb-8">
         <p className="text-small font-medium text-blue-600 mb-2 tracking-wider">예약</p>
         <h1 className="text-h1 font-bold text-ink mb-3">예약 가능한 곳</h1>
         <p className="text-body text-ink-2 leading-7">

@@ -11,19 +11,12 @@ import { ArticleCard } from '@/src/components/ArticleCard';
 import { TOPICS as RADAR_TOPICS } from '@/src/app/radar/data';
 
 // 홈 = "세일링 뉴스" (모든 탭 공통 구조)
-//  ① 최상단: "{yy.mm.dd}의 큐레이션" — 오늘(최신 발행일) 기사 (탭 무관, 단일 그리드, 첫 카드 🆕)
+//  ① 최상단: "새로 올라온 소식" — 최신 노출분(issueDate=가져온 날) (탭 무관, 단일 그리드)
 //  ② 그 아래: "이전 기사" — 나머지를 날짜 구분 없이 한 블록으로 (순차)
 //  ③ 모든 기사 보기 CTA
-//  ※ UI = Toss Feed 카드 스타일(디스크립션 미표시). UX 구조(날짜정렬·큐레이션/이전기사 묶음)는 고정.
+//  ※ 섹션은 날짜로 구획하지 않음(뉴닉·요즘IT·Toss 공통). 카드 날짜=원문 발행일(우리는 외부뉴스 큐레이터).
+//  ※ UI = Toss Feed 카드 스타일(디스크립션 미표시). 날짜 기반 정리는 /issues 아카이브에 보존.
 type SearchParams = { category?: string };
-
-function fmtStamp(iso: string): string {
-  const d = new Date(iso);
-  const yy = String(d.getFullYear()).slice(2);
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
-  return `${yy}.${mm}.${dd}`;
-}
 
 export default async function Home({ searchParams }: { searchParams?: SearchParams }) {
   const [allRecent, latestIssue] = await Promise.all([getRecentArticles(), getLatestIssue()]);
@@ -33,11 +26,12 @@ export default async function Home({ searchParams }: { searchParams?: SearchPara
 
   const base = isAllTab ? allRecent : allRecent.filter((a) => a.category === filterCategory);
   const latestDate = base[0]?.issueDate;
+  // 최신 노출분(issueDate=가져온 날 기준) = "새로 올라온 소식" 섹션.
+  // 늦게 가져온 속보도 그날 issueDate라 여기 상단에 떠 묻히지 않음(아카이브는 /issues가 날짜로 보존).
   const todayArticles: Article[] = latestDate ? base.filter((a) => a.issueDate === latestDate) : [];
   const olderArticles: Article[] = latestDate
     ? base.filter((a) => a.issueDate !== latestDate)
     : [];
-  const newId = todayArticles[0]?.id; // 프로토타입: 최신 1건 = '오후 발행' 가상 🆕
 
   const updatedLabel = latestIssue
     ? new Date(latestIssue.date).toLocaleDateString('ko-KR', {
@@ -84,12 +78,12 @@ export default async function Home({ searchParams }: { searchParams?: SearchPara
         <p className="mt-2 text-meta text-ink-3">마지막 업데이트 {updatedLabel}</p>
       </header>
 
-      {/* 카테고리 탭 9개 (전체 + 8) */}
-      <div className="mb-12 flex flex-wrap items-center gap-2 border-b border-line pb-5">
+      {/* 카테고리 탭 9개 (전체 + 8) — Feed식 언더라인 탭(선택=하단 라인, 평상시=텍스트 버튼). 9개라 가로 스크롤. */}
+      <div className="mb-12 flex gap-6 overflow-x-auto border-b border-line [&::-webkit-scrollbar]:hidden">
         <Link
           href="/"
-          className={`rounded-full px-4 py-2 text-meta font-medium transition ${
-            isAllTab ? 'bg-ink text-white' : 'bg-grey-100 text-ink-2 hover:bg-grey-200'
+          className={`-mb-px shrink-0 border-b-2 pb-3 text-body transition ${
+            isAllTab ? 'border-ink font-semibold text-ink' : 'border-transparent text-ink-3 hover:text-ink'
           }`}
         >
           전체
@@ -98,10 +92,10 @@ export default async function Home({ searchParams }: { searchParams?: SearchPara
           <Link
             key={cat}
             href={`/?category=${cat}`}
-            className={`rounded-full px-4 py-2 text-meta font-medium transition ${
+            className={`-mb-px shrink-0 border-b-2 pb-3 text-body transition ${
               filterCategory === cat
-                ? 'bg-ink text-white'
-                : 'bg-grey-100 text-ink-2 hover:bg-grey-200'
+                ? 'border-ink font-semibold text-ink'
+                : 'border-transparent text-ink-3 hover:text-ink'
             }`}
           >
             {CATEGORY_LABEL[cat]}
@@ -115,24 +109,21 @@ export default async function Home({ searchParams }: { searchParams?: SearchPara
         </div>
       ) : (
         <>
-          {/* ① {yy.mm.dd}의 큐레이션 — 모든 탭 공통, 단일 그리드 */}
+          {/* ① 새로 올라온 소식 — 날짜 구획 아닌 분류 표현(레퍼런스 공통). 모든 탭 공통, 단일 그리드 */}
           <section className="mb-20">
             <div className="mb-8 flex items-baseline gap-2">
-              <h2 className="text-h2 text-ink">
-                <span className="text-blue">{fmtStamp(latestDate!)}</span>의 큐레이션
-              </h2>
+              <h2 className="text-h2 text-ink">새로 올라온 소식</h2>
               <span className="ml-auto text-meta text-ink-3">{todayArticles.length}건</span>
             </div>
             {/* 추천(featured) — 큰 카드 */}
             <ArticleCard
               article={todayArticles[0]}
-              isNew={todayArticles[0].id === newId}
               variant="featured"
               showSummary={false}
             />
             {/* 나머지 — 그리드 */}
             {todayArticles.length > 1 && (
-              <div className="mt-14 grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="mt-14 grid gap-x-9 gap-y-16 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-11">
                 {todayArticles.slice(1).map((a) => (
                   <ArticleCard key={a.id} article={a} showSummary={false} />
                 ))}
@@ -147,7 +138,7 @@ export default async function Home({ searchParams }: { searchParams?: SearchPara
                 <h2 className="text-h3 text-ink">이전 기사</h2>
                 <span className="ml-auto text-meta text-ink-3">{olderArticles.length}건</span>
               </div>
-              <div className="grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-x-9 gap-y-16 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-11">
                 {olderArticles.map((a) => (
                   <ArticleCard key={a.id} article={a} showSummary={false} />
                 ))}

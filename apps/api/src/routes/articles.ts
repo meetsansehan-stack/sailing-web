@@ -29,12 +29,15 @@ function serializeArticle(a: {
   tags: string[];
   imageUrl: string | null;
   dateCheck?: unknown;
-}) {
+}, opts?: { includeBody?: boolean }) {
+  // 리스트 응답은 body(가장 무거운 필드)를 제외해 페이로드를 줄임. body는 상세(/:id)에서만 필요.
+  // (웹 상세 페이지가 getArticleById → GET /api/articles/:id 로 body를 따로 가져옴.)
+  const includeBody = opts?.includeBody ?? true;
   return {
     id: a.id,
     title: a.title,
     summary: a.summary,
-    body: a.body,
+    body: includeBody ? a.body : '',
     url: a.url,
     category: a.category,
     contentType: a.contentType,
@@ -58,7 +61,9 @@ app.get('/', async (c) => {
   const category = c.req.query('category');
   const contentType = c.req.query('contentType');
   const issueDateStr = c.req.query('issueDate');
-  const limit = Math.min(Number(c.req.query('limit') || 20), 100);
+  // 웹은 "전부 받아 메모리 필터" 전략으로 limit=500을 보냄(apps/web/src/data/articles.ts).
+  // ceiling이 그보다 낮으면 홈·아카이브·캘린더가 조용히 잘려 보이므로 1000으로 둠(MVP 헤드룸).
+  const limit = Math.min(Number(c.req.query('limit') || 20), 1000);
 
   const where: Record<string, unknown> = {};
   if (category) where.category = category;
@@ -93,7 +98,7 @@ app.get('/', async (c) => {
     });
 
     return c.json({
-      articles: articles.map(serializeArticle),
+      articles: articles.map((a) => serializeArticle(a, { includeBody: false })),
       total: articles.length,
     });
   } catch (error) {

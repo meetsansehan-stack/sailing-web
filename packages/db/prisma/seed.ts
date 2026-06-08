@@ -13,6 +13,7 @@
 
 import { prisma } from '../src/client';
 import { articles } from './data/articles';
+import { books } from './data/books';
 import { issues } from './data/issues';
 import { venues } from './data/venues';
 // 데이터 스냅샷은 packages/db/scripts/dump-db.ts 로 DB에서 재생성 가능.
@@ -125,6 +126,34 @@ async function seedVenues() {
   console.log(`   ✓ venues done`);
 }
 
+async function seedBooks() {
+  console.log(`\n📚 Seeding ${books.length} books...`);
+  for (const b of books) {
+    const data = {
+      isbn: b.isbn ?? null,
+      title: b.title,
+      author: b.author,
+      publisher: b.publisher ?? null,
+      pubYear: b.pubYear ?? null,
+      ageRange: b.ageRange,
+      coverImageUrl: b.coverImageUrl ?? null,
+      whyRecommended: b.whyRecommended,
+      themes: b.themes ?? [],
+      collection: b.collection,
+      collectionDate: b.collectionDate,
+      links: b.links ?? undefined,
+      sourceArticleIds: b.sourceArticleIds ?? [],
+      credibilityScore: b.credibilityScore,
+    };
+    await prisma.book.upsert({
+      where: { id: b.id },
+      update: data,
+      create: { id: b.id, ...data },
+    });
+  }
+  console.log(`   ✓ books done`);
+}
+
 async function main() {
   console.log('🌱 Starting seed...');
 
@@ -132,6 +161,7 @@ async function main() {
     await seedIssues();
     await seedArticles();
     await seedVenues();
+    await seedBooks();
 
     console.log('\n✅ Seed completed successfully');
   } catch (err) {
