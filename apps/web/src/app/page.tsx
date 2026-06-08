@@ -8,6 +8,7 @@ import {
 import { getRecentArticles } from '@/src/data/articles';
 import { getLatestIssue } from '@/src/data/issues';
 import { ArticleCard } from '@/src/components/ArticleCard';
+import { TOPICS as RADAR_TOPICS } from '@/src/app/radar/data';
 
 // 홈 = "세일링 뉴스" (모든 탭 공통 구조)
 //  ① 최상단: "{yy.mm.dd}의 큐레이션" — 오늘(최신 발행일) 기사 (탭 무관, 단일 그리드, 첫 카드 🆕)
@@ -49,23 +50,33 @@ export default async function Home({ searchParams }: { searchParams?: SearchPara
 
   return (
     <div>
-      {/* 미리 준비 — hero 배너 (최상단 진입점) */}
-      <Link
-        href="/radar"
-        className="group mb-10 flex items-center gap-4 overflow-hidden rounded-card bg-gradient-to-r from-blue to-blue-600 p-6 text-white shadow-card transition hover:shadow-card-hover"
-      >
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-card bg-white/20 text-h2">
-          🧭
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="text-meta font-semibold tracking-wider text-blue-50">미리 준비</p>
-          <p className="mt-1 text-h3 font-bold leading-snug">
-            다가오는 입학·신청·마감, 미리 알려드려요
-          </p>
-          <p className="mt-1 text-body text-blue-50">유치원·초등 입학 준비부터 마감일까지 한눈에</p>
+      {/* 미리 준비 — 시즌별 진입 배너 (각 상세로 바로 진입) */}
+      <div className="mb-10">
+        <div className="mb-3 flex items-center justify-between">
+          <p className="text-meta font-semibold tracking-wider text-blue">🧭 미리 준비</p>
+          <Link href="/radar" className="text-small text-ink-3 hover:text-ink-2">
+            전체 보기 →
+          </Link>
         </div>
-        <span className="shrink-0 text-xl transition group-hover:translate-x-1">→</span>
-      </Link>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {RADAR_TOPICS.filter((t) => t.status === 'live').map((t) => (
+            <Link
+              key={t.slug}
+              href={t.href}
+              className={`group flex items-center gap-3 overflow-hidden rounded-card bg-gradient-to-r ${t.gradient} p-5 text-white shadow-card transition hover:shadow-card-hover`}
+            >
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-card bg-white/20 text-h3">
+                {t.emoji}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-meta font-semibold tracking-wider text-white/80">{t.eyebrow}</p>
+                <p className="mt-0.5 text-card-title font-bold leading-snug">{t.title}</p>
+              </div>
+              <span className="shrink-0 text-lg transition group-hover:translate-x-1">→</span>
+            </Link>
+          ))}
+        </div>
+      </div>
 
       <header className="pb-8">
         <p className="mb-2 text-meta font-semibold uppercase tracking-widest text-blue">SAILING</p>
