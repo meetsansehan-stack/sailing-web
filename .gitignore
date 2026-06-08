@@ -8,6 +8,9 @@ dist
 .turbo
 *.tsbuildinfo
 
+# 수요 발굴 — 생성 데이터(JSON). 리포트(.md)·대시보드(.html)는 커밋, 원자료는 재생성
+packages/db/scripts/demand/out/
+
 # Environment
 .env
 .env.local
