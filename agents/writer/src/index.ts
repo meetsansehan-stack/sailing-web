@@ -136,7 +136,27 @@ export type WriterFanoutOptions = {
   date?: Date;
   /** true면 body가 비어있는 기사만 (재실행 시 이미 쓴 것 건너뜀). 기본 true. */
   onlyEmpty?: boolean;
+  /** 동시 집필 수 (구독 rate limit 보호). 기본 3. */
+  concurrency?: number;
 };
+
+/** 동시 실행 상한(concurrency)을 둔 map — 구독 rate limit 보호용. (research와 동일 패턴) */
+async function mapWithConcurrency<TIn, TOut>(
+  items: TIn[],
+  limit: number,
+  fn: (item: TIn, index: number) => Promise<TOut>,
+): Promise<TOut[]> {
+  const out: TOut[] = new Array(items.length);
+  let cursor = 0;
+  async function worker() {
+    while (cursor < items.length) {
+      const i = cursor++;
+      out[i] = await fn(items[i], i);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
+  return out;
+}
 
 export type WriterFanoutResult = {
   issueDate: Date;
@@ -152,6 +172,7 @@ export type WriterFanoutResult = {
 export async function runWriterForIssue(opts: WriterFanoutOptions = {}): Promise<WriterFanoutResult> {
   const issueDate = kstIssueDate(opts.date);
   const onlyEmpty = opts.onlyEmpty ?? true;
+  const concurrency = opts.concurrency ?? 3;
 
   const articles = await prisma.article.findMany({
     where: { issueDate, ...(onlyEmpty ? { body: '' } : {}) },
@@ -159,17 +180,21 @@ export async function runWriterForIssue(opts: WriterFanoutOptions = {}): Promise
     orderBy: { createdAt: 'asc' },
   });
 
-  const failed: { articleId: string; error: string }[] = [];
-  let succeeded = 0;
-
-  for (const { id } of articles) {
+  // 건당 집필을 동시 N으로 fan-out. 각 기사가 서로 다른 Article 행을 갱신하므로 충돌 없음.
+  // 한 기사 실패는 degrade(수집)하고 나머지는 계속 (전체 중단 아님, SPEC §6.4-3).
+  const outcomes = await mapWithConcurrency(articles, concurrency, async ({ id }) => {
     try {
       await runWriter({ articleId: id });
-      succeeded += 1;
+      return { id, error: null as string | null };
     } catch (err) {
-      failed.push({ articleId: id, error: err instanceof Error ? err.message : String(err) });
+      return { id, error: err instanceof Error ? err.message : String(err) };
     }
-  }
+  });
+
+  const failed = outcomes
+    .filter((o) => o.error !== null)
+    .map((o) => ({ articleId: o.id, error: o.error as string }));
+  const succeeded = outcomes.length - failed.length;
 
   console.log(
     `[writer] ${issueDateString(issueDate)}: ${succeeded}/${articles.length} 집필 성공` +
