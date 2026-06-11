@@ -4,7 +4,9 @@
   "private": true,
   "description": "Daily parenting newsletter service",
   "scripts": {
-    "pipeline:run": "node scripts/pipeline.js",
+    "pipeline:daily": "pnpm --filter @parenting-newsletter/api run pipeline:daily",
+    "pipeline:publish": "pnpm --filter @parenting-newsletter/api run pipeline:publish",
+    "pipeline:run": "pnpm --filter @parenting-newsletter/api run pipeline:daily",
     "agent:test": "node scripts/agent-test.js",
     "pipeline:dry-run": "node scripts/pipeline-dry-run.js"
   },

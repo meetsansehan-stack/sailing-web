@@ -4,6 +4,24 @@ import { ZodType } from 'zod';
 const DEFAULT_MODEL = process.env.CLAUDE_MODEL ?? 'claude-sonnet-4-6';
 
 /**
+ * 한 실행(파이프라인 1회 등) 동안 generateStructured 호출의 비용·토큰을 누적한다.
+ * OAuth(구독) 경로는 total_cost_usd가 0/누락일 수 있어 토큰도 함께 집계 — CLI가 실행 끝에 출력.
+ * 사용법: 실행 시작 시 reset() → 끝에 값 읽어 로깅. (전역이라 동시 실행 시 합산됨에 유의.)
+ */
+export const costTracker = {
+  calls: 0,
+  totalUsd: 0,
+  inputTokens: 0,
+  outputTokens: 0,
+  reset() {
+    this.calls = 0;
+    this.totalUsd = 0;
+    this.inputTokens = 0;
+    this.outputTokens = 0;
+  },
+};
+
+/**
  * 두 가지 인증 경로 지원:
  *  (1) API 키 — console.anthropic.com 선불 크레딧. .env의 CLAUDE_API_KEY → ANTHROPIC_API_KEY로 동기화.
  *  (2) 구독(Claude Code OAuth) — `claude setup-token`으로 발급한 CLAUDE_CODE_OAUTH_TOKEN.
@@ -189,6 +207,15 @@ async function runStructuredOnce<T>(
     throw new Error(
       `structured_output failed Zod re-validation: ${parsed.error.message}\nRaw: ${JSON.stringify(rawOutput).slice(0, 500)}`,
     );
+  }
+
+  // 비용·토큰 누적 (CLI가 실행 끝에 합계 출력 — 비용 모니터링).
+  costTracker.calls += 1;
+  costTracker.totalUsd += resultMsg.total_cost_usd ?? 0;
+  const usage = (resultMsg as { usage?: { input_tokens?: number; output_tokens?: number } }).usage;
+  if (usage) {
+    costTracker.inputTokens += usage.input_tokens ?? 0;
+    costTracker.outputTokens += usage.output_tokens ?? 0;
   }
 
   return {

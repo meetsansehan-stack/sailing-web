@@ -1,4 +1,4 @@
-export { generateStructured } from './claude';
+export { generateStructured, costTracker } from './claude';
 export type { StructuredOutputOptions, StructuredOutputResult } from './claude';
 export { MODELS, AGENT_MODELS } from './models';
 export { runAgent } from './runner';

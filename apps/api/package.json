@@ -6,6 +6,8 @@
     "dev": "node --env-file=../../.env --import tsx --watch src/index.ts",
     "build": "tsc --noEmit",
     "start": "node --import tsx src/index.ts",
+    "pipeline:daily": "node --env-file=../../.env --import tsx src/cli-daily.ts",
+    "pipeline:publish": "node --env-file=../../.env --import tsx src/cli-publish.ts",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
