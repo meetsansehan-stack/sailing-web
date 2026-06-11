@@ -39,14 +39,25 @@ export const ArticleSchema = z.object({
     .optional()
     .describe('신청·접수 마감일 (YYYY-MM-DD). 해당 시에만, 모르면 생략'),
   source: z.string().describe('출처/언론사'),
-  publishedAt: z.string().datetime().describe('발행일시 (ISO 8601)'),
+  // 뉴스 출처는 날짜만 주는 경우가 많아 date-only도 허용 (curation은 new Date()로 파싱).
+  // optional — 모델이 원문 날짜를 못 찾으면 생략 가능. 누락 시 curation이 issueDate(오늘)로 기본값 처리.
+  // (required로 두면 모델이 날짜를 못 채울 때 카테고리 전체가 Zod 실패 → 값비싼 WebSearch 재시도 낭비.)
+  publishedAt: z
+    .string()
+    .refine((s) => /^\d{4}-\d{2}-\d{2}([T ].*)?$/.test(s), {
+      message: 'YYYY-MM-DD 또는 ISO 8601 datetime 형식이어야 함',
+    })
+    .optional()
+    .describe('발행일 (YYYY-MM-DD 또는 ISO 8601 datetime). 모르면 생략 — curation이 오늘로 기본 처리'),
   credibilityScore: z.number().min(0).max(1).describe('신뢰도 점수 (0.0~1.0)'),
 });
 
 export const ResearchAgentOutputSchema = z.object({
   articles: z.array(ArticleSchema).describe('검색된 기사 목록'),
-  totalCount: z.number().describe('총 기사 수'),
-  processingTimeMs: z.number().describe('처리 시간 (밀리초)'),
+  // totalCount·processingTimeMs는 잉여 메타데이터 — 러너(runAgent)가 실측 processingTimeMs를 별도 기록하고,
+  // 개수는 articles.length로 파생된다. 모델이 누락해도 실패시키지 않도록 optional.
+  totalCount: z.number().optional().describe('총 기사 수 (생략 시 articles.length)'),
+  processingTimeMs: z.number().optional().describe('처리 시간 (밀리초, 러너가 실측으로 기록)'),
 });
 
 export type ResearchAgentInput = z.infer<typeof ResearchAgentInputSchema>;
