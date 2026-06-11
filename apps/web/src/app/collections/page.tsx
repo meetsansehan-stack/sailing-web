@@ -23,7 +23,7 @@ export default async function CollectionsPage() {
   return (
     <div>
       <header className="pb-8">
-        <p className="mb-2 text-small font-medium tracking-wider text-blue-600">도서 컬렉션</p>
+        <p className="mb-2 text-small font-medium tracking-wider text-blue-600">세일링 책장</p>
         <h1 className="mb-3 text-h1 font-bold text-ink">두고두고 보는 추천 도서</h1>
         <p className="text-body leading-7 text-ink-2">
           기사에서 소개한 좋은 책을, 기사가 사라져도 계속 찾아볼 수 있게 모았어요. 지금 {totalBooks}권.

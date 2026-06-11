@@ -56,7 +56,7 @@ export default async function BookDetailPage({ params }: { params: { id: string 
   return (
     <div className="mx-auto max-w-article">
       <Link href="/collections" className="text-meta text-ink-3 transition hover:text-ink">
-        ← 도서 컬렉션
+        ← 세일링 책장
       </Link>
 
       {/* 헤더 — 표지(좌) + 메타·CTA(우) */}

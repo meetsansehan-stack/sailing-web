@@ -141,7 +141,7 @@ export default async function ArticleDetailPage({ params, searchParams }: PagePr
         <section className="mt-14">
           <h2 className="text-h3 font-bold text-ink">이 기사가 소개한 책</h2>
           <p className="mb-5 mt-1 text-meta text-ink-3">
-            기사가 지나가도 도서 컬렉션에서 계속 찾아볼 수 있어요.
+            기사가 지나가도 책장에서 계속 찾아볼 수 있어요.
           </p>
           <div className="grid grid-cols-3 gap-x-4 gap-y-6 sm:grid-cols-4">
             {sourcedBooks.map((b) => (
@@ -178,7 +178,7 @@ export default async function ArticleDetailPage({ params, searchParams }: PagePr
             href="/collections"
             className="mt-5 inline-block text-meta text-blue hover:underline"
           >
-            도서 컬렉션 전체 보기 →
+            세일링 책장 전체 보기 →
           </Link>
         </section>
       )}
