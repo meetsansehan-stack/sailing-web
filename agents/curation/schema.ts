@@ -14,7 +14,11 @@ export const CurationAgentInputSchema = z.object({
         summary: z.string(),
         category: z.string(),
         source: z.string(),
-        publishedAt: z.string().datetime(),
+        // research가 date-only(YYYY-MM-DD) 또는 ISO datetime을 줄 수 있음. curation src가
+        // 누락 후보는 issueDate(오늘)로 채워 항상 값이 있게 함 — 형식만 검증.
+        publishedAt: z.string().refine((s) => /^\d{4}-\d{2}-\d{2}([T ].*)?$/.test(s), {
+          message: 'YYYY-MM-DD 또는 ISO 8601 datetime 형식이어야 함',
+        }),
         credibilityScore: z.number(),
         eventStartDate: z.string().optional().describe('Event 시작일 (YYYY-MM-DD). Event 4주 윈도우 판단용'),
         eventEndDate: z.string().optional().describe('Event 종료일 (YYYY-MM-DD). 다일 행사 — 키데이트 진행중 span'),

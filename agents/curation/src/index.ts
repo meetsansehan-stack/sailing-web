@@ -18,7 +18,7 @@ type ResearchCandidate = {
   category: string;
   contentType?: string;
   source: string;
-  publishedAt: string;
+  publishedAt?: string; // research best-effort — 누락 시 issueDate(오늘)로 기본 처리
   credibilityScore: number;
   eventStartDate?: string; // Event 시작일 (YYYY-MM-DD), research best-effort
   eventEndDate?: string; // Event 종료일 (YYYY-MM-DD), 다일 행사
@@ -92,7 +92,8 @@ export async function runCuration(opts: CurationRunOptions = {}) {
       summary: c.summary,
       category: c.category,
       source: c.source,
-      publishedAt: c.publishedAt,
+      // research가 원문 날짜를 못 찾으면 오늘(issueDate)로 기본 처리 — 후보를 버리지 않기 위함.
+      publishedAt: c.publishedAt ?? issueDateString(issueDate),
       credibilityScore: c.credibilityScore,
       ...(c.eventStartDate ? { eventStartDate: c.eventStartDate } : {}),
       ...(c.eventEndDate ? { eventEndDate: c.eventEndDate } : {}),
@@ -152,7 +153,7 @@ export async function runCuration(opts: CurationRunOptions = {}) {
             category: cand.category,
             contentType: sel.contentType,
             source: cand.source,
-            publishedAt: new Date(cand.publishedAt),
+            publishedAt: new Date(cand.publishedAt ?? issueDateString(issueDate)),
             credibilityScore: cand.credibilityScore,
             issueDate,
             eventStartDate: cand.eventStartDate ? new Date(cand.eventStartDate) : null,
