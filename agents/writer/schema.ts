@@ -29,7 +29,7 @@ export const WriterAgentOutputSchema = z.object({
   body: z
     .string()
     .min(1)
-    .describe('카드뉴스 본문 (## 헤딩 + - 불릿, 명사형 종결). 마크다운.'),
+    .describe('본문 (마크다운). ## 헤딩 + 세일링 산문/불릿, 친근한 존대(~해요). 타입별 헤딩 계약은 prompt.md.'),
   eventStartDate: z
     .string()
     .optional()

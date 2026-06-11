@@ -17,7 +17,9 @@ const WRITER_OUTPUT_JSON_SCHEMA = {
   properties: {
     body: {
       type: 'string',
-      description: '카드뉴스 본문 (## 헤딩 + - 불릿, 명사형 종결). 마크다운.',
+      description:
+        '본문 (마크다운). `## 헤딩` + 세일링 산문/불릿, 친근한 존대(~해요/하세요). ' +
+        '헤딩 이름·순서·섹션 형식(산문/지표 불릿/번호 단계/한눈에 3불릿)은 시스템 프롬프트의 타입별 가이드 준수.',
     },
     eventStartDate: {
       type: 'string',
@@ -108,6 +110,9 @@ export async function runWriter(opts: WriterRunOptions) {
         outputJsonSchema: WRITER_OUTPUT_JSON_SCHEMA,
         allowedTools: ['WebFetch'],
         model: AGENT_MODELS.writer,
+        // writer 출력은 사실상 본문 한 덩어리 — 모델이 JSON 래핑 없이 마크다운만 내보내면
+        // 그 텍스트를 그대로 body로 채택(재시도·degrade 회피). 날짜는 optional이라 생략 OK.
+        textFallback: (rawText) => ({ body: rawText, processingTimeMs: 0 }),
       });
 
       // 집필 성공 → Article.body 갱신. 실패하면 runAgent가 failed로 기록.
