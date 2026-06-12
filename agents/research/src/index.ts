@@ -9,6 +9,7 @@ import {
   type ResearchAgentInput,
   type ResearchAgentOutput,
 } from '../schema';
+import { fetchRssFeeds, type RssCandidate } from './rss';
 
 // 한 카테고리 호출의 출력 스키마 (articles 배열만). category enum은 호출 시 단일 값으로 고정.
 const CategoryOutputSchema = z.object({ articles: z.array(ArticleSchema) });
@@ -89,18 +90,36 @@ async function mapWithConcurrency<TIn, TOut>(
 
 type ResearchCandidate = z.infer<typeof ArticleSchema>;
 
-/** 한 카테고리 전담 수집 — 작은 출력이라 구조화 출력·스트림이 안정적. */
+// RSS 후보를 카테고리에 거칠게 분배 (LLM이 안에서 정밀 선별). korea.kr(정책·교육) → policy·academy,
+// 베이비뉴스(육아 전반) → 그 외. 최신순 상위 N만 주입(토큰 관리).
+const POLICY_CATS = new Set<Category>(['policy', 'academy']);
+function rssForCategory(rss: RssCandidate[], category: Category, limit = 28): RssCandidate[] {
+  const want = POLICY_CATS.has(category) ? 'policy' : 'parenting';
+  return rss.filter((r) => r.feedHint === want).slice(0, limit);
+}
+
+/** 한 카테고리 전담 수집 — RSS 후보 풀(결정론 수집) + WebSearch 보강. */
 async function collectForCategory(
   systemPrompt: string,
   category: Category,
   target: number,
   issueDate: Date,
+  rssCandidates: RssCandidate[] = [],
 ): Promise<ResearchCandidate[]> {
+  const rssLines = rssCandidates.length
+    ? [
+        '',
+        `■ 참고 RSS 후보 (${rssCandidates.length}건, 최신순 — 먼저 검토):`,
+        ...rssCandidates.map((r) => `  - [${r.publishedAt ?? '?'}] ${r.title} (${r.source}) ${r.url}`),
+        `→ 위 RSS 후보 중 '${category}'에 맞고 만 3~9세 양육자에게 적합하거나 미래 교육 흐름 시사점이 있는 것을 우선 채택(category·contentType·summary·publishedAt 부여), 부족하면 WebSearch로 보강. RSS에 없는 좋은 기사도 추가 OK. 광고·상업성 항목은 제외.`,
+      ]
+    : [];
   const userPrompt = [
     `오늘 일자 (KST): ${issueDate.toISOString().slice(0, 10)}`,
     `이번 호출은 '${category}' 카테고리 전담입니다.`,
-    `WebSearch로 '${category}' 관련 한국 최신 육아·교육 뉴스를 찾아, 최대 ${target}개 후보를 모으세요.`,
+    `'${category}' 관련 한국 최신 육아·교육 뉴스를 최대 ${target}개 후보로 모으세요 (아래 RSS 후보 우선 + WebSearch 보강).`,
     '시기성 1주 윈도우 (Event 타입은 미래 4주 OK). 적게 나오면 적은 대로 OK (품질 우선).',
+    ...rssLines,
     '',
     '■ 출력 형식 (반드시 준수):',
     '- 검색·정리 과정 설명, 마크다운 표·리포트, 머리말/맺음말 금지.',
@@ -148,10 +167,20 @@ export async function runResearch(opts: ResearchRunOptions = {}) {
     issueDate,
     input,
     run: async (): Promise<ResearchAgentOutput> => {
+      // RSS 후보 풀(결정론 수집)을 fan-out 전에 한 번만 길어온다. 실패해도 WebSearch로 진행(resilient).
+      let rssAll: RssCandidate[] = [];
+      try {
+        rssAll = await fetchRssFeeds();
+        console.log(`[research] RSS 후보 ${rssAll.length}건 수집 (전 카테고리 분배)`);
+      } catch (err) {
+        console.warn(`[research] RSS 수집 실패(WebSearch만으로 진행): ${err instanceof Error ? err.message : err}`);
+      }
+
       // 카테고리별 fan-out (동시 3). 한 카테고리 실패는 건너뛰고 나머지로 진행(resilient).
       const perCategory = await mapWithConcurrency(categories, 3, async (category) => {
         try {
-          const articles = await collectForCategory(systemPrompt, category, perCategoryTarget, issueDate);
+          const rssForCat = rssForCategory(rssAll, category);
+          const articles = await collectForCategory(systemPrompt, category, perCategoryTarget, issueDate, rssForCat);
           console.log(`[research] '${category}': ${articles.length}건`);
           return articles;
         } catch (err) {
