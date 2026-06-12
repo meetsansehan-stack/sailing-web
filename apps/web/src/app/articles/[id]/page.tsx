@@ -69,6 +69,17 @@ export default async function ArticleDetailPage({ params, searchParams }: PagePr
         <p className="mt-3 text-meta text-ink-3">{publishedLabel}</p>
       </header>
 
+      {/* 히어로 이미지 — 원문 og:image 단일소스. 있으면 16:9 히어로, 없으면 숨김.
+          (브랜드 비주얼 히어로는 폐기 — docs 이미지 정책. 출처는 하단 원문 링크가 담당.) */}
+      {article.imageUrl && (
+        <figure className="mt-5">
+          <div className="aspect-[16/9] w-full overflow-hidden rounded-card">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={article.imageUrl} alt="" className="h-full w-full object-cover" />
+          </div>
+        </figure>
+      )}
+
       {/* 이벤트 정보 — Event 골격 (venue 매칭 보강) */}
       <EventInfoBox article={article} venue={matchedVenue} />
 

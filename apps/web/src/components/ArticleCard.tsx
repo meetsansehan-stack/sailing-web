@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { CATEGORY_LABEL, CONTENT_TYPE_LABEL, type Article } from '@parenting-newsletter/shared';
-import { CATEGORY_VISUAL } from '@/src/lib/category-visual';
+import { CategoryVisual } from './CategoryVisual';
 
 // 공용 기사 카드 — 홈·기사목록·이슈상세 공통.
 // 디자인: Toss Feed 에디토리얼 카드 (박스/보더 없음, hover 시 제목 블루·썸네일 흐려짐).
@@ -18,7 +18,6 @@ export function ArticleCard({
   variant?: 'default' | 'featured';
   showSummary?: boolean;
 }) {
-  const visual = CATEGORY_VISUAL[article.category];
   const featured = variant === 'featured';
 
   const Thumb = (
@@ -41,11 +40,7 @@ export function ArticleCard({
           className="h-full w-full object-cover transition duration-300 group-hover:opacity-90"
         />
       ) : (
-        <div className={`flex h-full w-full items-center justify-center ${visual.bg}`}>
-          <span className={featured ? 'text-7xl opacity-70' : 'text-5xl opacity-70'} aria-hidden>
-            {visual.emoji}
-          </span>
-        </div>
+        <CategoryVisual category={article.category} size={featured ? 'hero' : 'card'} />
       )}
       {/* hover 툴팁 — 카드엔 제목만, 설명은 hover 시 썸네일 위 2줄로(default 카드 한정). 순수 CSS. */}
       {!featured && article.summary && (
