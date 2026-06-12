@@ -43,12 +43,20 @@ export const getArticleById = cache(
 
 export async function getArticlesByIssueDate(date: string, preview?: string): Promise<Article[]> {
   const all = await getAllArticles(preview);
-  return all.filter((a) => a.issueDate === date);
+  // 같은 이슈 안에서도 발행일(publishedAt) 최신순 — 최신 기사가 앞.
+  return all
+    .filter((a) => a.issueDate === date)
+    .sort((a, b) => (a.publishedAt < b.publishedAt ? 1 : -1));
 }
 
 export async function getRecentArticles(): Promise<Article[]> {
   const all = await getAllArticles();
-  return [...all].sort((a, b) => (a.issueDate < b.issueDate ? 1 : -1));
+  // 1차 = 노출일(issueDate) 최신 섹션 우선, 2차 = 발행일(publishedAt) 최신순.
+  // → "새로 올라온 소식" 안에서도 최신 기사가 앞으로 온다.
+  return [...all].sort((a, b) => {
+    if (a.issueDate !== b.issueDate) return a.issueDate < b.issueDate ? 1 : -1;
+    return a.publishedAt < b.publishedAt ? 1 : -1;
+  });
 }
 
 export async function getEventsInRange(startDate: string, endDate: string): Promise<Article[]> {
