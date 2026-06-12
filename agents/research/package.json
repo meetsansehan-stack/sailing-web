@@ -16,11 +16,12 @@
     "@parenting-newsletter/agents-core": "workspace:*",
     "@parenting-newsletter/db": "workspace:*",
     "@parenting-newsletter/shared": "workspace:*",
+    "rss-parser": "^3.13.0",
     "zod": "^3.22.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "typescript": "^5.3.3",
-    "tsx": "^4.0.0"
+    "tsx": "^4.0.0",
+    "typescript": "^5.3.3"
   }
 }
