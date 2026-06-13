@@ -98,3 +98,19 @@ export type KeyDateEntry = {
   kind: KeyDateKind;
   article: Article;
 };
+
+/**
+ * Event 노출 만료 판정 (SPEC §9 아카이브 라이프사이클).
+ * 종료일(eventEndDate, 없으면 시작일) + bufferDays 가 지나면 = 만료 → 홈·아카이브에서 제외.
+ * - Event 타입에만 적용. 다른 타입(Policy·Guide 등)은 만료 없음(false).
+ * - 날짜(end/start) 자체가 없으면 판정 불가 → 유지(false). (날짜 미상 행사를 임의로 숨기지 않음)
+ * 날짜 비교는 KST 자정 기준. now 는 호출자가 주입(순수 함수).
+ */
+export function isEventExpired(a: Article, now: Date, bufferDays = 1): boolean {
+  if (a.contentType !== 'Event') return false;
+  const end = a.eventEndDate ?? a.eventStartDate;
+  if (!end) return false;
+  const cutoff = new Date(`${end}T00:00:00+09:00`);
+  cutoff.setDate(cutoff.getDate() + bufferDays);
+  return now.getTime() >= cutoff.getTime();
+}

@@ -1,5 +1,5 @@
 import { cache } from 'react';
-import { CATEGORIES } from '@parenting-newsletter/shared';
+import { CATEGORIES, isEventExpired } from '@parenting-newsletter/shared';
 import type { Article, Category, KeyDateEntry } from '@parenting-newsletter/shared';
 
 // 정적 상수에서 API fetch로 전환. 같은 렌더 내 중복 호출 방지를 위해 cache() 사용.
@@ -21,7 +21,10 @@ export const getAllArticles = cache(async (preview?: string): Promise<Article[]>
     throw new Error(`Failed to fetch articles: ${res.status}`);
   }
   const data = (await res.json()) as { articles: Article[] };
-  return data.articles;
+  // Event 노출 만료(종료일+버퍼 지남)는 모든 표시 surface에서 제외 — 단일 지점 필터(SPEC §9).
+  // 끝난 행사가 홈·아카이브에 남지 않게. 진행중·미래 행사와 비-Event는 그대로 유지.
+  const now = new Date();
+  return data.articles.filter((a) => !isEventExpired(a, now));
 });
 
 // 상세는 전용 라우트로 직접 조회 — 벌크 리스트(getAllArticles)는 body를 비워 보내므로
