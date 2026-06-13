@@ -25,23 +25,32 @@ export default async function IssuesArchivePage() {
         {issues.map((issue) => {
           const counts = countByCategory(issue.articles);
           const hot = selectHotArticle(issue.articles);
+          // 묶음 = "그날 발행된 뉴스"가 아니라 "그날 큐레이션한 편집 묶음".
+          // → 날짜는 eyebrow로 강등, 헤드라인 = 후킹 에이전트의 편집 테마(issue.title). 없으면 날짜 폴백.
+          const editionLabel =
+            new Date(issue.date).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' }) +
+            ' 큐레이션';
           const dateLabel = new Date(issue.date).toLocaleDateString('ko-KR', {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
             weekday: 'long',
           });
+          const headline = issue.title || dateLabel;
 
           return (
             <li
               key={issue.date}
               className="rounded-card border border-grey-200 bg-white p-6 shadow-card transition hover:shadow-card-hover"
             >
-              <div className="mb-3 flex items-baseline justify-between gap-4">
-                <p className="text-h3 font-bold text-ink">{dateLabel}</p>
-                <span className="flex-shrink-0 text-body font-medium text-ink-3">
-                  기사 {issue.articles.length}개
-                </span>
+              <div className="mb-4">
+                <p className="text-small font-semibold text-blue">
+                  {editionLabel} · 기사 {issue.articles.length}개
+                </p>
+                <p className="mt-1 text-h3 font-bold leading-snug text-ink">{headline}</p>
+                {issue.summary && (
+                  <p className="mt-1.5 line-clamp-2 text-body text-ink-2">{issue.summary}</p>
+                )}
               </div>
 
               <div className="mb-5 flex flex-wrap gap-1.5">

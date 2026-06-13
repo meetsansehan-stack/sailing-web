@@ -74,6 +74,10 @@ export default async function IssueDatePage({ params, searchParams }: PageProps)
     day: 'numeric',
     weekday: 'long',
   });
+  // 묶음 정체성 = 후킹 편집 테마(issue.title). 날짜는 "N월 N일 큐레이션" eyebrow로 강등.
+  const editionLabel =
+    new Date(issue.date).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' }) +
+    ' 큐레이션';
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
@@ -86,8 +90,11 @@ export default async function IssueDatePage({ params, searchParams }: PageProps)
         <Link href="/issues" className="text-body font-medium text-blue-600 hover:underline">
           ← 아카이브
         </Link>
-        <h1 className="mt-3 text-h1 font-bold text-ink">{dateLabel}</h1>
-        <p className="mt-1.5 text-body text-ink-3">기사 전체 {allArticles.length}개</p>
+        <p className="mt-3 text-small font-semibold text-blue">
+          {editionLabel} · 기사 전체 {allArticles.length}개
+        </p>
+        <h1 className="mt-1 text-h1 font-bold leading-snug text-ink">{issue.title || dateLabel}</h1>
+        {issue.summary && <p className="mt-2 text-body text-ink-2">{issue.summary}</p>}
       </header>
 
       <div className="mb-6 flex items-center justify-between gap-3 border-b border-grey-200 pb-4">
