@@ -76,9 +76,36 @@ export async function runCuration(opts: CurationRunOptions = {}) {
   if (!researchLog?.output) {
     throw new Error(`No successful research output for issueDate ${issueDateString(issueDate)}`);
   }
-  const candidates = (researchLog.output as { articles?: ResearchCandidate[] }).articles ?? [];
-  if (candidates.length === 0) {
+  const rawCandidates = (researchLog.output as { articles?: ResearchCandidate[] }).articles ?? [];
+  if (rawCandidates.length === 0) {
     throw new Error(`Research output has no candidates for ${issueDateString(issueDate)}`);
+  }
+
+  // cross-day 중복 제거: 최근 N일(시기성 윈도우=1주) 내 '다른 날' 이슈에 이미 적재된 URL은 후보에서 제외.
+  // @@unique([issueDate,url])은 같은 날 중복만 막아서, 하루 차이로 RSS·검색 풀이 겹치면 같은 뉴스가
+  // 이틀 연속 올라오던 문제를 해소. 같은 날 재실행은 lt:issueDate로 자기 제외 안 함(같은 날은 upsert 멱등).
+  const DEDUP_WINDOW_DAYS = 7;
+  const dedupSince = new Date(issueDate);
+  dedupSince.setDate(dedupSince.getDate() - DEDUP_WINDOW_DAYS);
+  const recentlyPublished = await prisma.article.findMany({
+    where: {
+      issueDate: { gte: dedupSince, lt: issueDate },
+      url: { in: rawCandidates.map((c) => c.url) },
+    },
+    select: { url: true },
+  });
+  const seenUrls = new Set(recentlyPublished.map((r) => r.url));
+  const candidates = rawCandidates.filter((c) => !seenUrls.has(c.url));
+  const droppedDupes = rawCandidates.length - candidates.length;
+  if (droppedDupes > 0) {
+    console.log(
+      `[curation] cross-day 중복 ${droppedDupes}건 제외 (최근 ${DEDUP_WINDOW_DAYS}일 내 기적재 URL). 후보 ${rawCandidates.length}→${candidates.length}`,
+    );
+  }
+  if (candidates.length === 0) {
+    throw new Error(
+      `All ${rawCandidates.length} candidates are cross-day duplicates for ${issueDateString(issueDate)}`,
+    );
   }
 
   // 후보에 임시 id(인덱스) 부여 → Claude는 이 id로 선별 결과를 가리킴.
