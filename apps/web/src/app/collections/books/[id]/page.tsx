@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Book, BookLink } from '@parenting-newsletter/shared';
 import { getBookById, getAllBooks } from '@/src/data/books';
-import { getAllArticles } from '@/src/data/articles';
+import { getArticleById } from '@/src/data/articles';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,18 +36,20 @@ export default async function BookDetailPage({ params }: { params: { id: string 
   const book = await getBookById(id);
   if (!book) notFound();
 
-  const [allBooks, articles] = await Promise.all([
+  // 출처 기사는 발행 이슈가 만료/삭제돼도 보존되는 에버그린 참조다(SPEC §12). 발행 게이트가 적용된
+  // 목록(getAllArticles) 대신 id로 직접 조회 — API 상세 라우트가 책 출처 기사를 게이트에서 예외 처리한다.
+  const [allBooks, sourceArticlesRaw] = await Promise.all([
     getAllBooks(),
-    getAllArticles().catch(() => []),
+    Promise.all(book.sourceArticleIds.map((aid) => getArticleById(aid).catch(() => undefined))),
   ]);
 
   const links = (book.links ?? []) as BookLink[];
   const library = links.find((l) => l.kind === 'library');
   const buys = links.filter((l) => l.kind === 'buy');
 
-  const sourceArticles = book.sourceArticleIds
-    .map((aid) => articles.find((a) => a.id === aid))
-    .filter((a): a is NonNullable<typeof a> => Boolean(a));
+  const sourceArticles = sourceArticlesRaw.filter(
+    (a): a is NonNullable<typeof a> => Boolean(a),
+  );
 
   const related = allBooks
     .filter((b) => b.collection === book.collection && b.id !== book.id)

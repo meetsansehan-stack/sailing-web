@@ -121,8 +121,19 @@ app.get('/:id', async (c) => {
     // 발행 게이트: 미공개 이슈의 기사는 프리뷰가 아니면 없는 것처럼 처리.
     if (!preview) {
       const publishedDates = await getPublishedIssueDates();
-      if (!publishedDates.some((d) => d.getTime() === article.issueDate.getTime())) {
-        return c.json({ error: 'Article not found' }, 404);
+      const inPublishedIssue = publishedDates.some(
+        (d) => d.getTime() === article.issueDate.getTime(),
+      );
+      if (!inPublishedIssue) {
+        // 에버그린 예외: 세일링 책장의 출처 기사는 발행 이슈가 만료/삭제돼도 상세 접근을 유지한다(SPEC §12).
+        // 책 상세의 "이 책을 소개한 기사" 역링크가 끊기지 않도록. 단 피드(목록 라우트)에는 노출하지 않음.
+        const isBookSource = await prisma.book.findFirst({
+          where: { sourceArticleIds: { has: id } },
+          select: { id: true },
+        });
+        if (!isBookSource) {
+          return c.json({ error: 'Article not found' }, 404);
+        }
       }
     }
 
