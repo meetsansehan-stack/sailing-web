@@ -16,7 +16,7 @@ export const MODELS = {
 export const AGENT_MODELS = {
   research: process.env.MODEL_RESEARCH ?? MODELS.sonnet, // 와이드넷 수집(recall), 볼륨·속도
   curation: process.env.MODEL_CURATION ?? MODELS.opus, // 선별 = 제품의 심장(편집 판단·선 긋기 톤)
-  writer: process.env.MODEL_WRITER ?? MODELS.opus, // 브랜드 보이스 = 차별점(미묘한 톤)
+  writer: process.env.MODEL_WRITER ?? MODELS.sonnet, // 2026-06-14 A/B: Sonnet 품질 동급(이벤트·정책·목록)·비용 ~1/3($0.18/건). 타겟연령 필터는 writer prompt S3′로 보강.
   editor: process.env.MODEL_EDITOR ?? MODELS.opus, // 보이스·테마 일관성 품질 게이트
   hooking: process.env.MODEL_HOOKING ?? MODELS.opus, // 비클릭베이트 후킹 카피(고레버리지)
   qa: process.env.MODEL_QA ?? MODELS.sonnet, // 코드 그라운딩 검증, 바운디드 판단
