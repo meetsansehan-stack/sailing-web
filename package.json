@@ -7,6 +7,7 @@
     "pipeline:daily": "pnpm --filter @parenting-newsletter/api run pipeline:daily",
     "pipeline:publish": "pnpm --filter @parenting-newsletter/api run pipeline:publish",
     "pipeline:run": "pnpm --filter @parenting-newsletter/api run pipeline:daily",
+    "books:build": "pnpm --filter @parenting-newsletter/agent-book-extractor run books:build",
     "agent:test": "node scripts/agent-test.js",
     "pipeline:dry-run": "node scripts/pipeline-dry-run.js"
   },
