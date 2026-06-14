@@ -11,8 +11,8 @@ import { ArticleCard } from '@/src/components/ArticleCard';
 import { TOPICS as RADAR_TOPICS } from '@/src/app/radar/data';
 
 // 홈 = "세일링 뉴스" (모든 탭 공통 구조)
-//  ① 최상단: "새로 올라온 소식" — 최신 노출분(issueDate=가져온 날) (탭 무관, 단일 그리드)
-//  ② 그 아래: "이전 기사" — 나머지를 날짜 구분 없이 한 블록으로 (순차)
+//  ① 최상단: "새로 올라온 소식" — 최신 노출분(issueDate=최신)이면서 **원문일이 최근 1주 이내**인 것만 (탭 무관, 단일 그리드)
+//  ② 그 아래: "이전 기사" — 나머지 전부(이전 노출일 + 오늘 올렸어도 원문 오래된 것)를 **원문일 최신순**으로 한 블록 (날짜 구획 없음)
 //  ③ 모든 기사 보기 CTA
 //  ※ 섹션은 날짜로 구획하지 않음(뉴닉·요즘IT·Toss 공통). 카드 날짜=원문 발행일(우리는 외부뉴스 큐레이터).
 //  ※ UI = Toss Feed 카드 스타일(디스크립션 미표시). 날짜 기반 정리는 /issues 아카이브에 보존.
@@ -26,12 +26,25 @@ export default async function Home({ searchParams }: { searchParams?: SearchPara
 
   const base = isAllTab ? allRecent : allRecent.filter((a) => a.category === filterCategory);
   const latestDate = base[0]?.issueDate;
-  // 최신 노출분(issueDate=가져온 날 기준) = "새로 올라온 소식" 섹션.
-  // 늦게 가져온 속보도 그날 issueDate라 여기 상단에 떠 묻히지 않음(아카이브는 /issues가 날짜로 보존).
-  const todayArticles: Article[] = latestDate ? base.filter((a) => a.issueDate === latestDate) : [];
-  const olderArticles: Article[] = latestDate
-    ? base.filter((a) => a.issueDate !== latestDate)
-    : [];
+
+  // "새로 올라온 소식" = 오늘 노출(issueDate=최신)분 중 **원문일(publishedAt)이 최근 1주 이내**인 것만.
+  // 오늘 큐레이션했어도 원문이 오래된 기사(진행중 행사 등)는 "이전 기사"로 내려간다 → 새 소식엔 진짜 최근 원문만.
+  const FRESH_WINDOW_DAYS = 7;
+  const freshCutoff = latestDate
+    ? (() => {
+        const d = new Date(`${latestDate}T00:00:00Z`);
+        d.setUTCDate(d.getUTCDate() - FRESH_WINDOW_DAYS);
+        return d.toISOString().slice(0, 10);
+      })()
+    : '';
+  const isFresh = (a: Article) =>
+    a.issueDate === latestDate && a.publishedAt.slice(0, 10) >= freshCutoff;
+
+  const todayArticles: Article[] = base.filter(isFresh);
+  // 이전 기사 = 나머지 전부(이전 노출일 + 오늘 올렸어도 원문 오래된 것), 원문일(publishedAt) 최신순.
+  const olderArticles: Article[] = base
+    .filter((a) => !isFresh(a))
+    .sort((a, b) => (a.publishedAt < b.publishedAt ? 1 : -1));
 
   const updatedLabel = latestIssue
     ? new Date(latestIssue.date).toLocaleDateString('ko-KR', {
@@ -103,35 +116,33 @@ export default async function Home({ searchParams }: { searchParams?: SearchPara
         ))}
       </div>
 
-      {todayArticles.length === 0 ? (
+      {base.length === 0 ? (
         <div className="rounded-card border border-dashed border-grey-300 bg-white p-12 text-center text-ink-3">
           해당 카테고리 기사가 없습니다.
         </div>
       ) : (
         <>
-          {/* ① 새로 올라온 소식 — 날짜 구획 아닌 분류 표현(레퍼런스 공통). 모든 탭 공통, 단일 그리드 */}
-          <section className="mb-20">
-            <div className="mb-8 flex items-baseline gap-2">
-              <h2 className="text-h2 text-ink">새로 올라온 소식</h2>
-              <span className="ml-auto text-meta text-ink-3">{todayArticles.length}건</span>
-            </div>
-            {/* 추천(featured) — 큰 카드 */}
-            <ArticleCard
-              article={todayArticles[0]}
-              variant="featured"
-              showSummary={false}
-            />
-            {/* 나머지 — 그리드 */}
-            {todayArticles.length > 1 && (
-              <div className="mt-14 grid gap-x-9 gap-y-16 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-11">
-                {todayArticles.slice(1).map((a) => (
-                  <ArticleCard key={a.id} article={a} showSummary={false} />
-                ))}
+          {/* ① 새로 올라온 소식 — 최신 노출분 중 원문일 1주 이내만. 없으면 섹션 자체를 숨김 */}
+          {todayArticles.length > 0 && (
+            <section className="mb-20">
+              <div className="mb-8 flex items-baseline gap-2">
+                <h2 className="text-h2 text-ink">새로 올라온 소식</h2>
+                <span className="ml-auto text-meta text-ink-3">{todayArticles.length}건</span>
               </div>
-            )}
-          </section>
+              {/* 추천(featured) — 큰 카드 */}
+              <ArticleCard article={todayArticles[0]} variant="featured" showSummary={false} />
+              {/* 나머지 — 그리드 */}
+              {todayArticles.length > 1 && (
+                <div className="mt-14 grid gap-x-9 gap-y-16 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-11">
+                  {todayArticles.slice(1).map((a) => (
+                    <ArticleCard key={a.id} article={a} showSummary={false} />
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
 
-          {/* ② 이전 기사 (가제) — 날짜 구분 없이 한 블록 */}
+          {/* ② 이전 기사 (가제) — 날짜 구분 없이 한 블록, 원문일 최신순 */}
           {olderArticles.length > 0 && (
             <section className="mb-16">
               <div className="mb-8 flex items-baseline gap-2 border-b border-line pb-3">
