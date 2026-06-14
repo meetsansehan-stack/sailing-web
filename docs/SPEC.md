@@ -386,3 +386,31 @@ MVP 파이프라인 비포함. `runAgent`의 `AgentName` 타입(현재 `research
 - ⓓ **category 보강**: books 도서 treatment·academy 선긋기 가드·mediaType 임베드 = 우선순위 낮음.
 - ⓔ **이미지 소싱 결정**(핵심 콘텐츠 슬롯): og:image 렌더타임 vs imageUrl 스키마. 현재 placeholder.
 - ⓕ **체크박스 UI**(Guide 체크리스트), **지표 차트/비주얼**(현재 stat 행) = 향후.
+
+## 12. 세일링 책장 (도서 컬렉션) 업데이트 — [정의 확정 2026-06-14, `books:build` 미구현]
+
+> 책 = **에버그린 자산** (기사보다 오래 삶, Article과 하드 FK 없음 — ReservableVenue 선례). 출처기사 만료/삭제돼도 보존(API `/articles/:id`가 `Book.sourceArticleIds` 참조 기사는 발행게이트 예외 — 커밋 `6868046`). 노출엔 만료·시간 강등 없음. "기사는 흐르는 뉴스, 책은 쌓이는 자산"(STRATEGY §11.3 데이터 해자).
+
+### 12.1 소스 (무엇에서)
+도서그림책 카테고리의 **추천도서 목록 기사**만 (어린이도서연구회 월 추천·국립어린이청소년도서관 사서추천 등 *큐레이션 목록*). 개별 책 단순 언급은 제외.
+
+### 12.2 추출 (on-demand, 데일리와 분리)
+- 명령: `pnpm books:build <articleId>` — 책은 월간 저빈도라 데일리 파이프라인에 안 넣음.
+- 동작: LLM이 기사 `body`에서 **개별 책(제목·저자)** 추출 + **whyRecommended(세일링 보이스) 초안**. `sourceArticleIds` 연결, `collection`·`collectionDate`(YYYY-MM)=그 달.
+- 모델: writer 라인과 동일(Sonnet, [models.ts](../packages/agents-core/src/models.ts)).
+
+### 12.3 검수 게이트 — (B) dry-run → 승인 → 커밋
+- 명령이 추출·초안을 출력(dry-run)하고 운영자 확인 후 승인 시 DB 저장. **검수는 커밋 직전(런타임).**
+- Book에 `status` 필드 없음 → DB draft 상태 미사용(검수가 커밋 전이라 불필요). 마이그레이션 0, 기존 책 영향 0.
+
+### 12.4 Enrichment
+승인된 Book에 `enrich-books.ts`(알라딘 TTB) 실행 → 표지·ISBN·구매(제휴)·도서관 링크. 기존 스크립트 재사용.
+
+### 12.5 노출
+책장 자동 노출(에버그린, published 즉시). 출처기사 역링크는 게이트 예외로 보존.
+
+### 12.6 주기
+추천도서 목록 기사 발행 시(**월 1회급**). 데일리 아님. 운영자가 목록 기사 보고 `books:build` 실행 → enrich.
+
+### 12.7 책장 필터 UI — [논의중 2026-06-14, 미구현]
+월별/주제별 브라우즈 축. 설계 확정 후 추가.
