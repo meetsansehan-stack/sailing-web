@@ -460,5 +460,145 @@ export const venues: ReservableVenue[] = [
       "공연예매",
       "구민할인"
     ]
+  },
+  {
+    "id": "venue-경기도어린이박물관",
+    "name": "경기도어린이박물관",
+    "type": "indoor-play",
+    "ageRange": "0-12",
+    "entryMinAge": 0,
+    "region": "경기 용인",
+    "reservationUrl": "https://gcm.ggcf.kr/",
+    "reservationChannel": "경기문화재단",
+    "operator": "metro",
+    "pricing": "free",
+    "schedule": "화~일 1·2회차제 (10:00-13:30 / 14:00-17:30, 월 휴관)",
+    "description": "영유아·초등 대상 체험형 어린이박물관. 회차당 정원제 사전예약, 무료 관람. 용인 기흥 상갈.",
+    "credibilityScore": 0.91,
+    "tags": [
+      "사전예약",
+      "회차제",
+      "무료"
+    ]
+  },
+  {
+    "id": "venue-국립세계문자박물관-어린이",
+    "name": "국립세계문자박물관 어린이 체험",
+    "type": "museum",
+    "ageRange": "4-12",
+    "entryMinAge": 0,
+    "region": "인천 연수구",
+    "reservationUrl": "https://www.mow.or.kr/",
+    "reservationChannel": "국립세계문자박물관",
+    "operator": "national",
+    "pricing": "free",
+    "schedule": "화~일 10:00-18:00 (월 휴관)",
+    "description": "문자·글자 주제 국립박물관. 어린이 문자 체험공간 운영, 상설전시 무료. 송도. 일부 교육 프로그램 사전예약.",
+    "credibilityScore": 0.93,
+    "tags": [
+      "무료",
+      "문자체험",
+      "사전예약"
+    ]
+  },
+  {
+    "id": "venue-국립중앙과학관-꿈아띠",
+    "name": "국립중앙과학관 어린이체험(꿈아띠)",
+    "type": "museum",
+    "ageRange": "4-10",
+    "entryMinAge": 0,
+    "region": "대전 유성구",
+    "reservationUrl": "https://www.science.go.kr/",
+    "reservationChannel": "국립중앙과학관",
+    "operator": "national",
+    "pricing": "mixed",
+    "schedule": "화~일 09:30-17:50 (월 휴관)",
+    "description": "국내 대표 국립과학관. 어린이 대상 꿈아띠체험관 운영, 상설전시 무료·일부 체험 유료. 회차 사전예약. 유성구.",
+    "credibilityScore": 0.94,
+    "tags": [
+      "사전예약",
+      "과학체험",
+      "어린이관"
+    ]
+  },
+  {
+    "id": "venue-국립전주박물관-어린이박물관",
+    "name": "국립전주박물관 어린이박물관",
+    "type": "museum",
+    "ageRange": "4-10",
+    "entryMinAge": 0,
+    "region": "전북 전주",
+    "reservationUrl": "https://jeonju.museum.go.kr/",
+    "reservationChannel": "국립전주박물관",
+    "operator": "national",
+    "pricing": "free",
+    "schedule": "화~일 09:00-18:00 (월 휴관)",
+    "description": "전북·조선 선비문화 주제 어린이 체험전시. 회차당 정원제 사전예약, 무료.",
+    "credibilityScore": 0.92,
+    "tags": [
+      "사전예약",
+      "지역특화",
+      "무료"
+    ]
+  },
+  {
+    "id": "venue-국립공주박물관-어린이박물관",
+    "name": "국립공주박물관 어린이박물관",
+    "type": "museum",
+    "ageRange": "4-10",
+    "entryMinAge": 0,
+    "region": "충남 공주",
+    "reservationUrl": "https://gongju.museum.go.kr/",
+    "reservationChannel": "국립공주박물관",
+    "operator": "national",
+    "pricing": "free",
+    "schedule": "화~일 09:00-18:00 (월 휴관)",
+    "description": "백제·웅진 역사 주제 어린이 체험전시. 회차당 정원제 사전예약, 무료. 공주 웅진동.",
+    "credibilityScore": 0.92,
+    "tags": [
+      "사전예약",
+      "백제역사",
+      "무료"
+    ]
+  },
+  {
+    "id": "venue-국립김해박물관-어린이박물관",
+    "name": "국립김해박물관 어린이박물관",
+    "type": "museum",
+    "ageRange": "4-10",
+    "entryMinAge": 0,
+    "region": "경남 김해",
+    "reservationUrl": "https://gimhae.museum.go.kr/",
+    "reservationChannel": "국립김해박물관",
+    "operator": "national",
+    "pricing": "free",
+    "schedule": "화~일 09:00-18:00 (월 휴관)",
+    "description": "가야 역사·문화 주제 어린이 체험전시. 회차당 정원제 사전예약, 무료.",
+    "credibilityScore": 0.92,
+    "tags": [
+      "사전예약",
+      "가야역사",
+      "무료"
+    ]
+  },
+  {
+    "id": "venue-국립경주박물관-어린이박물관",
+    "name": "국립경주박물관 어린이박물관",
+    "type": "museum",
+    "ageRange": "4-10",
+    "entryMinAge": 0,
+    "region": "경북 경주",
+    "reservationUrl": "https://gyeongju.museum.go.kr/",
+    "reservationChannel": "국립경주박물관",
+    "operator": "national",
+    "pricing": "free",
+    "schedule": "화~일 10:00-18:00 (월 휴관)",
+    "description": "신라 역사·문화 주제 어린이 체험전시. 회차당 정원제 사전예약, 무료. 경주 인왕동.",
+    "credibilityScore": 0.93,
+    "tags": [
+      "사전예약",
+      "신라역사",
+      "무료"
+    ]
   }
 ];
