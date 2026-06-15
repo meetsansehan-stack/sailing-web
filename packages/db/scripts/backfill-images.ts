@@ -1,39 +1,9 @@
 // 기사 원문에서 og:image(없으면 twitter:image)를 추출해 Article.imageUrl 백필.
 // 못 찾으면 그대로 둠(null) → 웹 카드가 카테고리 비주얼로 폴백.
+// 추출 로직은 src/og-image.ts 공용(파이프라인 발행 시 캡처와 동일 소스).
 // 실행: cd packages/db && node --env-file=.env --import tsx scripts/backfill-images.ts [--all]
 import { prisma } from '../src/client';
-
-function extractImage(html: string): string | null {
-  const patterns = [
-    /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i,
-    /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i,
-    /<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i,
-    /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image["']/i,
-  ];
-  for (const re of patterns) {
-    const m = html.match(re);
-    if (m?.[1]) return m[1].trim();
-  }
-  return null;
-}
-
-async function fetchImage(pageUrl: string): Promise<string | null> {
-  try {
-    const res = await fetch(pageUrl, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ParentWebBot/0.1)' },
-      signal: AbortSignal.timeout(12000),
-    });
-    if (!res.ok) return null;
-    const html = await res.text();
-    let img = extractImage(html);
-    if (!img) return null;
-    if (img.startsWith('//')) img = `https:${img}`;
-    else if (img.startsWith('/')) img = new URL(pageUrl).origin + img;
-    return img.startsWith('http') ? img : null;
-  } catch {
-    return null;
-  }
-}
+import { fetchOgImage } from '../src/og-image';
 
 async function main() {
   const all = process.argv.includes('--all');
@@ -45,7 +15,7 @@ async function main() {
 
   let ok = 0;
   for (const a of articles) {
-    const img = await fetchImage(a.url);
+    const img = await fetchOgImage(a.url);
     if (img) {
       await prisma.article.update({ where: { id: a.id }, data: { imageUrl: img } });
       ok += 1;

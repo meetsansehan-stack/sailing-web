@@ -1,6 +1,7 @@
 import { prisma } from '@parenting-newsletter/db';
 
-export type AgentName = 'research' | 'curation' | 'writer' | 'editor' | 'qa' | 'hooking';
+// 'images' = 원문 og:image 캡처(결정론·LLM 0). 에이전트는 아니나 파이프라인 스테이지·AgentLog 단위로 다룬다.
+export type AgentName = 'research' | 'curation' | 'writer' | 'editor' | 'qa' | 'hooking' | 'images';
 
 export type AgentRunOptions<TInput, TOutput> = {
   agentName: AgentName;
