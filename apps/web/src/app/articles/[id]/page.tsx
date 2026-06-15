@@ -7,8 +7,10 @@ import { getAllVenues } from '@/src/data/venues';
 import { matchVenueForEvent } from '@/src/lib/event-venue';
 import { EventInfoBox } from '@/src/components/EventInfoBox';
 import { ArticleBody } from '@/src/components/ArticleBody';
+import { ArticleCard } from '@/src/components/ArticleCard';
 import { credibilityTier } from '@/src/lib/credibility';
 import { summaryBullets, keyPointBullets } from '@/src/lib/parse-body';
+import { relatedArticles } from '@/src/lib/related';
 
 export async function generateStaticParams() {
   const articles = await getAllArticles();
@@ -39,6 +41,10 @@ export default async function ArticleDetailPage({ params, searchParams }: PagePr
 
   // 이 기사에서 추출돼 도서 컬렉션에 보존된 책 (기사 만료와 무관하게 접근). 역링크.
   const sourcedBooks = await getBooksByArticle(decodedId).catch(() => []);
+
+  // 관련 기사 — 내부 회유(recirculation). 같은 카테고리·타입 우선, 부족하면 최신 폴백.
+  // preview 모드면 draft도 후보에 포함(검수 시 링크 끊김 방지).
+  const related = relatedArticles(article, await getAllArticles(preview), 4);
 
   const publishedLabel = new Date(article.publishedAt).toLocaleDateString('ko-KR', {
     year: 'numeric',
@@ -191,6 +197,18 @@ export default async function ArticleDetailPage({ params, searchParams }: PagePr
           >
             세일링 책장 전체 보기 →
           </Link>
+        </section>
+      )}
+
+      {/* 관련 기사 — 내부 회유(recirculation). 읽기 끝난 지점에서 "다음 읽을거리" 제안 */}
+      {related.length > 0 && (
+        <section className="mt-14 border-t border-line pt-10">
+          <h2 className="mb-6 text-h3 font-bold text-ink">함께 보면 좋은 기사</h2>
+          <div className="grid gap-x-9 gap-y-12 sm:grid-cols-2">
+            {related.map((a) => (
+              <ArticleCard key={a.id} article={a} showSummary={false} />
+            ))}
+          </div>
         </section>
       )}
 
