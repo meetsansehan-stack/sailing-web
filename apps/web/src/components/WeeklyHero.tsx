@@ -51,50 +51,72 @@ function buildMonth(
   return { label: `${month + 1}월`, weeks };
 }
 
-// ⚠️ 프로토타입: 실데이터엔 (시작+마감) 쌍을 가진 항목이 0건이라 진행 중(span)을 못 그림.
-//    그래서 실제 기사 5건에 오늘 기준 가상 기간을 씌워 시각화. 클릭 시 실제 기사 상세로 이동.
-//    실제론 파이프라인이 (시작일, 마감일) 쌍을 채운 뒤 이 부분을 실데이터로 교체.
-const SPAN_OFFSETS: Array<{ start: number; end: number }> = [
-  { start: -3, end: 4 },
-  { start: -7, end: 0 },
-  { start: 0, end: 6 },
-  { start: -5, end: -2 },
-  { start: 1, end: 9 },
-];
+// 장기 행사(전시 수개월 등)는 매일 칠하면 캘린더가 카펫처럼 덮인다 → 이 일수를 넘기면
+// 양 끝(개막·종료/마감)만 표시. 진짜 "이번 주 챙길 거"는 시작·끝 시점이라 정보 손실 없음.
+const MAX_PAINT_DAYS = 21;
 
-// ⚠️ 프로토타입: Article엔 region 필드가 없어 지역 필터 시연용 mock 지역(수도권 위주).
-const MOCK_REGIONS = ['서울', '경기', '인천', '부산', '서울'];
+// ⚠️ 프로토타입 잔재: Article엔 region 필드가 없어 지역 필터 시연용 mock 지역(수도권 위주).
+//    region 스키마가 생기면 이 mock만 교체(span은 이제 실데이터).
+const MOCK_REGIONS = ['서울', '경기', '인천', '부산'];
 
-// 서버 컴포넌트: GNB 하단 배너 데이터. (프로토타입: 진행 중 span 모델 시각화)
+function parseYmd(s?: string): Date | null {
+  if (!s) return null;
+  const d = new Date(s);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function daysBetween(a: Date, b: Date): number {
+  return Math.round((b.getTime() - a.getTime()) / 86_400_000);
+}
+
+// 한 기사 → 칠할 (날짜, kind) 목록. 실 필드(eventStartDate/eventEndDate/deadline)로:
+//   - redDay(빨강 ⏰) = deadline(신청 마감) 우선, 없으면 eventEndDate(행사 종료=놓치면 끝).
+//   - start = eventStartDate 우선, 없으면 deadline(마감만 있는 항목 = 그날 점).
+//   - start … redDay-1 = ongoing(파랑), redDay = deadline. redDay 없으면(단일 개장일) 전부 ongoing.
+function paintDays(a: Article): Array<{ ymd: string; kind: Kind }> {
+  const es = parseYmd(a.eventStartDate);
+  const ee = parseYmd(a.eventEndDate);
+  const dl = parseYmd(a.deadline);
+  const redDay = dl ?? ee; // 놓치면 끝나는 날 (없을 수 있음)
+  const start = es ?? dl; // 시작점
+  if (!start) return [];
+  const last = redDay ?? es ?? start; // 마지막으로 칠할 날
+  const redYmd = redDay ? ymd(redDay) : null;
+
+  // 장기 = 양 끝만(개막 + 종료/마감), 그 외 = 매일 칠함.
+  if (daysBetween(start, last) > MAX_PAINT_DAYS) {
+    const out = [{ ymd: ymd(start), kind: 'ongoing' as Kind }];
+    if (redYmd && redYmd !== ymd(start)) out.push({ ymd: redYmd, kind: 'deadline' });
+    return out;
+  }
+  const out: Array<{ ymd: string; kind: Kind }> = [];
+  for (let d = new Date(start); d <= last; d = addDays(d, 1)) {
+    const key = ymd(d);
+    out.push({ ymd: key, kind: key === redYmd ? 'deadline' : 'ongoing' });
+  }
+  return out;
+}
+
+// 서버 컴포넌트: GNB 하단 배너 데이터. (실데이터 span — eventStartDate/eventEndDate/deadline)
 export async function WeeklyHero({ today = new Date() }: { today?: Date }) {
   const todayYmd = ymd(today);
   const year = today.getFullYear();
   const month = today.getMonth();
 
-  // 가상 기간을 입힐 실제 기사 — 이벤트(날짜성) 우선, 모자라면 최신순 보충.
-  // API 비가용 시 배너만 조용히 생략(다른 페이지 영향 없음).
+  // 날짜성(이벤트/마감) 실데이터 기사만. API 비가용 시 배너만 조용히 생략(다른 페이지 영향 없음).
   let all: Article[];
   try {
     all = await getAllArticles();
   } catch {
     return null;
   }
-  const events = all.filter((a) => a.eventStartDate);
-  const pool: Article[] = [...events, ...all.filter((a) => !a.eventStartDate)].slice(
-    0,
-    SPAN_OFFSETS.length,
-  );
+  const dated = all.filter((a) => a.eventStartDate || a.deadline);
 
-  // 각 기사에 가상 기간을 일자별로 펼침: [시작 … 마감-1]=ongoing, 마감일=deadline
+  // 실 필드로 일자별 펼침: [시작 … 마감전일]=ongoing, 마감/종료일=deadline. 장기는 양 끝만.
   const dotMap = new Map<string, Kind[]>();
   const eventsByDate: Record<string, EventRow[]> = {};
-  pool.forEach((article, i) => {
-    const off = SPAN_OFFSETS[i];
-    const start = addDays(today, off.start);
-    const end = addDays(today, off.end);
-    for (let d = new Date(start); d <= end; d = addDays(d, 1)) {
-      const key = ymd(d);
-      const kind: Kind = key === ymd(end) ? 'deadline' : 'ongoing';
+  dated.forEach((article, i) => {
+    for (const { ymd: key, kind } of paintDays(article)) {
       if (!dotMap.has(key)) dotMap.set(key, []);
       dotMap.get(key)!.push(kind);
       if (!eventsByDate[key]) eventsByDate[key] = [];
@@ -143,7 +165,7 @@ export async function WeeklyHero({ today = new Date() }: { today?: Date }) {
       todayYmd={todayYmd}
       months={months}
       eventsByDate={eventsByDate}
-      note="프로토타입: 가상 기간 (실데이터엔 시작+마감 쌍이 아직 없음)"
+      note="지역 라벨은 시연용 (기사에 지역 데이터가 아직 없음)"
     />
   );
 }
