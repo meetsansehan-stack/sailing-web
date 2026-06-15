@@ -2,7 +2,13 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { generateStructured, runAgent, AGENT_MODELS } from '@parenting-newsletter/agents-core';
 import { prisma } from '@parenting-newsletter/db';
-import { PUBLISH_MIN, PUBLISH_MAX, kstIssueDate, issueDateString } from '@parenting-newsletter/shared';
+import {
+  PUBLISH_MIN,
+  PUBLISH_MAX,
+  kstIssueDate,
+  issueDateString,
+  isNearDuplicateTitle,
+} from '@parenting-newsletter/shared';
 import {
   CurationAgentInputSchema,
   CurationAgentOutputSchema,
@@ -95,16 +101,42 @@ export async function runCuration(opts: CurationRunOptions = {}) {
     select: { url: true },
   });
   const seenUrls = new Set(recentlyPublished.map((r) => r.url));
-  const candidates = rawCandidates.filter((c) => !seenUrls.has(c.url));
+  const afterUrlDedup = rawCandidates.filter((c) => !seenUrls.has(c.url));
+  const droppedUrlDupes = rawCandidates.length - afterUrlDedup.length;
+
+  // title-level 근접중복 제거: 같은 사건을 다른 매체·URL이 올리면 URL dedup이 못 잡는다.
+  // 결정적 휴리스틱(문자 bigram Jaccard)으로 보강 — LLM 선별 전에 토큰·중복 노출을 줄인다.
+  //   (1) cross-day: 최근 N일 기적재 '제목'과 근접중복 → 제외 (LLM은 과거 발행분을 못 봄).
+  //   (2) within-batch: 후보들끼리 근접중복이면 credibilityScore 높은 쪽만 보존.
+  const recentTitles = await prisma.article.findMany({
+    where: { issueDate: { gte: dedupSince, lt: issueDate } },
+    select: { title: true },
+  });
+  const afterCrossDayTitle = afterUrlDedup.filter(
+    (c) => !recentTitles.some((r) => isNearDuplicateTitle(c.title, r.title)),
+  );
+  const droppedCrossDayTitle = afterUrlDedup.length - afterCrossDayTitle.length;
+
+  // within-batch: 신뢰도 내림차순으로 보며 이미 채택한 것과 근접중복이면 버림(높은 신뢰도 보존).
+  const byCredibility = [...afterCrossDayTitle].sort(
+    (a, b) => b.credibilityScore - a.credibilityScore,
+  );
+  const candidates: ResearchCandidate[] = [];
+  for (const c of byCredibility) {
+    if (candidates.some((k) => isNearDuplicateTitle(c.title, k.title))) continue;
+    candidates.push(c);
+  }
+  const droppedWithinTitle = afterCrossDayTitle.length - candidates.length;
+
   const droppedDupes = rawCandidates.length - candidates.length;
   if (droppedDupes > 0) {
     console.log(
-      `[curation] cross-day 중복 ${droppedDupes}건 제외 (최근 ${DEDUP_WINDOW_DAYS}일 내 기적재 URL). 후보 ${rawCandidates.length}→${candidates.length}`,
+      `[curation] 중복 ${droppedDupes}건 제외 (URL ${droppedUrlDupes} + cross-day 제목 ${droppedCrossDayTitle} + 배치내 제목 ${droppedWithinTitle}, 최근 ${DEDUP_WINDOW_DAYS}일 윈도우). 후보 ${rawCandidates.length}→${candidates.length}`,
     );
   }
   if (candidates.length === 0) {
     throw new Error(
-      `All ${rawCandidates.length} candidates are cross-day duplicates for ${issueDateString(issueDate)}`,
+      `All ${rawCandidates.length} candidates were dropped as duplicates (URL/title) for ${issueDateString(issueDate)}`,
     );
   }
 
