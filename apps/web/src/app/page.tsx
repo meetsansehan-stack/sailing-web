@@ -8,6 +8,7 @@ import {
 import { getRecentArticles } from '@/src/data/articles';
 import { getLatestIssue } from '@/src/data/issues';
 import { ArticleCard } from '@/src/components/ArticleCard';
+import SubscribeCTA from '@/src/components/SubscribeCTA';
 import { TOPICS as RADAR_TOPICS } from '@/src/app/radar/data';
 
 // 홈 = "세일링 뉴스" (모든 탭 공통 구조)
@@ -158,6 +159,9 @@ export default async function Home({ searchParams }: { searchParams?: SearchPara
           )}
         </>
       )}
+
+      {/* 이메일 구독 CTA — 라이트 계정·메일 토대 (익명 읽기 안 막음) */}
+      <SubscribeCTA source="home_cta" />
 
       {/* ③ 모든 기사 보기 */}
       <div className="mt-16 flex flex-col items-center gap-4">

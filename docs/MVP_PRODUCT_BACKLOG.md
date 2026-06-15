@@ -42,12 +42,14 @@
 
 ## ② 회원·개인화 (그 다음)
 
-### 2-A. 회원가입·로그인
+### 2-A. 회원가입·로그인 🟡 이메일·분석 토대 完
 현재 `login/page.tsx` 30줄 **스텁**, `lib/supabase.ts` auth 설정만 존재.
-- [ ] 🔲 **소셜 로그인(카카오·구글)** 실구현 — Supabase Auth, 비번 직접저장 X. progressive(익명 먼저).
-- [ ] 🔲 **익명 읽기 유지** — 로그인 강제 안 함(획득 안 막기). 로그인은 저장·구독 시점에만 유도.
+- [x] ✅ **이메일 구독 + 익명 분석 토대** (2026-06-15) — [[mvp-account-data-architecture]] "익명 분석 day1 / 라이트 이메일 계정 처음부터" 구현. DB `Subscriber`(email·consent·source·anonId·authUserId 다리)+`AnalyticsEvent`(PII 0·익명 난수만) 마이그레이션 Supabase 적용. API `POST /api/subscribers`(멱등 upsert·동의·이메일검증) + `POST /api/analytics`(type 화이트리스트·204 fire-and-forget). 웹 `SubscribeCTA`(홈, source 태깅)+`AnalyticsTracker`(page_view)+`lib/analytics.ts`(anonId localStorage·sendBeacon). e2e 검증(구독·멱등 재구독·분석 204) 후 테스트데이터 정리.
+- [ ] 🔲 **소셜 로그인(카카오·구글)** 실구현 — Supabase Auth, 비번 직접저장 X. progressive(익명 먼저). email→authUserId 연결 다리는 스키마에 마련됨.
+- [ ] 🔲 **익명 읽기 유지** — 로그인 강제 안 함(획득 안 막기). 로그인은 저장·구독 시점에만 유도. (구독 CTA는 이미 비강제.)
 - [ ] 🔲 로그인 후 상태(헤더·내 정보) 최소 UI.
-- [ ] 🔲 이메일 수집(V2 메일 토대) — 동의 받아.
+- [ ] 🔲 메일 발송 인프라(V2) — 구독자 수집은 시작됐으니 발송 채널만 남음.
+- [ ] 🔲 분석 대시보드/조회 — 현재 적재만. 퍼널·전환 조회 화면 또는 외부(PostHog/GA4) 검토.
 
 ### 2-B. 개인화 (V1 핵심 — 클라/로컬)
 - [ ] 🔲 **연령·지역 입력** — localStorage(기기), 서버 아동 PII 0. 온보딩에서 1회.

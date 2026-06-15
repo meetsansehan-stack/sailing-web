@@ -29,6 +29,7 @@ import pipelineRoute from './routes/pipeline';
 import venuesRoute from './routes/venues';
 import booksRoute from './routes/books';
 import subscribersRoute from './routes/subscribers';
+import analyticsRoute from './routes/analytics';
 import qaRoute from './routes/qa';
 
 app.route('/api/articles', articlesRoute);
@@ -38,6 +39,7 @@ app.route('/api/pipeline', pipelineRoute);
 app.route('/api/venues', venuesRoute);
 app.route('/api/books', booksRoute);
 app.route('/api/subscribers', subscribersRoute);
+app.route('/api/analytics', analyticsRoute);
 app.route('/api/qa', qaRoute);
 
 // 직접 실행되면 (tsx watch / node) HTTP 서버 시작.

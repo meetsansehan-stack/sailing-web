@@ -181,7 +181,37 @@ model AgentConfig {
   prompt              String    @db.Text
   schema              String    @db.Text // JSON 스키마
   isActive            Boolean   @default(true)
-  
+
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
+}
+
+// 이메일 구독자 — 식별 데이터 최소(부모 신원만, 아동 PII 0).
+// email = 나중 소셜 로그인 연결 다리(authUserId 빈칸 → 첫 로그인 시 이메일 매칭으로 link).
+model Subscriber {
+  id          String    @id @default(cuid())
+  email       String    @unique            // 구독 이메일 = 식별·연결 키
+  consent     Boolean   @default(true)      // 구독·수신 동의
+  consentAt   DateTime  @default(now())
+  source      String?                       // 유입 지점 (home_cta / reservation 등)
+  anonId      String?                       // 익명 이벤트 흐름과 연결
+  authUserId  String?   @unique             // 2-② 소셜 로그인 연결용 (지금은 null)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([anonId])
+  @@index([createdAt])
+}
+
+// 익명 분석 이벤트 — PII 0(익명 기기 난수만). CTA·페이지뷰·전환 측정.
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  type      String                           // page_view | cta_impression | cta_click | cta_dismiss | subscribe_success ...
+  anonId    String                           // 익명 기기 난수 (개인정보 아님)
+  path      String?                          // 발생 화면 경로
+  meta      Json?                            // 부가 정보 (cta 위치 등)
+  createdAt DateTime @default(now())
+
+  @@index([type, createdAt])
+  @@index([anonId])
 }
