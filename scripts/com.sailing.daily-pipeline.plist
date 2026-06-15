@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Sailing Web 일일 파이프라인 스케줄 (macOS LaunchAgent).
+  설치·주의·약관 경계는 docs/SCHEDULING.md 참고.
+
+  - 매일 KST 00:05 실행(Mac 타임존 = Asia/Seoul 가정). draft만 생성, 발행은 수동.
+  - 경로(/Users/songhee/...)는 이 머신 기준. 다른 머신이면 수정 필요.
+  - launchctl은 StartCalendarInterval을 '로컬 시간'으로 해석한다.
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.sailing.daily-pipeline</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/songhee/parenting-newsletter/scripts/daily-pipeline.sh</string>
+    </array>
+
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>0</integer>
+        <key>Minute</key>
+        <integer>5</integer>
+    </dict>
+
+    <!-- 로드 시 즉시 실행하지 않음(스케줄에만 의존). 테스트는 launchctl start로. -->
+    <key>RunAtLoad</key>
+    <false/>
+
+    <key>StandardOutPath</key>
+    <string>/Users/songhee/parenting-newsletter/logs/launchd.out.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/songhee/parenting-newsletter/logs/launchd.err.log</string>
+</dict>
+</plist>
