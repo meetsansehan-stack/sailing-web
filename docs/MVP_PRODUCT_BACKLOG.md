@@ -8,13 +8,12 @@
 
 ## ① 화면·콘텐츠 완성도 (제품 표면 채우기) — 먼저
 
-### 1-A. 이미지 구현 ⚠️ 가장 눈에 띄는 갭
-현재 **DB `imageUrl` 0건** → 카드·상세가 전부 `CategoryVisual`(SVG 모티프) 폴백만. 실사진 0장.
-- [ ] ⚠️ **카드 썸네일 = 원문 og:image 채우기** — `ArticleCard`는 `imageUrl ? <img> : CategoryVisual`. 정책상 og:image 단일소스인데 미적재. → `packages/db/scripts/backfill-images.ts` 실행으로 기존 기사 백필 + **파이프라인(writer)이 발행 시 og:image를 `imageUrl`에 캡처**하도록 배선.
-- [ ] 🔲 **상세 히어로 이미지** — `articles/[id]/page.tsx`도 `imageUrl &&`로 게이트. og 채워지면 자동 노출(없으면 숨김 = 의도).
-- [ ] 🟡 og 추출 실패/핫링킹 깨짐 graceful — 죽은 이미지 시 폴백 확인.
-- [ ] ✅ `CategoryVisual` 폴백(항해 모티프) — 작동(현재 사실상 전 카드가 이것).
-- 참고: [[project_image_policy]] (저작권은 베타 전 재검토 = ③로).
+### 1-A. 이미지 구현 ✅ 완료 (2026-06-15, `e83d883`)
+~~DB `imageUrl` 0건~~ → og:image 자동 캡처 배선 완료. 카드·상세가 실 썸네일 렌더.
+- [x] ✅ **카드 썸네일 = 원문 og:image** — `packages/db/src/og-image.ts`(공용 추출) + 파이프라인 `images` soft 스테이지가 발행 시 캡처 + 기존 32건 backfill(24건 75% 캡처). API imageUrl 직렬화·홈 카드 실 CDN 렌더 검증.
+- [x] ✅ **상세 히어로 이미지** — `imageUrl &&` 게이트, 채워지면 자동 노출(없으면 숨김 = 의도).
+- [x] ✅ og 부재/실패 graceful — null 시 `CategoryVisual`(항해 모티프) 폴백(현 8/32건).
+- [ ] ⚠️ 핫링킹 저작권 재검토 — 베타 전 결론(③로).
 
 ### 1-B. 세일링 책장 채우기
 현재 **Book 13권**. on-demand 추출 도구는 있음(`books:build`).
