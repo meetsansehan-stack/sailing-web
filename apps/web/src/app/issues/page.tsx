@@ -21,6 +21,10 @@ export default async function IssuesArchivePage() {
         <p className="text-body text-ink-2">지난 이슈 모음 (최신순)</p>
       </header>
 
+      {issues.length === 0 && (
+        <p className="py-16 text-center text-body text-ink-3">아직 발행된 이슈가 없어요.</p>
+      )}
+
       <ul className="space-y-4">
         {issues.map((issue) => {
           const counts = countByCategory(issue.articles);
