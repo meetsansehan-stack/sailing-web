@@ -4,7 +4,8 @@ import { CategoryVisual } from './CategoryVisual';
 
 // 공용 기사 카드 — 홈·기사목록·이슈상세 공통.
 // 디자인: Toss Feed 에디토리얼 카드 (박스/보더 없음, hover 시 제목 블루·썸네일 흐려짐).
-//  - default : 그리드용 카드 (썸네일 16:10 + 제목 + 2줄 설명 + 메타)
+//  - default : 반응형 — 모바일=가로 리스트 행(텍스트 좌 + 정사각 썸네일 우, Toss Feed 모바일 실측)
+//              / sm+=그리드 세로 카드(썸네일 16:10 상단 + 제목 + 메타)
 //  - featured: "추천 아티클" — 큰 썸네일 16:9 + 큰 제목 + 설명 (lg에서 이미지 좌/텍스트 우)
 //  - showSummary: 요약 노출 제어 (미지정 시 노출). 홈은 false로 디스크립션 숨김.
 export function ArticleCard({
@@ -23,7 +24,7 @@ export function ArticleCard({
   const Thumb = (
     <div
       className={`relative overflow-hidden rounded-card bg-grey-100 ${
-        featured ? 'aspect-[16/9]' : 'aspect-[16/10]'
+        featured ? 'aspect-[16/9]' : 'aspect-square sm:aspect-[16/10]'
       }`}
     >
       {isNew && (
@@ -60,7 +61,7 @@ export function ArticleCard({
       <h3
         className={`line-clamp-2 text-ink transition group-hover:text-blue-600 ${
           // 카드 타이틀 = headline 토큰(24px/600/lh1.4, Toss Feed 실측). featured는 더 큰 단계.
-          featured ? 'mt-2 text-h2 lg:text-h1' : 'mt-2 text-headline'
+          featured ? 'mt-2 text-h2 lg:text-h1' : 'mt-1 text-h3 sm:mt-2 sm:text-headline'
         }`}
       >
         {article.title}
@@ -106,10 +107,14 @@ export function ArticleCard({
     );
   }
 
+  // 모바일 = 가로 리스트 행(텍스트 좌 + 정사각 썸네일 우) / sm+ = 세로 카드(썸네일 상단).
   return (
-    <Link href={`/articles/${encodeURIComponent(article.id)}`} className="group flex flex-col">
-      <div className="mb-4">{Thumb}</div>
-      {Meta}
+    <Link
+      href={`/articles/${encodeURIComponent(article.id)}`}
+      className="group flex flex-row items-start gap-4 sm:flex-col sm:gap-0"
+    >
+      <div className="order-1 min-w-0 flex-1 sm:order-2">{Meta}</div>
+      <div className="order-2 w-24 shrink-0 sm:order-1 sm:mb-4 sm:w-auto sm:self-stretch">{Thumb}</div>
     </Link>
   );
 }

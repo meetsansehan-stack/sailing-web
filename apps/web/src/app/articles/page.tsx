@@ -79,7 +79,7 @@ export default async function ArticlesIndexPage({
             해당 카테고리 기사가 없습니다.
           </div>
         ) : (
-          <div className="grid gap-x-9 gap-y-16 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-11">
+          <div className="grid gap-y-10 sm:grid-cols-2 sm:gap-x-9 sm:gap-y-16 lg:grid-cols-3 lg:gap-x-11">
             {pageItems.map((article) => (
               <ArticleCard key={article.id} article={article} showSummary={false} />
             ))}

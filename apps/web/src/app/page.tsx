@@ -134,7 +134,7 @@ export default async function Home({ searchParams }: { searchParams?: SearchPara
               <ArticleCard article={todayArticles[0]} variant="featured" showSummary={false} />
               {/* 나머지 — 그리드 */}
               {todayArticles.length > 1 && (
-                <div className="mt-14 grid gap-x-9 gap-y-16 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-11">
+                <div className="mt-8 grid gap-y-10 sm:mt-14 sm:grid-cols-2 sm:gap-x-9 sm:gap-y-16 lg:grid-cols-3 lg:gap-x-11">
                   {todayArticles.slice(1).map((a) => (
                     <ArticleCard key={a.id} article={a} showSummary={false} />
                   ))}
@@ -150,7 +150,7 @@ export default async function Home({ searchParams }: { searchParams?: SearchPara
                 <h2 className="text-h3 text-ink">이전 기사</h2>
                 <span className="ml-auto text-meta text-ink-3">{olderArticles.length}건</span>
               </div>
-              <div className="grid gap-x-9 gap-y-16 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-11">
+              <div className="grid gap-y-10 sm:grid-cols-2 sm:gap-x-9 sm:gap-y-16 lg:grid-cols-3 lg:gap-x-11">
                 {olderArticles.map((a) => (
                   <ArticleCard key={a.id} article={a} showSummary={false} />
                 ))}
