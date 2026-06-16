@@ -180,13 +180,6 @@ export function ArticleBody({ body, contentType }: { body: string; contentType: 
               <span className="inline-block h-5 w-1 rounded-full bg-blue" />
               {section.heading}
             </h2>
-            {/* 핵심 콘텐츠 타이틀 하단 이미지 영역 — 자리만 확보(placeholder).
-                이미지 소싱은 보류(사용자 결정) → 결정 시 이 슬롯에 <img>만 끼움. */}
-            {section.heading === '핵심 콘텐츠' && (
-              <div className="mb-5 flex aspect-[16/9] w-full items-center justify-center rounded-card border border-line bg-grey-100 text-meta text-ink-3">
-                🖼 이미지 영역 — 원문 이미지가 들어갈 자리
-              </div>
-            )}
             <Blocks blocks={section.blocks} metric={isMetricHeading(section.heading)} />
           </section>
         ),
