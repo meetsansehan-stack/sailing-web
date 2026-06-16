@@ -4,6 +4,7 @@ import { Arvo } from 'next/font/google';
 import { WeeklyHero } from '@/src/components/WeeklyHero';
 import { CalendarGate } from '@/src/components/CalendarGate';
 import { MainContainer } from '@/src/components/MainContainer';
+import { MobileNav } from '@/src/components/MobileNav';
 import AnalyticsTracker from '@/src/components/AnalyticsTracker';
 import './globals.css';
 
@@ -75,8 +76,8 @@ export default function RootLayout({
               Sailing
             </Link>
 
-            {/* 우측: 메뉴 + 로그인(면 버튼) */}
-            <div className="ml-auto flex items-center gap-1 text-body">
+            {/* 우측(데스크탑): 메뉴 + 로그인(면 버튼) — 모바일은 햄버거로 대체 */}
+            <div className="ml-auto hidden items-center gap-1 text-body md:flex">
               {NAV.map((item) => (
                 <Link
                   key={item.href}
@@ -93,6 +94,9 @@ export default function RootLayout({
                 로그인
               </Link>
             </div>
+
+            {/* 우측(모바일 <md): 햄버거 드롭다운 */}
+            <MobileNav items={NAV} />
           </nav>
         </header>
         {/* GNB 하단 전폭 배너 — 이번 주 키데이트 (collapse/expand). 날짜 맥락 경로(미리 준비·예약 정보) 상단에서만 노출 */}

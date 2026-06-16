@@ -39,8 +39,9 @@ export default async function ArticlesIndexPage({
     : '모든 기사';
 
   return (
-    <div className="px-4 py-8 sm:px-6 lg:px-8">
-      <header className="mx-auto max-w-6xl pt-6 pb-10">
+    // 폭·패딩은 MainContainer(WIDE_PATHS에 /articles 포함, max-w-container)가 단일 관리 — 홈과 동일.
+    <>
+      <header className="pb-10">
         <p className="text-small font-medium text-blue-600 mb-2 tracking-wider">ARTICLES</p>
         <h1 className="text-h1 font-bold text-ink mb-3">{headerTitle}</h1>
         <p className="text-body text-ink-2 leading-7">
@@ -48,7 +49,7 @@ export default async function ArticlesIndexPage({
         </p>
       </header>
 
-      <div className="mx-auto max-w-6xl mb-8 flex gap-6 overflow-x-auto border-b border-line [&::-webkit-scrollbar]:hidden">
+      <div className="mb-8 flex gap-6 overflow-x-auto border-b border-line [&::-webkit-scrollbar]:hidden">
         <Link
           href="/articles"
           className={`-mb-px shrink-0 border-b-2 pb-3 text-body transition ${
@@ -72,7 +73,7 @@ export default async function ArticlesIndexPage({
         ))}
       </div>
 
-      <section className="mx-auto max-w-6xl">
+      <section>
         {filtered.length === 0 ? (
           <div className="rounded-card border border-dashed border-grey-300 bg-white p-8 text-center text-ink-3">
             해당 카테고리 기사가 없습니다.
@@ -96,7 +97,7 @@ export default async function ArticlesIndexPage({
         )}
       </section>
 
-      <div className="mx-auto max-w-6xl mt-12 flex flex-col gap-3 sm:flex-row justify-center">
+      <div className="mt-12 flex flex-col gap-3 sm:flex-row justify-center">
         <Link
           href="/"
           className="inline-flex items-center justify-center gap-2 rounded-full border border-grey-300 bg-white px-5 py-2.5 text-body font-semibold text-ink-2 hover:bg-grey-50 transition"
@@ -110,6 +111,6 @@ export default async function ArticlesIndexPage({
           이슈 아카이브 →
         </Link>
       </div>
-    </div>
+    </>
   );
 }
