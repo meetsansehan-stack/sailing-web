@@ -8,6 +8,7 @@ import {
 import { getRecentArticles } from '@/src/data/articles';
 import { getLatestIssue } from '@/src/data/issues';
 import { ArticleCard } from '@/src/components/ArticleCard';
+import { EdgeFadeScroll } from '@/src/components/EdgeFadeScroll';
 import SubscribeCTA from '@/src/components/SubscribeCTA';
 import { TOPICS as RADAR_TOPICS } from '@/src/app/radar/data';
 
@@ -92,8 +93,12 @@ export default async function Home({ searchParams }: { searchParams?: SearchPara
         <p className="mt-2 text-meta text-ink-3">마지막 업데이트 {updatedLabel}</p>
       </header>
 
-      {/* 카테고리 탭 9개 (전체 + 8) — Feed식 언더라인 탭(선택=하단 라인, 평상시=텍스트 버튼). 9개라 가로 스크롤. */}
-      <div className="mb-12 flex gap-6 overflow-x-auto border-b border-line [&::-webkit-scrollbar]:hidden">
+      {/* 카테고리 탭 9개 (전체 + 8) — Feed식 언더라인 탭(선택=하단 라인, 평상시=텍스트 버튼).
+          9개라 모바일에선 가로 스크롤 → EdgeFadeScroll로 "더 있음" 페이드 cue. */}
+      <EdgeFadeScroll
+        containerClassName="mb-12"
+        className="flex gap-6 overflow-x-auto border-b border-line [&::-webkit-scrollbar]:hidden"
+      >
         <Link
           href="/"
           className={`-mb-px shrink-0 border-b-2 pb-3 text-body transition ${
@@ -115,7 +120,7 @@ export default async function Home({ searchParams }: { searchParams?: SearchPara
             {CATEGORY_LABEL[cat]}
           </Link>
         ))}
-      </div>
+      </EdgeFadeScroll>
 
       {base.length === 0 ? (
         <div className="rounded-card border border-dashed border-grey-300 bg-white p-12 text-center text-ink-3">
@@ -134,7 +139,7 @@ export default async function Home({ searchParams }: { searchParams?: SearchPara
               <ArticleCard article={todayArticles[0]} variant="featured" showSummary={false} />
               {/* 나머지 — 그리드 */}
               {todayArticles.length > 1 && (
-                <div className="mt-8 grid gap-y-10 sm:mt-14 sm:grid-cols-2 sm:gap-x-9 sm:gap-y-16 lg:grid-cols-3 lg:gap-x-11">
+                <div className="mt-10 grid gap-y-10 sm:mt-14 sm:grid-cols-2 sm:gap-x-9 sm:gap-y-16 lg:grid-cols-3 lg:gap-x-11">
                   {todayArticles.slice(1).map((a) => (
                     <ArticleCard key={a.id} article={a} showSummary={false} />
                   ))}

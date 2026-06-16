@@ -24,7 +24,8 @@ export function ArticleCard({
   const Thumb = (
     <div
       className={`relative overflow-hidden rounded-card bg-grey-100 ${
-        featured ? 'aspect-[16/9]' : 'aspect-square sm:aspect-[16/10]'
+        // featured도 모바일은 정사각(리스트 행) → sm+에서 16:9 히어로. default는 정사각 → 16:10.
+        featured ? 'aspect-square sm:aspect-[16/9]' : 'aspect-square sm:aspect-[16/10]'
       }`}
     >
       {isNew && (
@@ -61,7 +62,7 @@ export function ArticleCard({
       <h3
         className={`line-clamp-2 text-ink transition group-hover:text-blue-600 ${
           // 카드 타이틀 = headline 토큰(24px/600/lh1.4, Toss Feed 실측). featured는 더 큰 단계.
-          featured ? 'mt-2 text-h2 lg:text-h1' : 'mt-1 text-h3 sm:mt-2 sm:text-headline'
+          featured ? 'mt-1 text-h3 sm:mt-2 sm:text-h2 lg:text-h1' : 'mt-1 text-h3 sm:mt-2 sm:text-headline'
         }`}
       >
         {article.title}
@@ -96,13 +97,14 @@ export function ArticleCard({
   );
 
   if (featured) {
+    // 모바일 = 가로 리스트 행(다른 카드와 균일, Toss Feed 피드) / sm = 세로 히어로 / lg = 좌우 히어로.
     return (
       <Link
         href={`/articles/${encodeURIComponent(article.id)}`}
-        className="group grid items-center gap-6 lg:grid-cols-2 lg:gap-10"
+        className="group flex flex-row items-start gap-4 sm:grid sm:items-center sm:gap-6 lg:grid-cols-2 lg:gap-10"
       >
-        {Thumb}
-        <div>{Meta}</div>
+        <div className="order-2 w-24 shrink-0 sm:order-1 sm:w-auto">{Thumb}</div>
+        <div className="order-1 min-w-0 flex-1 sm:order-2">{Meta}</div>
       </Link>
     );
   }

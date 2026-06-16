@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { CATEGORIES, CATEGORY_LABEL, type Category } from '@parenting-newsletter/shared';
 import { getRecentArticles } from '@/src/data/articles';
 import { ArticleCard } from '@/src/components/ArticleCard';
+import { EdgeFadeScroll } from '@/src/components/EdgeFadeScroll';
 import { Pagination } from '@/src/components/Pagination';
 
 type SearchParams = { category?: string; page?: string };
@@ -49,7 +50,10 @@ export default async function ArticlesIndexPage({
         </p>
       </header>
 
-      <div className="mb-8 flex gap-6 overflow-x-auto border-b border-line [&::-webkit-scrollbar]:hidden">
+      <EdgeFadeScroll
+        containerClassName="mb-8"
+        className="flex gap-6 overflow-x-auto border-b border-line [&::-webkit-scrollbar]:hidden"
+      >
         <Link
           href="/articles"
           className={`-mb-px shrink-0 border-b-2 pb-3 text-body transition ${
@@ -71,7 +75,7 @@ export default async function ArticlesIndexPage({
             {CATEGORY_LABEL[cat]}
           </Link>
         ))}
-      </div>
+      </EdgeFadeScroll>
 
       <section>
         {filtered.length === 0 ? (
