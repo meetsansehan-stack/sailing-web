@@ -65,6 +65,14 @@ const FOOTER_INFO = [
 const CONTACT_EMAIL = 'with.sailing@gmail.com';
 const FEEDBACK_MAILTO = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('[세일링 베타 피드백]')}`;
 
+// 사업자 정보 — 정보통신망법·전자상거래법 표기. 푸터 하단 노출.
+const BIZ = {
+  name: '산세한 (Sansehan)',
+  owner: '한송희',
+  regNo: '733-23-02000',
+  address: '서울특별시 송파구 법원로8길 8 문정역 2차 SK V1 408호',
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -181,8 +189,20 @@ export default function RootLayout({
                 </ul>
               </div>
             </div>
-            <div className="mt-8 border-t pt-6 text-small text-ink-3">
-              <p>&copy; 2026 Sailing. All rights reserved.</p>
+            <div className="mt-8 space-y-1 border-t pt-6 text-small text-ink-3">
+              <p className="flex flex-wrap gap-x-3 gap-y-1">
+                <span>상호 {BIZ.name}</span>
+                <span>대표 {BIZ.owner}</span>
+                <span>사업자등록번호 {BIZ.regNo}</span>
+              </p>
+              <p>주소 {BIZ.address}</p>
+              <p>
+                문의{' '}
+                <a href={`mailto:${CONTACT_EMAIL}`} className="underline underline-offset-2 hover:text-ink">
+                  {CONTACT_EMAIL}
+                </a>
+              </p>
+              <p className="pt-2">&copy; 2026 Sailing. All rights reserved.</p>
             </div>
           </div>
         </footer>

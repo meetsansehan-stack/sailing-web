@@ -2,8 +2,7 @@ import type { Metadata } from 'next';
 
 // 개인정보처리방침 — 실제 수집 데이터에 맞춘 초안.
 // ⚠️ 출시 전 1회 법무 검토 필요(CLAUDE.md·PRIVACY.md).
-// 채움: 위탁업체(Supabase·Vercel·Railway, 국외처리 고지)·보호책임자 연락처(with.sailing@gmail.com).
-// 잔여: 개인정보 보호책임자 [성명/직책] — 확정 후 치환.
+// 채움: 위탁업체(Supabase·Vercel·Railway, 국외처리 고지)·보호책임자(한송희/대표, with.sailing@gmail.com).
 // 데이터 사실: 서버=부모 이메일·동의·익명 anonId·익명 분석만. 아동 PII(생일·지역·발달·진단)=0(로컬-퍼스트).
 
 export const metadata: Metadata = {
@@ -128,7 +127,7 @@ export default function PrivacyPage() {
           개인정보 처리에 관한 문의·불만·피해 구제는 아래로 연락해 주시기 바랍니다.
         </p>
         <ul className="list-none space-y-1.5">
-          <li>개인정보 보호책임자: [성명 / 직책 — 확정 후 기재]</li>
+          <li>개인정보 보호책임자: 한송희 / 대표</li>
           <li>연락처: with.sailing@gmail.com</li>
         </ul>
       </Section>
