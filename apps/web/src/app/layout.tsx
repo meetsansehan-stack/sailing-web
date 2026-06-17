@@ -11,10 +11,32 @@ import './globals.css';
 // 로고 워드마크 전용 폰트 (라틴 전용 → 영문 "Sailing"에 적용)
 const arvo = Arvo({ subsets: ['latin'], weight: '700', display: 'swap' });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+const SITE_DESC = '매일 아침, 우리 아이에게 필요한 육아 정보를 한눈에.';
+
 export const metadata: Metadata = {
-  title: '세일링 — 육아 정보 큐레이션',
-  description: '매일 아침, 우리 아이에게 필요한 육아 정보를 한눈에.',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: '세일링 — 육아 정보 큐레이션',
+    template: '%s — 세일링', // 하위 페이지가 title 문자열만 주면 자동으로 " — 세일링" 붙음
+  },
+  description: SITE_DESC,
   authors: [{ name: '세일링 팀' }],
+  applicationName: '세일링',
+  alternates: { canonical: '/' },
+  openGraph: {
+    type: 'website',
+    siteName: '세일링',
+    locale: 'ko_KR',
+    url: SITE_URL,
+    title: '세일링 — 육아 정보 큐레이션',
+    description: SITE_DESC,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '세일링 — 육아 정보 큐레이션',
+    description: SITE_DESC,
+  },
 };
 
 const NAV = [

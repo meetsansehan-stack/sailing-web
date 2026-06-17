@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 // 핵심: 정보제공(큐레이션) 매체 = 콘텐츠 정확성·외부 링크 면책, 의료·법률 자문 아님.
 
 export const metadata: Metadata = {
-  title: '이용약관 — 세일링',
+  title: '이용약관',
   description: '세일링 서비스 이용에 관한 약관입니다.',
 };
 

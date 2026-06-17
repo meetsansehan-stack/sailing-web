@@ -5,7 +5,7 @@ import type { Metadata } from 'next';
 // 데이터 사실: 서버=부모 이메일·동의·익명 anonId·익명 분석만. 아동 PII(생일·지역·발달·진단)=0(로컬-퍼스트).
 
 export const metadata: Metadata = {
-  title: '개인정보처리방침 — 세일링',
+  title: '개인정보처리방침',
   description: '세일링이 수집하는 개인정보 항목·목적·보유기간과 이용자의 권리를 안내합니다.',
 };
 

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { CATEGORY_LABEL, CONTENT_TYPE_LABEL } from '@parenting-newsletter/shared';
@@ -21,6 +22,33 @@ type PageProps = {
   params: { id: string };
   searchParams?: { preview?: string };
 };
+
+// per-article SEO·OG (카카오·트위터 공유 카드). getArticleById는 cache()라 본문과 중복 fetch 없음.
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const article = await getArticleById(decodeURIComponent(params.id)).catch(() => undefined);
+  if (!article) return { title: '기사를 찾을 수 없어요' };
+
+  const desc = article.summary?.slice(0, 150);
+  const canonical = `/articles/${encodeURIComponent(article.id)}`;
+  return {
+    title: article.title,
+    description: desc,
+    alternates: { canonical },
+    openGraph: {
+      type: 'article',
+      title: article.title,
+      description: desc,
+      url: canonical,
+      publishedTime: article.publishedAt,
+      images: article.imageUrl ? [{ url: article.imageUrl }] : undefined,
+    },
+    twitter: {
+      card: article.imageUrl ? 'summary_large_image' : 'summary',
+      title: article.title,
+      description: desc,
+    },
+  };
+}
 
 export default async function ArticleDetailPage({ params, searchParams }: PageProps) {
   // preview 토큰이 있으면 미공개(draft) 이슈의 기사도 조회 (운영자 검수). API가 토큰을 검증.
