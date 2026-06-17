@@ -4,6 +4,7 @@ import {
   type ReservableVenue,
 } from '@parenting-newsletter/shared';
 import { overviewBullets } from '@/src/lib/parse-body';
+import OutboundLink from '@/src/components/OutboundLink';
 
 // Event 골격 — "행사 정보" 통합 블록 (contentType=Event 전용).
 //
@@ -96,14 +97,13 @@ export function EventInfoBox({
 
       {/* 예약·예매 CTA — venue 매칭 시만. 미매칭은 페이지 하단 "원문 사이트에서 읽기"가 대체 */}
       {venue && (
-        <a
+        <OutboundLink
           href={venue.reservationUrl}
-          target="_blank"
-          rel="noopener noreferrer"
+          label="event_reserve"
           className="mt-4 inline-flex items-center gap-1 rounded-btn bg-blue px-4 py-2.5 text-meta font-semibold text-white transition hover:bg-blue-600"
         >
           🎟 예약·예매 페이지로 <span aria-hidden>↗</span>
-        </a>
+        </OutboundLink>
       )}
     </div>
   );

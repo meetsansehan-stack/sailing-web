@@ -33,8 +33,8 @@
 - [ ] 🟡 빈/에러 상태 graceful — 배너 null 폴백 등 일부 있음. 전반 점검.
 
 ### 측정·검증 설계 (도구는 Phase B에서 적재, 설계는 지금)
-- [ ] 🔲 **핵심 지표 정의** — 공명 = 재방문·완독·공유·"놓친 거 없나" 충족. Sean Ellis 40% 기준.
-- [ ] 🔲 인터뷰 코딩 시트 준비 — 과거행동·돈·감정만(The Mom Test). `docs/ICP_INTERVIEW.md` 활용.
+- [x] ✅ **핵심 지표 정의** — `docs/METRICS.md`(단일 소스): 북극성·AARRR컷·공명지표↔이벤트 매핑·PMF(Sean Ellis 40%)·kill/learn·베타 목표. 대시보드 연결.
+- [x] ✅ 인터뷰 코딩 시트 — 이미 `docs/ICP_INTERVIEW.md` §8 존재(The Mom Test·판정 기준). METRICS §6 링크.
 
 ### 획득(검증) — 인터뷰
 - [ ] 🟡 인터뷰 자극물 = 로컬 데모 + 모집 키트(`docs/ICP_INTERVIEW.md`·`ICP_SURVEY.md` 존재).
@@ -74,8 +74,8 @@
 - [ ] 🔲 가벼운 온보딩 — 강한 온보딩 설계는 동결(검증 우선). 최소만.
 
 ### 분석 적재
-- [ ] 🔲 익명 분석 day1 — 도구 선택(프라이버시 정합: Plausible/자체 우선, GA는 동의 부담).
-- [ ] 🔲 익명 집계 서버 적재 — 세그(시군구+연령밴드+활동유형) = 벤치마크 해자 토대.
+- [x] ✅ 익명 분석 day1 — 자체 적재(page_view·cta 퍼널·outbound_click). PII 0. **운영 대시보드 `/dashboard?key=`**(GET /api/analytics/summary): 구독 퍼널·일별 추이·인기 경로·고유 방문자.
+- [ ] 🔲 익명 집계 서버 적재(세그=시군구+연령밴드+활동유형 = 벤치마크 해자) — 세션화·체류시간은 METRICS §7 후속.
 
 ### 운영 자동화
 - [ ] 🟡 스케줄러 실설치 — `cp scripts/com.sailing.daily-pipeline.plist ~/Library/LaunchAgents/ && launchctl load`. 또는 수동 데일리 확정.

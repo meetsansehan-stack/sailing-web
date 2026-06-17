@@ -8,6 +8,7 @@ import { getAllVenues } from '@/src/data/venues';
 import { matchVenueForEvent } from '@/src/lib/event-venue';
 import { EventInfoBox } from '@/src/components/EventInfoBox';
 import { ArticleBody } from '@/src/components/ArticleBody';
+import OutboundLink from '@/src/components/OutboundLink';
 import { ArticleCard } from '@/src/components/ArticleCard';
 import { credibilityTier } from '@/src/lib/credibility';
 import { summaryBullets, keyPointBullets } from '@/src/lib/parse-body';
@@ -264,14 +265,13 @@ export default async function ArticleDetailPage({ params, searchParams }: PagePr
 
       {/* CTA */}
       <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-        <a
+        <OutboundLink
           href={article.url}
-          target="_blank"
-          rel="noopener noreferrer"
+          label="article_source"
           className="flex-1 inline-flex items-center justify-center rounded-btn bg-blue px-6 py-3.5 text-card-title font-semibold text-white transition hover:bg-blue-600"
         >
           원문 사이트에서 읽기 ↗
-        </a>
+        </OutboundLink>
         <Link
           href="/"
           className="flex-1 inline-flex items-center justify-center rounded-btn border border-line bg-white px-6 py-3.5 text-card-title font-semibold text-ink-2 transition hover:bg-grey-50"
