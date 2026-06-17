@@ -96,6 +96,17 @@ export default function SubscribeCTA({ source = 'home_cta' }: { source?: string 
         <p className="mt-3 text-small text-ink-3">
           언제든 해지할 수 있어요. 아이 정보는 받지 않아요.
         </p>
+        <p className="mt-1.5 text-small text-ink-3">
+          구독하면{' '}
+          <a href="/privacy" className="underline underline-offset-2 hover:text-ink-2">
+            개인정보처리방침
+          </a>
+          {' '}및{' '}
+          <a href="/terms" className="underline underline-offset-2 hover:text-ink-2">
+            이용약관
+          </a>
+          에 동의하는 것으로 간주돼요. 만 14세 이상만 구독할 수 있어요.
+        </p>
       </div>
     </section>
   );

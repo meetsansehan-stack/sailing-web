@@ -33,9 +33,9 @@ const FOOTER_SERVICE = [
 ];
 
 const FOOTER_INFO = [
-  { href: '#', label: '서비스 소개' },
-  { href: '#', label: '개인정보처리방침' },
-  { href: '#', label: '문의하기' },
+  { href: '/about', label: '서비스 소개' },
+  { href: '/privacy', label: '개인정보처리방침' },
+  { href: '/terms', label: '이용약관' },
 ];
 
 export default function RootLayout({
