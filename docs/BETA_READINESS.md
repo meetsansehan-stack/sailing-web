@@ -53,7 +53,7 @@
 - [ ] 🔲 배포 순서 = **API 먼저**(웹 ISR가 빌드 시 API 호출).
 - [ ] 🔲 CORS(`CORS_ALLOWED_ORIGINS`→Vercel URL) + HTTPS.
 - [ ] 🟡 `PREVIEW_TOKEN` = Railway에만(웹 불필요). 게이트 검증.
-- [ ] 🔲 백업 UX — Supabase DB 백업 확인(CLAUDE.md: 데이터 소실 방지).
+- [~] 🟡 백업 UX — **앱 논리 백업(2차) 完**: `db:backup`/`db:restore`(Prisma→JSON 9모델, dry-run·--commit, 라운드트립 드릴 검증). `docs/BACKUP.md`. **잔여**: Supabase 플랫폼 백업(1차, 플랜 의존)은 사용자가 대시보드서 확인·활성화.
 - [ ] 🔲 최소 에러 모니터링(로그 확인 루틴).
 
 ### 법무·프라이버시·보안 (CLAUDE.md "출시 전 1회" — Phase B 필수)

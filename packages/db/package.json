@@ -13,6 +13,8 @@
     "generate": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "node --env-file=.env --import tsx prisma/seed.ts",
+    "db:backup": "node --env-file=.env --import tsx scripts/backup.ts",
+    "db:restore": "node --env-file=.env --import tsx scripts/restore.ts",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
