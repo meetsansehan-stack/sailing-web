@@ -148,13 +148,18 @@ export default async function Home({ searchParams }: { searchParams?: SearchPara
             </section>
           )}
 
-          {/* ② 이전 기사 (가제) — 날짜 구분 없이 한 블록, 원문일 최신순 */}
+          {/* ② 이전 기사 (가제) — 날짜 구분 없이 한 블록, 원문일 최신순.
+              ※ 위에 "새로 올라온 소식"이 있을 때만 "이전 기사" 보조 헤더를 단다.
+                 fresh가 0이면(예: 특정 카테고리 탭) 강등된 헤더로 페이지를 시작하지 않고
+                 균일 피드를 바로 노출 — 페이지 h1·탭·"마지막 업데이트"가 이미 프레이밍. */}
           {olderArticles.length > 0 && (
             <section className="mb-16">
-              <div className="mb-8 flex items-baseline gap-2 border-b border-line pb-3">
-                <h2 className="text-h3 text-ink">이전 기사</h2>
-                <span className="ml-auto text-meta text-ink-3">{olderArticles.length}건</span>
-              </div>
+              {todayArticles.length > 0 && (
+                <div className="mb-8 flex items-baseline gap-2 border-b border-line pb-3">
+                  <h2 className="text-h3 text-ink">이전 기사</h2>
+                  <span className="ml-auto text-meta text-ink-3">{olderArticles.length}건</span>
+                </div>
+              )}
               <div className="grid gap-y-10 sm:grid-cols-2 sm:gap-x-9 sm:gap-y-16 lg:grid-cols-3 lg:gap-x-11">
                 {olderArticles.map((a) => (
                   <ArticleCard key={a.id} article={a} showSummary={false} />
