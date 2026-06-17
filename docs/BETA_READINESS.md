@@ -65,6 +65,7 @@
 - [~] 🟡 **보안 검토 1회** (2026-06-17 1차 완료, `d2922df`) — **발견·수정**: 인증 미들웨어가 코드 전체 0개 → 운영·뮤테이션 엔드포인트(pipeline/agents/qa run·구독 DELETE) 무인증 = 비용 DoS($3~6/회). adminAuth(fail-closed, Bearer) 게이트 추가. **🔴 미해결(아래 RLS)**. secret 노출 0 확인(.env 미추적·SERVICE_ROLE non-public). 잔여: rate limit 0(Phase C 전), `alreadySubscribed` 이메일 enumeration(경미), supabase.ts 브라우저/서버 클라 한 파일 혼재(footgun).
 - [ ] 🔴 **Supabase RLS ENABLE 적용** — Prisma 생성 테이블은 RLS 기본 OFF. anon 키(웹 공개)로 PostgREST Data API 직접 접근 시 Subscriber(이메일) 등 전 테이블 노출 위험. **현재 Data API가 PGRST002 503(스키마캐시 못읽음)이라 우연히 미노출이나 견고치 않음.** 마이그레이션 작성됨(`20260617000000_enable_rls`, 9테이블 ENABLE, 정책0=deny-all, Prisma는 owner라 무영향). **적용 대기**(프로덕션).
 - [ ] ⚠️ **이미지 저작권 재검토** — 현재 원문 og:image 핫링킹(저작권 "베타 전 재검토"로 보류 중). Phase B 전 결론.
+- [~] 🟡 **의존성 취약점 audit** (2026-06-17 `pnpm audit`) — 27건(high 8·mod 16·low 3). **고침**: `hono` 4.12.18→**4.12.25**(우리 공개 API CORS 패치, 직접 해당. CORS 동작 검증=허용 origin만 반영). **연기(Phase C 전)**: `next` 14→15(5 high DoS/SSRF — **React 18→19 동반 이중 메이저, 14.x 백포트 없음**. closed 베타엔 악용도 낮음, 공개 전 별도 마이그레이션). **수용(실위험 ≈0)**: `esbuild`(dev-only·macOS·tsx transform, 취약점은 Windows dev서버 한정), `form-data`·`hono`-MCP(Anthropic SDK 내부·서버측·통제 파이프라인). 전이 override는 샌드박스 네트워크 제약으로 미적용 — 네트워크 환경서 재시도 or next-15 작업과 함께.
 
 ### 계정·온보딩 (라이트·progressive)
 - [ ] 🟡 익명 읽기 먼저(획득 안 막음) — 기본 동작.
