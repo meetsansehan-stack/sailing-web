@@ -4,7 +4,7 @@ import { REGIONS } from '@parenting-newsletter/shared';
 import { KOREA_VIEWBOX, KOREA_PROVINCES } from '@/src/data/korea-provinces';
 
 // 실제 한국 시·도 SVG 지도. (출처: svg-maps, MIT)
-// 영문 province명 → 한글 시·도(REGIONS) 매핑. 세종·울산은 REGIONS에 없어 비활성(지도 채움용).
+// 영문 province명 → 한글 시·도(REGIONS) 매핑. 17개 시·도 전부 선택 가능.
 const NAME_TO_REGION: Record<string, string> = {
   Busan: '부산',
   Daegu: '대구',
