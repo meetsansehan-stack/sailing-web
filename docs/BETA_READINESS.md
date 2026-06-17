@@ -60,9 +60,10 @@
 - [ ] 🔲 **개인정보처리방침** 작성·게시(현 페이지 없음).
 - [ ] 🔲 **동의 UX** — 만 14세 미만 법정대리인 동의. 부모 대상이라 핵심.
 - [ ] 🔲 이용약관·면책(콘텐츠 정확성·외부 링크 책임 한계).
-- [ ] 🟡 **아동 PII 0 검증** — 서버에 생일·지역·발달·진단 없음(로컬-퍼스트 설계). 코드로 1회 확인.
-- [ ] 🔲 익명 재식별 불가 확인(분석 토큰).
-- [ ] 🔲 **보안 검토 1회** — `/security-review` + Supabase RLS + secret 노출 0.
+- [x] ✅ **아동 PII 0 검증** (2026-06-17) — DB 스키마 감사: Subscriber=부모 이메일·동의·anonId·authUserId만 / AnalyticsEvent=익명 anonId·type·path·meta만. 생일·지역·발달·진단 0. 로컬-퍼스트 설계 확인. (단 analytics `path`/`meta`는 PII-free가 클라 책임 = 계약 문서화 필요.)
+- [x] ✅ **익명 재식별 불가** (2026-06-17) — anonId=클라 생성 난수, 서버에 식별자 연결 없음. meta 2KB 상한 추가(`d2922df`).
+- [~] 🟡 **보안 검토 1회** (2026-06-17 1차 완료, `d2922df`) — **발견·수정**: 인증 미들웨어가 코드 전체 0개 → 운영·뮤테이션 엔드포인트(pipeline/agents/qa run·구독 DELETE) 무인증 = 비용 DoS($3~6/회). adminAuth(fail-closed, Bearer) 게이트 추가. **🔴 미해결(아래 RLS)**. secret 노출 0 확인(.env 미추적·SERVICE_ROLE non-public). 잔여: rate limit 0(Phase C 전), `alreadySubscribed` 이메일 enumeration(경미), supabase.ts 브라우저/서버 클라 한 파일 혼재(footgun).
+- [ ] 🔴 **Supabase RLS ENABLE 적용** — Prisma 생성 테이블은 RLS 기본 OFF. anon 키(웹 공개)로 PostgREST Data API 직접 접근 시 Subscriber(이메일) 등 전 테이블 노출 위험. **현재 Data API가 PGRST002 503(스키마캐시 못읽음)이라 우연히 미노출이나 견고치 않음.** 마이그레이션 작성됨(`20260617000000_enable_rls`, 9테이블 ENABLE, 정책0=deny-all, Prisma는 owner라 무영향). **적용 대기**(프로덕션).
 - [ ] ⚠️ **이미지 저작권 재검토** — 현재 원문 og:image 핫링킹(저작권 "베타 전 재검토"로 보류 중). Phase B 전 결론.
 
 ### 계정·온보딩 (라이트·progressive)
