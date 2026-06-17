@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 
 // 개인정보처리방침 — 실제 수집 데이터에 맞춘 초안.
-// ⚠️ 출시 전 1회 법무 검토 필요(CLAUDE.md·PRIVACY.md). [사업자 정보]·[책임자]는 확정 후 치환.
+// ⚠️ 출시 전 1회 법무 검토 필요(CLAUDE.md·PRIVACY.md).
+// 채움: 위탁업체(Supabase·Vercel·Railway, 국외처리 고지)·보호책임자 연락처(with.sailing@gmail.com).
+// 잔여: 개인정보 보호책임자 [성명/직책] — 확정 후 치환.
 // 데이터 사실: 서버=부모 이메일·동의·익명 anonId·익명 분석만. 아동 PII(생일·지역·발달·진단)=0(로컬-퍼스트).
 
 export const metadata: Metadata = {
@@ -85,8 +87,15 @@ export default function PrivacyPage() {
           관계 법령을 준수하도록 관리·감독합니다.
         </p>
         <ul className="list-disc space-y-1.5 pl-5">
-          <li>클라우드 인프라·데이터베이스 운영: [위탁업체명 — 예: Supabase, Railway, Vercel]</li>
-          <li>이메일 발송: [발송 대행사명 — 도입 시 기재]</li>
+          <li>
+            클라우드 인프라·데이터베이스·인증: Supabase, Inc. (데이터베이스·인증), Vercel, Inc. (웹
+            호스팅), Railway Corp. (API 호스팅) — 각 사의 서버 위치에 따라 개인정보가 국외(미국 등)에서
+            처리·보관될 수 있습니다.
+          </li>
+          <li>
+            이메일 발송: 현재 자체 발송 전 단계로 외부 발송 대행사를 이용하지 않습니다. 도입 시 본
+            방침을 갱신하여 고지합니다.
+          </li>
         </ul>
       </Section>
 
@@ -119,8 +128,8 @@ export default function PrivacyPage() {
           개인정보 처리에 관한 문의·불만·피해 구제는 아래로 연락해 주시기 바랍니다.
         </p>
         <ul className="list-none space-y-1.5">
-          <li>개인정보 보호책임자: [성명 / 직책]</li>
-          <li>연락처: [이메일 주소]</li>
+          <li>개인정보 보호책임자: [성명 / 직책 — 확정 후 기재]</li>
+          <li>연락처: with.sailing@gmail.com</li>
         </ul>
       </Section>
 

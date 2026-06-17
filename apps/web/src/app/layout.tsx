@@ -60,6 +60,11 @@ const FOOTER_INFO = [
   { href: '/terms', label: '이용약관' },
 ];
 
+// 문의·피드백 접점. 베타 동안은 전용 메일을 직접 노출(폼은 후속).
+// 도메인 확보 후 hello@세일링도메인으로 교체 가능 — [[project_ops_account_convention]].
+const CONTACT_EMAIL = 'with.sailing@gmail.com';
+const FEEDBACK_MAILTO = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('[세일링 베타 피드백]')}`;
+
 export default function RootLayout({
   children,
 }: {
@@ -136,6 +141,20 @@ export default function RootLayout({
                   <br />
                   육아 정보를 한눈에.
                 </p>
+                <div className="mt-4 space-y-1.5 text-small text-ink-2">
+                  <p>
+                    문의:{' '}
+                    <a href={`mailto:${CONTACT_EMAIL}`} className="underline underline-offset-2 hover:text-ink">
+                      {CONTACT_EMAIL}
+                    </a>
+                  </p>
+                  <a
+                    href={FEEDBACK_MAILTO}
+                    className="inline-flex items-center gap-1 font-medium text-blue-600 hover:text-blue-700"
+                  >
+                    ✍️ 베타 피드백 보내기
+                  </a>
+                </div>
               </div>
               <div>
                 <p className="mb-3 text-small font-bold tracking-wider text-ink-3">서비스</p>
