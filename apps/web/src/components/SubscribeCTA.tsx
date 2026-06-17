@@ -41,13 +41,9 @@ export default function SubscribeCTA({ source = 'home_cta' }: { source?: string 
         body: JSON.stringify({ email: value, source, anonId: getAnonId() }),
       });
       if (!res.ok) throw new Error(String(res.status));
-      const data = (await res.json()) as { alreadySubscribed?: boolean };
+      // 멱등 — 신규/재구독 구분 없이 동일 성공 메시지(서버가 가입 여부를 노출하지 않음, enumeration 방지).
       setStatus('done');
-      setMessage(
-        data.alreadySubscribed
-          ? '이미 구독 중이에요. 새 소식으로 다시 찾아올게요.'
-          : '구독 완료! 매일의 좌표를 메일로 보내드릴게요.',
-      );
+      setMessage('구독 완료! 매일의 좌표를 메일로 보내드릴게요.');
       track('subscribe_success', { source });
     } catch {
       setStatus('error');

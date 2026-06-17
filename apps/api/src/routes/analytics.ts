@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { prisma, Prisma } from '@parenting-newsletter/db';
+import { rateLimit } from '../middleware/rateLimit';
 
 // 익명 제품 분석 — 출시 1일차, 계정 무관 ([[mvp-account-data-architecture]]).
 // PII 0: 익명 기기 난수(anonId)만. 퍼널·전환·CTA 측정용. 식별 데이터 절대 금지.
@@ -18,7 +19,8 @@ const ALLOWED_TYPES = new Set([
 ]);
 
 // POST /api/analytics — 익명 이벤트 적재(fire-and-forget, 실패해도 클라 흐름 안 막음)
-app.post('/', async (c) => {
+// rate limit: page_view·cta·outbound 등 한 세션이 수십 건 → 100건/분이면 사람 활동엔 넉넉, 봇 플러딩만 차단.
+app.post('/', rateLimit({ name: 'analytics', windowMs: 60 * 1000, max: 100 }), async (c) => {
   let body: { type?: unknown; anonId?: unknown; path?: unknown; meta?: unknown };
   try {
     body = await c.req.json();

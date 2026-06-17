@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { prisma } from '@parenting-newsletter/db';
 import { adminAuth } from '../middleware/admin';
+import { rateLimit } from '../middleware/rateLimit';
 
 // 이메일 구독 — 라이트 계정(오디언스·메일 토대)의 첫 조각.
 // 서버엔 부모 신원(이메일·동의)만, 아동 PII 0 (docs/PRIVACY, [[mvp-account-data-architecture]]).
@@ -12,7 +13,8 @@ const app = new Hono();
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // POST /api/subscribers — 구독(멱등: 같은 이메일 재구독 시 동의·메타 갱신)
-app.post('/', async (c) => {
+// rate limit: 정상 유저는 1회면 충분, 5회/10분이면 오타·재시도 여유 + 대량 enumeration 차단.
+app.post('/', rateLimit({ name: 'subscribe', windowMs: 10 * 60 * 1000, max: 5 }), async (c) => {
   let body: { email?: unknown; source?: unknown; anonId?: unknown; consent?: unknown };
   try {
     body = await c.req.json();
@@ -35,14 +37,15 @@ app.post('/', async (c) => {
   const anonId = typeof body.anonId === 'string' ? body.anonId.slice(0, 64) : null;
 
   try {
-    const existing = await prisma.subscriber.findUnique({ where: { email }, select: { id: true } });
     const sub = await prisma.subscriber.upsert({
       where: { email },
       create: { email, consent, consentAt: new Date(), source, anonId },
       // 재구독: 동의 시각·유입·익명연결만 갱신 (이메일은 키라 불변)
       update: { consent, consentAt: new Date(), source: source ?? undefined, anonId: anonId ?? undefined },
     });
-    return c.json({ ok: true, id: sub.id, alreadySubscribed: existing !== null }, 200);
+    // 가입 여부(alreadySubscribed)는 응답에 노출 안 함 — 멱등 성공만 반환.
+    // 노출하면 무인증 POST로 특정 이메일 등록 여부를 캐는 enumeration 오라클이 됨.
+    return c.json({ ok: true, id: sub.id }, 200);
   } catch (err) {
     console.error('[subscribers] upsert failed', err);
     return c.json({ error: 'Internal error' }, 500);
