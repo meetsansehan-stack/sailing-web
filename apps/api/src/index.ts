@@ -32,6 +32,13 @@ import subscribersRoute from './routes/subscribers';
 import analyticsRoute from './routes/analytics';
 import qaRoute from './routes/qa';
 
+// 운영·뮤테이션 엔드포인트 = admin 인증(fail-closed). 비용 DoS·무단 트리거 차단.
+// 라우트 마운트보다 먼저 등록해야 적용됨. 공개 GET·구독/분석 POST는 게이트 밖.
+import { adminAuth } from './middleware/admin';
+app.use('/api/pipeline/*', adminAuth);
+app.use('/api/agents/*', adminAuth);
+app.use('/api/qa/*', adminAuth);
+
 app.route('/api/articles', articlesRoute);
 app.route('/api/issues', issuesRoute);
 app.route('/api/agents', agentsRoute);

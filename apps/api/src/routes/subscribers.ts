@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { prisma } from '@parenting-newsletter/db';
+import { adminAuth } from '../middleware/admin';
 
 // 이메일 구독 — 라이트 계정(오디언스·메일 토대)의 첫 조각.
 // 서버엔 부모 신원(이메일·동의)만, 아동 PII 0 (docs/PRIVACY, [[mvp-account-data-architecture]]).
@@ -48,8 +49,9 @@ app.post('/', async (c) => {
   }
 });
 
-// DELETE /api/subscribers/:id — 구독 해지 (수신거부 토대)
-app.delete('/:id', async (c) => {
+// DELETE /api/subscribers/:id — 구독 해지 (수신거부 토대). 무단 삭제 차단 위해 admin 인증.
+// (유저향 1-클릭 수신거부는 V2에서 서명 토큰 방식으로 별도 구현.)
+app.delete('/:id', adminAuth, async (c) => {
   const id = c.req.param('id');
   try {
     await prisma.subscriber.delete({ where: { id } });

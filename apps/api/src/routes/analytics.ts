@@ -33,11 +33,13 @@ app.post('/', async (c) => {
   }
 
   const path = typeof body.path === 'string' ? body.path.slice(0, 256) : null;
-  // meta는 JSON 객체만(중첩·문자열 제한 없이 받되, PII 없도록 클라가 책임)
-  const meta =
-    body.meta && typeof body.meta === 'object' && !Array.isArray(body.meta)
-      ? (body.meta as Record<string, unknown>)
-      : undefined;
+  // meta는 JSON 객체만(작은 부가정보 — cta 위치 등). PII 없도록 클라가 책임.
+  // 무제한 적재 = 저장 DoS라 직렬화 크기 2KB 상한(초과 시 meta 버림, 이벤트는 적재).
+  let meta: Record<string, unknown> | undefined;
+  if (body.meta && typeof body.meta === 'object' && !Array.isArray(body.meta)) {
+    const candidate = body.meta as Record<string, unknown>;
+    if (JSON.stringify(candidate).length <= 2048) meta = candidate;
+  }
 
   try {
     await prisma.analyticsEvent.create({
