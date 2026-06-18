@@ -11,6 +11,7 @@ const app = new Hono();
 // 화이트리스트 — 임의 type 폭주 방지(스키마 없는 자유 텍스트라 enum 대신 코드 가드)
 const ALLOWED_TYPES = new Set([
   'page_view',
+  'page_exit',
   'cta_impression',
   'cta_click',
   'cta_dismiss',
@@ -19,10 +20,19 @@ const ALLOWED_TYPES = new Set([
   'outbound_click',
 ]);
 
+const MAX_DWELL_MS = 30 * 60 * 1000; // 체류시간 상한 30분 (백그라운드 탭 등 이상치 컷)
+
 // POST /api/analytics — 익명 이벤트 적재(fire-and-forget, 실패해도 클라 흐름 안 막음)
 // rate limit: page_view·cta·outbound 등 한 세션이 수십 건 → 100건/분이면 사람 활동엔 넉넉, 봇 플러딩만 차단.
 app.post('/', rateLimit({ name: 'analytics', windowMs: 60 * 1000, max: 100 }), async (c) => {
-  let body: { type?: unknown; anonId?: unknown; path?: unknown; meta?: unknown };
+  let body: {
+    type?: unknown;
+    anonId?: unknown;
+    path?: unknown;
+    meta?: unknown;
+    sessionId?: unknown;
+    durationMs?: unknown;
+  };
   try {
     body = await c.req.json();
   } catch {
@@ -42,6 +52,18 @@ app.post('/', rateLimit({ name: 'analytics', windowMs: 60 * 1000, max: 100 }), a
   if (body.meta && typeof body.meta === 'object' && !Array.isArray(body.meta)) {
     const candidate = body.meta as Record<string, unknown>;
     if (JSON.stringify(candidate).length <= 2048) meta = candidate;
+  }
+
+  // 세션화·체류시간 — 스키마 추가 없이 meta 예약 키(sessionId·durationMs)로 적재. PII 0(익명 난수·숫자).
+  const sessionId = typeof body.sessionId === 'string' ? body.sessionId.slice(0, 64) : null;
+  let durationMs: number | null = null;
+  if (typeof body.durationMs === 'number' && Number.isFinite(body.durationMs)) {
+    durationMs = Math.min(Math.max(Math.round(body.durationMs), 0), MAX_DWELL_MS);
+  }
+  if (sessionId || durationMs !== null) {
+    meta = { ...(meta ?? {}) };
+    if (sessionId) meta.sessionId = sessionId;
+    if (durationMs !== null) meta.durationMs = durationMs;
   }
 
   try {
@@ -75,6 +97,8 @@ app.get('/summary', adminAuth, async (c) => {
       distinctVisitors,
       pathGroups,
       daily,
+      sessionAgg,
+      dwellAgg,
     ] = await Promise.all([
       prisma.subscriber.count(),
       prisma.subscriber.count({ where: { createdAt: { gte: d7 } } }),
@@ -104,6 +128,19 @@ app.get('/summary', adminAuth, async (c) => {
         WHERE type = 'page_view' AND "createdAt" >= ${dailyStart}
         GROUP BY date ORDER BY date ASC
       `,
+      // 세션 수 — meta의 익명 sessionId distinct (스키마 추가 없이 JSON에서 집계)
+      prisma.$queryRaw<Array<{ sessions: number }>>`
+        SELECT COUNT(DISTINCT meta->>'sessionId')::int AS sessions
+        FROM "AnalyticsEvent"
+        WHERE "createdAt" >= ${windowStart} AND meta->>'sessionId' IS NOT NULL
+      `,
+      // 평균 체류시간 — page_exit의 durationMs 평균 + 표본 수
+      prisma.$queryRaw<Array<{ avg: number | null; samples: number }>>`
+        SELECT AVG((meta->>'durationMs')::numeric)::int AS avg, COUNT(*)::int AS samples
+        FROM "AnalyticsEvent"
+        WHERE type = 'page_exit' AND "createdAt" >= ${windowStart}
+              AND meta->>'durationMs' IS NOT NULL
+      `,
     ]);
 
     const byType: Record<string, number> = {};
@@ -112,6 +149,10 @@ app.get('/summary', adminAuth, async (c) => {
     const impressions = byType['cta_impression'] ?? 0;
     const clicks = byType['cta_click'] ?? 0;
     const subscribes = byType['subscribe_success'] ?? 0;
+    const pageViews = byType['page_view'] ?? 0;
+
+    const sessions = Number(sessionAgg[0]?.sessions ?? 0);
+    const avgDwellMs = dwellAgg[0]?.avg !== null && dwellAgg[0]?.avg !== undefined ? Number(dwellAgg[0].avg) : null;
 
     return c.json({
       generatedAt: new Date(now).toISOString(),
@@ -121,6 +162,12 @@ app.get('/summary', adminAuth, async (c) => {
         total: Object.values(byType).reduce((a, b) => a + b, 0),
         uniqueVisitors: distinctVisitors.length,
         byType,
+      },
+      sessions: {
+        count: sessions,
+        pageViewsPerSession: sessions ? pageViews / sessions : 0,
+        avgDwellMs,
+        dwellSamples: Number(dwellAgg[0]?.samples ?? 0),
       },
       funnel: {
         impressions,

@@ -13,6 +13,7 @@ type Summary = {
   windowDays: number;
   subscribers: { total: number; last7d: number; last30d: number };
   events: { total: number; uniqueVisitors: number; byType: Record<string, number> };
+  sessions: { count: number; pageViewsPerSession: number; avgDwellMs: number | null; dwellSamples: number };
   funnel: { impressions: number; clicks: number; subscribes: number; clickRate: number; subscribeRate: number };
   dailyPageViews: Array<{ date: string; count: number }>;
   topPaths: Array<{ path: string; count: number }>;
@@ -32,6 +33,11 @@ async function fetchSummary(token: string): Promise<Summary | null> {
 
 const pct = (n: number) => `${(n * 100).toFixed(1)}%`;
 const num = (n: number) => n.toLocaleString('ko-KR');
+const dwell = (ms: number | null) => {
+  if (ms === null) return '-';
+  const s = Math.round(ms / 1000);
+  return s >= 60 ? `${Math.floor(s / 60)}분 ${s % 60}초` : `${s}초`;
+};
 
 export default async function Dashboard({ searchParams }: { searchParams?: { key?: string } }) {
   const token = process.env.ADMIN_API_TOKEN;
@@ -76,6 +82,19 @@ export default async function Dashboard({ searchParams }: { searchParams?: { key
           sub={`구독 ${num(d.funnel.subscribes)}`}
         />
       </div>
+
+      <section className="rounded-card border border-line bg-white p-6">
+        <h2 className="mb-4 text-card-title font-bold text-ink">세션·몰입</h2>
+        <div className="grid grid-cols-3 gap-4">
+          <Stat label="세션 수" value={num(d.sessions.count)} sub={`최근 ${d.windowDays}일`} />
+          <Stat label="세션당 페이지뷰" value={d.sessions.pageViewsPerSession.toFixed(1)} sub="둘러보기 깊이" />
+          <Stat
+            label="평균 체류시간"
+            value={dwell(d.sessions.avgDwellMs)}
+            sub={`표본 ${num(d.sessions.dwellSamples)}`}
+          />
+        </div>
+      </section>
 
       <section className="rounded-card border border-line bg-white p-6">
         <h2 className="mb-4 text-card-title font-bold text-ink">구독 퍼널</h2>
