@@ -13,10 +13,16 @@ type Summary = {
   windowDays: number;
   subscribers: { total: number; last7d: number; last30d: number };
   events: { total: number; uniqueVisitors: number; byType: Record<string, number> };
-  sessions: { count: number; pageViewsPerSession: number; avgDwellMs: number | null; dwellSamples: number };
+  sessions: { count: number; pageViewsPerSession: number; avgDwellMs: number | null; dwellSamples: number; avgScrollPct: number | null };
   funnel: { impressions: number; clicks: number; subscribes: number; clickRate: number; subscribeRate: number };
   dailyPageViews: Array<{ date: string; count: number }>;
   topPaths: Array<{ path: string; count: number }>;
+  survey: { total: number; byAnswer: Array<{ answer: string; count: number; pct: number }>; seanEllisPct: number | null };
+  retentionCohorts: Array<{
+    cohortWeek: string;
+    cohortSize: number;
+    weeks: Array<{ weekNum: number; retained: number; pct: number }>;
+  }>;
 };
 
 async function fetchSummary(token: string): Promise<Summary | null> {
@@ -30,6 +36,14 @@ async function fetchSummary(token: string): Promise<Summary | null> {
     return null;
   }
 }
+
+const SURVEY_LABELS: Record<string, string> = {
+  very_disappointed: '매우 아쉬울 것 같아요',
+  somewhat_disappointed: '조금 아쉬울 것 같아요',
+  not_disappointed: '별로 안 아쉬울 것 같아요',
+  has_alternative: '이미 비슷한 걸 쓰고 있어요',
+  dismissed: '설문 닫음',
+};
 
 const pct = (n: number) => `${(n * 100).toFixed(1)}%`;
 const num = (n: number) => n.toLocaleString('ko-KR');
@@ -85,13 +99,18 @@ export default async function Dashboard({ searchParams }: { searchParams?: { key
 
       <section className="rounded-card border border-line bg-white p-6">
         <h2 className="mb-4 text-card-title font-bold text-ink">세션·몰입</h2>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <Stat label="세션 수" value={num(d.sessions.count)} sub={`최근 ${d.windowDays}일`} />
           <Stat label="세션당 페이지뷰" value={d.sessions.pageViewsPerSession.toFixed(1)} sub="둘러보기 깊이" />
           <Stat
             label="평균 체류시간"
             value={dwell(d.sessions.avgDwellMs)}
             sub={`표본 ${num(d.sessions.dwellSamples)}`}
+          />
+          <Stat
+            label="평균 스크롤 깊이"
+            value={d.sessions.avgScrollPct !== null ? `${d.sessions.avgScrollPct}%` : '-'}
+            sub="page_exit 기준"
           />
         </div>
       </section>
@@ -134,6 +153,77 @@ export default async function Dashboard({ searchParams }: { searchParams?: { key
           empty="이벤트 없음"
         />
       </div>
+
+      {/* Sean Ellis micro-survey 결과 */}
+      <section className="rounded-card border border-line bg-white p-6">
+        <h2 className="mb-1 text-card-title font-bold text-ink">PMF 설문 (Sean Ellis)</h2>
+        <p className="mb-4 text-small text-ink-3">
+          응답 {num(d.survey.total)}건
+          {d.survey.seanEllisPct !== null && (
+            <> · <span className={d.survey.seanEllisPct >= 40 ? 'font-semibold text-green-600' : 'font-semibold text-red-500'}>
+              매우 아쉬움 {d.survey.seanEllisPct}%
+            </span> (목표 ≥ 40%)</>
+          )}
+        </p>
+        {d.survey.total === 0 ? (
+          <p className="text-body text-ink-3">아직 응답이 없어요.</p>
+        ) : (
+          <ul className="space-y-2">
+            {d.survey.byAnswer.map((r) => (
+              <li key={r.answer} className="flex items-center gap-3">
+                <span className="w-40 shrink-0 text-small text-ink-2">{SURVEY_LABELS[r.answer] ?? r.answer}</span>
+                <div className="h-2 flex-1 overflow-hidden rounded-full bg-grey-100">
+                  <div className="h-full rounded-full bg-blue" style={{ width: `${r.pct}%` }} />
+                </div>
+                <span className="w-16 text-right text-small font-semibold text-ink">{r.pct}% ({r.count})</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* 주간 리텐션 코호트 */}
+      <section className="rounded-card border border-line bg-white p-6">
+        <h2 className="mb-1 text-card-title font-bold text-ink">주간 리텐션 코호트</h2>
+        <p className="mb-4 text-small text-ink-3">첫 방문 주(코호트) 기준 후속 주 재방문률 — 최근 8주</p>
+        {d.retentionCohorts.length === 0 ? (
+          <p className="text-body text-ink-3">아직 데이터가 없어요.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-small">
+              <thead>
+                <tr className="border-b border-line">
+                  <th className="pb-2 pr-4 text-left font-semibold text-ink-3">코호트</th>
+                  <th className="pb-2 pr-3 text-right font-semibold text-ink-3">크기</th>
+                  {Array.from({ length: Math.max(...d.retentionCohorts.map((c) => c.weeks.length)) }, (_, i) => (
+                    <th key={i} className="pb-2 px-2 text-center font-semibold text-ink-3">W{i}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {d.retentionCohorts.map((cohort) => (
+                  <tr key={cohort.cohortWeek} className="border-b border-line/50">
+                    <td className="py-2 pr-4 text-ink-2">{cohort.cohortWeek.slice(5)}</td>
+                    <td className="py-2 pr-3 text-right text-ink">{cohort.cohortSize}</td>
+                    {cohort.weeks.map((w) => (
+                      <td key={w.weekNum} className="px-2 py-2 text-center">
+                        <span className={`inline-block rounded px-1.5 py-0.5 text-small font-semibold ${
+                          w.weekNum === 0 ? 'bg-blue-100 text-blue-700'
+                          : w.pct >= 30 ? 'bg-green-100 text-green-700'
+                          : w.pct > 0 ? 'bg-grey-100 text-ink-2'
+                          : 'text-ink-3'
+                        }`}>
+                          {w.pct > 0 ? `${w.pct}%` : '—'}
+                        </span>
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
 
       <p className="text-small text-ink-3">생성 {new Date(d.generatedAt).toLocaleString('ko-KR')}</p>
     </div>

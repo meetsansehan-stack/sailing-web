@@ -18,6 +18,7 @@ const ALLOWED_TYPES = new Set([
   'subscribe_success',
   'article_open',
   'outbound_click',
+  'survey_response',
 ]);
 
 const MAX_DWELL_MS = 30 * 60 * 1000; // 체류시간 상한 30분 (백그라운드 탭 등 이상치 컷)
@@ -99,6 +100,8 @@ app.get('/summary', adminAuth, async (c) => {
       daily,
       sessionAgg,
       dwellAgg,
+      surveyAgg,
+      cohortAgg,
     ] = await Promise.all([
       prisma.subscriber.count(),
       prisma.subscriber.count({ where: { createdAt: { gte: d7 } } }),
@@ -134,12 +137,48 @@ app.get('/summary', adminAuth, async (c) => {
         FROM "AnalyticsEvent"
         WHERE "createdAt" >= ${windowStart} AND meta->>'sessionId' IS NOT NULL
       `,
-      // 평균 체류시간 — page_exit의 durationMs 평균 + 표본 수
-      prisma.$queryRaw<Array<{ avg: number | null; samples: number }>>`
-        SELECT AVG((meta->>'durationMs')::numeric)::int AS avg, COUNT(*)::int AS samples
+      // 평균 체류시간 + 스크롤 깊이 — page_exit meta
+      prisma.$queryRaw<Array<{ avg: number | null; samples: number; avgScrollPct: number | null }>>`
+        SELECT AVG((meta->>'durationMs')::numeric)::int AS avg,
+               COUNT(*)::int AS samples,
+               AVG((meta->>'scrollDepthPct')::numeric)::int AS "avgScrollPct"
         FROM "AnalyticsEvent"
         WHERE type = 'page_exit' AND "createdAt" >= ${windowStart}
               AND meta->>'durationMs' IS NOT NULL
+      `,
+      // Sean Ellis survey 응답 분포
+      prisma.$queryRaw<Array<{ answer: string; count: number }>>`
+        SELECT meta->>'answer' AS answer, COUNT(*)::int AS count
+        FROM "AnalyticsEvent"
+        WHERE type = 'survey_response' AND meta->>'answer' IS NOT NULL
+        GROUP BY meta->>'answer'
+        ORDER BY count DESC
+      `,
+      // 주간 리텐션 코호트 — 최근 8주. anonId 첫 등장 주(코호트)별 후속 주 재방문률.
+      prisma.$queryRaw<Array<{ cohort_week: string; cohort_size: number; week_num: number; retained: number }>>`
+        WITH first_seen AS (
+          SELECT "anonId",
+                 date_trunc('week', MIN("createdAt" AT TIME ZONE 'Asia/Seoul'))::date AS cohort_week
+          FROM "AnalyticsEvent"
+          WHERE "anonId" IS NOT NULL AND "anonId" != ''
+          GROUP BY "anonId"
+        ),
+        weekly_activity AS (
+          SELECT DISTINCT "anonId",
+                 date_trunc('week', "createdAt" AT TIME ZONE 'Asia/Seoul')::date AS active_week
+          FROM "AnalyticsEvent"
+          WHERE "anonId" IS NOT NULL AND "anonId" != ''
+        )
+        SELECT
+          to_char(fs.cohort_week, 'YYYY-MM-DD') AS cohort_week,
+          COUNT(DISTINCT fs."anonId")::int AS cohort_size,
+          ((wa.active_week - fs.cohort_week) / 7)::int AS week_num,
+          COUNT(DISTINCT wa."anonId")::int AS retained
+        FROM first_seen fs
+        JOIN weekly_activity wa ON wa."anonId" = fs."anonId"
+        WHERE fs.cohort_week >= (CURRENT_DATE - INTERVAL '8 weeks')::date
+        GROUP BY fs.cohort_week, wa.active_week
+        ORDER BY fs.cohort_week ASC, wa.active_week ASC
       `,
     ]);
 
@@ -153,6 +192,37 @@ app.get('/summary', adminAuth, async (c) => {
 
     const sessions = Number(sessionAgg[0]?.sessions ?? 0);
     const avgDwellMs = dwellAgg[0]?.avg !== null && dwellAgg[0]?.avg !== undefined ? Number(dwellAgg[0].avg) : null;
+    const avgScrollPct = dwellAgg[0]?.avgScrollPct !== null && dwellAgg[0]?.avgScrollPct !== undefined
+      ? Number(dwellAgg[0].avgScrollPct) : null;
+
+    // survey 집계 — 전체 응답 수 + 옵션별 분포 + Sean Ellis 40% 지표
+    const surveyTotal = surveyAgg.reduce((s, r) => s + Number(r.count), 0);
+    const surveyByAnswer = surveyAgg.map((r) => ({
+      answer: r.answer,
+      count: Number(r.count),
+      pct: surveyTotal ? Math.round((Number(r.count) / surveyTotal) * 100) : 0,
+    }));
+    const veryDisappointed = surveyByAnswer.find((r) => r.answer === 'very_disappointed')?.count ?? 0;
+    const seanEllisPct = surveyTotal ? Math.round((veryDisappointed / surveyTotal) * 100) : null;
+
+    // 리텐션 코호트 — 주별 행으로 재구성
+    const cohortMap = new Map<string, { cohortSize: number; weeks: Map<number, number> }>();
+    for (const row of cohortAgg) {
+      const key = row.cohort_week;
+      if (!cohortMap.has(key)) cohortMap.set(key, { cohortSize: Number(row.cohort_size), weeks: new Map() });
+      cohortMap.get(key)!.weeks.set(Number(row.week_num), Number(row.retained));
+    }
+    const retentionCohorts = Array.from(cohortMap.entries()).map(([cohortWeek, { cohortSize, weeks }]) => {
+      const maxWeek = Math.max(0, ...weeks.keys());
+      return {
+        cohortWeek,
+        cohortSize,
+        weeks: Array.from({ length: maxWeek + 1 }, (_, i) => {
+          const retained = weeks.get(i) ?? 0;
+          return { weekNum: i, retained, pct: Math.round((retained / cohortSize) * 100) };
+        }),
+      };
+    });
 
     return c.json({
       generatedAt: new Date(now).toISOString(),
@@ -168,6 +238,7 @@ app.get('/summary', adminAuth, async (c) => {
         pageViewsPerSession: sessions ? pageViews / sessions : 0,
         avgDwellMs,
         dwellSamples: Number(dwellAgg[0]?.samples ?? 0),
+        avgScrollPct,
       },
       funnel: {
         impressions,
@@ -178,6 +249,8 @@ app.get('/summary', adminAuth, async (c) => {
       },
       dailyPageViews: daily.map((d) => ({ date: d.date, count: Number(d.count) })),
       topPaths: pathGroups.map((g) => ({ path: g.path as string, count: g._count.path })),
+      survey: { total: surveyTotal, byAnswer: surveyByAnswer, seanEllisPct },
+      retentionCohorts,
     });
   } catch (err) {
     console.error('[analytics] summary failed', err);

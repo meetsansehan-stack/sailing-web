@@ -6,6 +6,7 @@ import { CalendarGate } from '@/src/components/CalendarGate';
 import { MainContainer } from '@/src/components/MainContainer';
 import { MobileNav } from '@/src/components/MobileNav';
 import AnalyticsTracker from '@/src/components/AnalyticsTracker';
+import MicroSurvey from '@/src/components/MicroSurvey';
 import './globals.css';
 
 // 로고 워드마크 전용 폰트 (라틴 전용 → 영문 "Sailing"에 적용)
@@ -82,6 +83,7 @@ export default function RootLayout({
     <html lang="ko">
       <body className="bg-white">
         <AnalyticsTracker />
+        <MicroSurvey />
         <header className="sticky top-0 z-30 border-b border-line bg-white/90 backdrop-blur">
           <nav className="relative max-w-container mx-auto px-5 sm:px-6 h-[80px] flex items-center justify-between gap-4">
             {/* 좌측: 소개 말풍선 + 세일링 레터 */}

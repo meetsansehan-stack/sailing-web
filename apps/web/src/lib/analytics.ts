@@ -9,13 +9,14 @@ const SESSION_TTL = 30 * 60 * 1000; // 30분 비활성 → 새 세션 (GA식 세
 
 export type AnalyticsType =
   | 'page_view'
-  | 'page_exit' // 페이지 이탈 — 체류시간(durationMs) 동반
+  | 'page_exit' // 페이지 이탈 — 체류시간(durationMs) + scrollDepthPct 동반
   | 'cta_impression'
   | 'cta_click'
   | 'cta_dismiss'
   | 'subscribe_success'
   | 'article_open'
-  | 'outbound_click';
+  | 'outbound_click'
+  | 'survey_response'; // Sean Ellis / WTP micro-survey 응답
 
 function randomId(prefix: string): string {
   return typeof crypto !== 'undefined' && 'randomUUID' in crypto
