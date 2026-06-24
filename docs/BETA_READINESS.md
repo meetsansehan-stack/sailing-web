@@ -47,12 +47,12 @@
 
 배포해서 소수에게 실제로 쓰게 한다. 리텐션·공명을 행동 데이터로 측정.
 
-### 배포·인프라 (런북 = NEXT_SESSION 세션#8)
-- [ ] 🟡 Railway(API) 배포 — `railway.json`·`tsx start`·PORT 주입 **준비됨**. repo 연결 + env.
-- [ ] 🟡 Vercel(웹) 배포 — Root=`apps/web`, `transpilePackages` **준비됨**. env(public만).
-- [ ] 🔲 배포 순서 = **API 먼저**(웹 ISR가 빌드 시 API 호출).
-- [ ] 🔲 CORS(`CORS_ALLOWED_ORIGINS`→Vercel URL) + HTTPS.
-- [ ] 🟡 `PREVIEW_TOKEN` = Railway에만(웹 불필요). 게이트 검증.
+### 배포·인프라 (런북 = `docs/DEPLOY.md`)
+- [~] 🟡 Railway(API) 배포 — `railway.json`·`nixpacks.toml`·PORT 주입 **설정 完**. **잔여: Railway 콘솔서 repo 연결 + env 주입 + 도메인 확인.**
+- [~] 🟡 Vercel(웹) 배포 — `vercel.json`·`transpilePackages`·Next.js 15 **설정 完**. **잔여: Vercel 콘솔서 repo 연결 + env 주입 + 도메인 확인.**
+- [~] 🟡 배포 순서 = **API 먼저**(웹 ISR가 빌드 시 API 호출). `docs/DEPLOY.md` §1→§2 순서 명시.
+- [ ] 🔲 CORS(`CORS_ALLOWED_ORIGINS`→Vercel 실URL) — `docs/DEPLOY.md` §3.
+- [~] 🟡 `PREVIEW_TOKEN` = Railway에만(웹 불필요). 게이트 검증.
 - [~] 🟡 백업 UX — **앱 논리 백업(2차) 完**: `db:backup`/`db:restore`(Prisma→JSON 9모델, dry-run·--commit, 라운드트립 드릴 검증). `docs/BACKUP.md`. **잔여**: Supabase 플랫폼 백업(1차, 플랜 의존)은 사용자가 대시보드서 확인·활성화.
 - [ ] 🔲 최소 에러 모니터링(로그 확인 루틴).
 
