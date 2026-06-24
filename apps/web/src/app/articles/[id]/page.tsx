@@ -20,13 +20,14 @@ export async function generateStaticParams() {
 }
 
 type PageProps = {
-  params: { id: string };
-  searchParams?: { preview?: string };
+  params: Promise<{ id: string }>;
+  searchParams?: Promise<{ preview?: string }>;
 };
 
 // per-article SEO·OG (카카오·트위터 공유 카드). getArticleById는 cache()라 본문과 중복 fetch 없음.
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const article = await getArticleById(decodeURIComponent(params.id)).catch(() => undefined);
+  const { id } = await params;
+  const article = await getArticleById(decodeURIComponent(id)).catch(() => undefined);
   if (!article) return { title: '기사를 찾을 수 없어요' };
 
   const desc = article.summary?.slice(0, 150);
@@ -53,8 +54,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ArticleDetailPage({ params, searchParams }: PageProps) {
   // preview 토큰이 있으면 미공개(draft) 이슈의 기사도 조회 (운영자 검수). API가 토큰을 검증.
-  const preview = searchParams?.preview;
-  const decodedId = decodeURIComponent(params.id);
+  const { id } = await params;
+  const sp = await searchParams;
+  const preview = sp?.preview;
+  const decodedId = decodeURIComponent(id);
   const article = await getArticleById(decodedId, preview);
 
   if (!article) {

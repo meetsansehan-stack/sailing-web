@@ -45,37 +45,40 @@ export async function generateStaticParams() {
 type SearchParams = { category?: string; preview?: string };
 
 type PageProps = {
-  params: { date: string };
-  searchParams?: SearchParams;
+  params: Promise<{ date: string }>;
+  searchParams?: Promise<SearchParams>;
 };
 
 // per-issue SEO — 후킹 편집테마(issue.title)를 제목으로. getIssueByDate는 getAllIssues(cache) 공유.
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const issue = await getIssueByDate(params.date).catch(() => undefined);
+  const { date } = await params;
+  const issue = await getIssueByDate(date).catch(() => undefined);
   if (!issue) return { title: '이슈를 찾을 수 없어요' };
-  const dateLabel = `${params.date} 큐레이션`;
+  const dateLabel = `${date} 큐레이션`;
   const title = issue.title || dateLabel;
   const desc = issue.summary || '세일링이 그날 골라낸 육아 정책·신청·행사·콘텐츠를 한눈에.';
   return {
     title,
     description: desc,
-    alternates: { canonical: `/issues/${params.date}` },
-    openGraph: { type: 'article', title, description: desc, url: `/issues/${params.date}` },
+    alternates: { canonical: `/issues/${date}` },
+    openGraph: { type: 'article', title, description: desc, url: `/issues/${date}` },
     twitter: { card: 'summary', title, description: desc },
   };
 }
 
 export default async function IssueDatePage({ params, searchParams }: PageProps) {
   // preview 토큰이 있으면 미공개(draft) 이슈도 조회 (운영자 검수). API가 토큰을 검증.
-  const preview = searchParams?.preview;
-  const issue = await getIssueByDate(params.date, preview);
+  const { date } = await params;
+  const sp = await searchParams;
+  const preview = sp?.preview;
+  const issue = await getIssueByDate(date, preview);
   if (!issue) {
     notFound();
   }
 
   const allArticles = await getIssueArticles(issue.date, preview);
   const selectedCategories = (
-    searchParams?.category ? searchParams.category.split(',').filter(Boolean) : []
+    sp?.category ? sp.category.split(',').filter(Boolean) : []
   ) as Category[];
   const articles = selectedCategories.length
     ? allArticles.filter((a) => selectedCategories.includes(a.category))

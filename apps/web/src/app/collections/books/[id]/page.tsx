@@ -31,8 +31,9 @@ function BookCoverLarge({ book }: { book: Book }) {
   );
 }
 
-export default async function BookDetailPage({ params }: { params: { id: string } }) {
-  const id = decodeURIComponent(params.id);
+export default async function BookDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id: rawId } = await params;
+  const id = decodeURIComponent(rawId);
   const book = await getBookById(id);
   if (!book) notFound();
 

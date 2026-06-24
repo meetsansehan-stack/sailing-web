@@ -12,10 +12,10 @@ const PAGE_SIZE = 24; // 2·3열 그리드에 모두 나눠떨어짐
 export default async function ArticlesIndexPage({
   searchParams,
 }: {
-  searchParams?: SearchParams;
+  searchParams?: Promise<SearchParams>;
 }) {
-  const allRecent = await getRecentArticles();
-  const filterCategory = searchParams?.category as Category | undefined;
+  const [allRecent, sp] = await Promise.all([getRecentArticles(), searchParams]);
+  const filterCategory = sp?.category as Category | undefined;
 
   const filtered = filterCategory
     ? allRecent.filter((a) => a.category === filterCategory)
@@ -23,7 +23,7 @@ export default async function ArticlesIndexPage({
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   // 범위 밖 page는 클램프(잘못된 URL·필터 전환 시 안전).
-  const currentPage = Math.min(Math.max(1, Number(searchParams?.page) || 1), totalPages);
+  const currentPage = Math.min(Math.max(1, Number(sp?.page) || 1), totalPages);
   const pageItems = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   // 페이지 링크에 카테고리 보존.

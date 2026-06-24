@@ -53,9 +53,10 @@ const dwell = (ms: number | null) => {
   return s >= 60 ? `${Math.floor(s / 60)}분 ${s % 60}초` : `${s}초`;
 };
 
-export default async function Dashboard({ searchParams }: { searchParams?: { key?: string } }) {
+export default async function Dashboard({ searchParams }: { searchParams?: Promise<{ key?: string }> }) {
   const token = process.env.ADMIN_API_TOKEN;
-  if (!token || searchParams?.key !== token) {
+  const sp = await searchParams;
+  if (!token || sp?.key !== token) {
     return (
       <div className="mx-auto max-w-md py-24 text-center">
         <p className="text-h3 font-bold text-ink">운영자 전용</p>

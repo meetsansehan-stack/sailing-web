@@ -30,11 +30,12 @@ const PRICING_FILTER_OPTIONS: { value: Pricing; label: string }[] = [
   { value: 'paid', label: '유료' },
 ];
 
-export default async function ReservationsPage({ searchParams }: { searchParams?: SearchParams }) {
-  const filterType = searchParams?.type as VenueType | undefined;
-  const filterPricing = searchParams?.pricing as Pricing | undefined;
-  const filterAge = searchParams?.age as AgeGroup | undefined;
-  const filterRegion = searchParams?.region;
+export default async function ReservationsPage({ searchParams }: { searchParams?: Promise<SearchParams> }) {
+  const sp = await searchParams;
+  const filterType = sp?.type as VenueType | undefined;
+  const filterPricing = sp?.pricing as Pricing | undefined;
+  const filterAge = sp?.age as AgeGroup | undefined;
+  const filterRegion = sp?.region;
 
   const [allVenues, venueCountByRegion, filtered] = await Promise.all([
     getAllVenues(),

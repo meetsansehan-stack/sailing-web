@@ -20,10 +20,14 @@ import { TOPICS as RADAR_TOPICS } from '@/src/app/radar/data';
 //  ※ UI = Toss Feed 카드 스타일(디스크립션 미표시). 날짜 기반 정리는 /issues 아카이브에 보존.
 type SearchParams = { category?: string };
 
-export default async function Home({ searchParams }: { searchParams?: SearchParams }) {
-  const [allRecent, latestIssue] = await Promise.all([getRecentArticles(), getLatestIssue()]);
+export default async function Home({ searchParams }: { searchParams?: Promise<SearchParams> }) {
+  const [allRecent, latestIssue, resolvedParams] = await Promise.all([
+    getRecentArticles(),
+    getLatestIssue(),
+    searchParams,
+  ]);
 
-  const filterCategory = searchParams?.category as Category | undefined;
+  const filterCategory = resolvedParams?.category as Category | undefined;
   const isAllTab = !filterCategory;
 
   const base = isAllTab ? allRecent : allRecent.filter((a) => a.category === filterCategory);
