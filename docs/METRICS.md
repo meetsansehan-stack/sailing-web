@@ -61,7 +61,7 @@
 
 ## 7. 측정 갭 (후속 우선순위)
 
-- 🟡 **체류시간·스크롤 깊이** 적재 — 읽기 몰입 지표(STRATEGY §11.1). **체류시간 完**(page_exit durationMs, 대시보드 평균 체류). 스크롤 깊이는 미적재.
+- ✅ **체류시간·스크롤 깊이** 적재 — 읽기 몰입 지표(STRATEGY §11.1). page_exit meta에 durationMs + scrollDepthPct(0~100) 동반. 대시보드 평균 체류·평균 스크롤 깊이 표시.
 - ✅ **세션화** — page_exit·page_view에 sessionId(30분 비활성 TTL) 부여, 대시보드 세션수·세션당 PV. (스키마 변경 없이 meta 예약 키로 적재 → 서버 최소·PII 0.)
-- 🔲 **in-app micro-survey** — Sean Ellis·need·WTP를 라이브에서 1문항씩.
-- 🔲 리텐션 코호트(주차별 되돌아옴) 뷰 — 현재 대시보드는 일별 추이까지. 코호트는 다음.
+- ✅ **in-app micro-survey** — Sean Ellis 40% 1문항(세션 3페이지뷰 + 8초 후, 1기기 1회). survey_response 이벤트 적재. 대시보드 응답 분포·seanEllisPct 표시.
+- ✅ **리텐션 코호트** — 주차별 재방문률. 대시보드 코호트 테이블(최근 8주, W0~Wn, 30%≥ 녹색 강조).
