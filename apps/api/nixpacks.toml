@@ -2,7 +2,7 @@
 nixPkgs = ["nodejs_20"]
 
 [phases.install]
-cmds = ["npm install -g pnpm", "pnpm install --filter @parenting-newsletter/api... --frozen-lockfile"]
+cmds = ["npm install -g pnpm && pnpm install --filter @parenting-newsletter/api... --frozen-lockfile"]
 
 [phases.build]
 cmds = ["pnpm --filter @parenting-newsletter/api exec tsc --noEmit"]
