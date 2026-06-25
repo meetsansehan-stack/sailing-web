@@ -8,7 +8,7 @@ COPY . .
 
 RUN pnpm install --filter @parenting-newsletter/api... --frozen-lockfile
 
-RUN pnpm --filter @parenting-newsletter/db exec prisma generate
+RUN ./node_modules/.bin/prisma generate --schema=packages/db/prisma/schema.prisma
 
 EXPOSE 3001
 
