@@ -1,13 +1,9 @@
 {
   "$schema": "https://railway.com/railway.schema.json",
-  "build": {
-    "builder": "NIXPACKS",
-    "buildCommand": "pnpm --filter @parenting-newsletter/db run generate"
-  },
   "deploy": {
-    "startCommand": "pnpm --filter @parenting-newsletter/api run start",
+    "startCommand": "node --import tsx apps/api/src/index.ts",
     "healthcheckPath": "/health",
-    "healthcheckTimeout": 100,
+    "healthcheckTimeout": 60,
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 3
   }
