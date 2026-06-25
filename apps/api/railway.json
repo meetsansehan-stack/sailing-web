@@ -1,7 +1,8 @@
 {
   "$schema": "https://railway.com/railway.schema.json",
   "deploy": {
-    "startCommand": "node --import tsx src/index.ts",
+    "startCommand": "npx prisma generate --schema=../../packages/db/prisma/schema.prisma && node --import tsx src/index.ts",
+    "healthcheckTimeout": 60,
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 3,
     "healthcheckPath": "/health",
