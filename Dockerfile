@@ -10,7 +10,7 @@ COPY . .
 
 RUN pnpm install --frozen-lockfile
 
-RUN ./node_modules/.bin/prisma generate --schema=packages/db/prisma/schema.prisma
+RUN pnpm --filter @parenting-newsletter/db run generate
 
 EXPOSE 3001
 
