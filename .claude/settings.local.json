@@ -30,7 +30,8 @@
       "Bash(git diff *)",
       "Bash(xargs -0 ls -la)",
       "Bash(sort -k5 -n -r)",
-      "Bash(awk '{print $5, $9}')"
+      "Bash(awk '{print $5, $9}')",
+      "Bash(git -c user.name=Songhee -c user.email=meet.sansehan@gmail.com commit -q -m ' *)"
     ]
   }
 }

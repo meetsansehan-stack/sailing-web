@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//tmp/rw/**)",
+      "Read(//private/tmp/rw/**)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(repr\\(d['body']\\)\\)\")",
+      "Read(//tmp/rw2/**)",
+      "Read(//private/tmp/rw2/**)"
+    ],
+    "additionalDirectories": [
+      "/tmp/rw/out",
+      "/private/tmp/rw/out",
+      "/tmp/rw2/out",
+      "/private/tmp/rw2/out"
+    ]
+  }
+}
