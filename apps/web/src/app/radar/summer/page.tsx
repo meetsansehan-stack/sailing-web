@@ -1,27 +1,71 @@
+'use client';
+
 import Link from 'next/link';
 import { SUMMER } from '../data';
 
 // 여름방학 준비 상세 — 입학(타임라인)과 달리 '순서'가 없는 정보라 블로그형 에디토리얼 레이아웃.
 // 위→아래로 읽는 흐름 + 항목별 사진(placeholder, 소싱 보류 SPEC §10.6 ⓓ).
 
-// 항목별 사진 자리 — 소싱 전까지 16:9 placeholder
-function Photo({ emoji, caption }: { emoji: string; caption: string }) {
+// 항목별 사진 — imageUrl 있으면 실제 이미지, 없으면 emoji placeholder
+
+function Photo({
+  imageUrl,
+  imageCaption,
+  emoji,
+  caption,
+}: {
+  imageUrl?: string;
+  imageCaption?: string;
+  emoji: string;
+  caption: string;
+}) {
   return (
     <figure className="my-5 overflow-hidden rounded-card">
-      <div className="flex aspect-[16/9] flex-col items-center justify-center gap-2 bg-gradient-to-br from-grey-100 to-grey-200 text-ink-3">
-        <span className="text-4xl opacity-60">{emoji}</span>
-        <span className="text-small">{caption}</span>
-      </div>
+      {imageUrl ? (
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={imageUrl}
+            alt={caption}
+            className="aspect-[16/9] w-full object-cover"
+            onError={(e) => {
+              const fig = (e.currentTarget as HTMLImageElement).closest('figure');
+              if (fig) fig.setAttribute('data-fallback', 'true');
+              (e.currentTarget as HTMLImageElement).style.display = 'none';
+              const fb = fig?.querySelector('[data-fb]') as HTMLElement | null;
+              if (fb) fb.style.display = 'flex';
+            }}
+          />
+          <div
+            data-fb
+            style={{ display: 'none' }}
+            className="flex aspect-[16/9] flex-col items-center justify-center gap-2 bg-gradient-to-br from-grey-100 to-grey-200 text-ink-3"
+          >
+            <span className="text-4xl opacity-60">{emoji}</span>
+            <span className="text-small">{caption}</span>
+          </div>
+          {imageCaption && (
+            <figcaption className="mt-1.5 text-right text-meta text-ink-3">
+              {imageCaption}
+            </figcaption>
+          )}
+        </>
+      ) : (
+        <div className="flex aspect-[16/9] flex-col items-center justify-center gap-2 bg-gradient-to-br from-grey-100 to-grey-200 text-ink-3">
+          <span className="text-4xl opacity-60">{emoji}</span>
+          <span className="text-small">{caption}</span>
+        </div>
+      )}
     </figure>
   );
 }
 
-// 항목별 대표 이모지·사진 캡션 (제목 순서와 1:1)
-const PHOTOS = [
-  { emoji: '🏊', caption: '한강 물놀이장 (사진 준비중)' },
-  { emoji: '⛲', caption: '동네 무료 물놀이터·바닥분수 (사진 준비중)' },
-  { emoji: '📚', caption: '도서관 여름 프로그램 (사진 준비중)' },
-  { emoji: '🔬', caption: '국립과천과학관 (사진 준비중)' },
+// 항목별 대표 이모지·폴백 캡션 (제목 순서와 1:1) — imageUrl·imageCaption은 data.ts item이 우선
+const PHOTOS: { emoji: string; caption: string }[] = [
+  { emoji: '🏊', caption: '한강 물놀이장' },
+  { emoji: '⛲', caption: '동네 무료 물놀이터·바닥분수' },
+  { emoji: '📚', caption: '도서관 여름 프로그램' },
+  { emoji: '🔬', caption: '국립과천과학관' },
 ];
 
 export default function SummerPage() {
@@ -42,15 +86,20 @@ export default function SummerPage() {
         골라 한곳에 모았어요.
       </p>
 
-      <Photo emoji="🌊" caption="2026 여름 공공 어린이 프로그램 (사진 준비중)" />
-
       {/* 항목별 에디토리얼 섹션 (순서 없이 위→아래로) */}
       {SUMMER.items.map((it, i) => (
         <section key={it.title} className="mt-10 border-t border-grey-100 pt-8">
           <h2 className="text-headline font-bold text-ink">{it.title}</h2>
           <p className="mt-2 text-body leading-relaxed text-ink-2">{it.teaser}</p>
 
-          {PHOTOS[i] && <Photo emoji={PHOTOS[i].emoji} caption={PHOTOS[i].caption} />}
+          {PHOTOS[i] && (
+            <Photo
+              imageUrl={it.imageUrl}
+              imageCaption={it.imageCaption}
+              emoji={PHOTOS[i].emoji}
+              caption={PHOTOS[i].caption}
+            />
+          )}
 
           {it.sections.map((s) => (
             <div key={s.h} className="mt-5">

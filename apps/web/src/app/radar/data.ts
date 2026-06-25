@@ -11,6 +11,8 @@ export type Item = {
   teaser: string;
   sections: Section[];
   src: Src[];
+  imageUrl?: string;    // 섹션 대표 이미지 (없으면 emoji placeholder)
+  imageCaption?: string; // 이미지 출처 표기 (없으면 생략)
 };
 export type Seg = { title: string; sub: string; items: Item[] };
 
@@ -296,6 +298,8 @@ export const SUMMER: Seg = {
     {
       when: '6/19\n개장',
       type: 'action',
+      imageUrl: 'https://mediahub.seoul.go.kr/uploads/mediahub/2026/06/MdwxbDkqKWJEpSeZRpOLDNjHZkaeimIh.jpg',
+      imageCaption: '출처: 서울시 미디어허브',
       title: '한강 물놀이장 개장 (잠실·광나루·양화·난지)',
       teaser: '6세 이하 무료. 얕은 수심이라 영유아도 안심이에요.',
       sections: [
@@ -321,6 +325,8 @@ export const SUMMER: Seg = {
     {
       when: '여름\n내내',
       type: 'action',
+      imageUrl: 'https://mediahub.seoul.go.kr/uploads/mediahub/2024/06/XtXdGdhPklyajUohdqRspcuNPEKAxwex.jpg',
+      imageCaption: '출처: 서울시 미디어허브',
       title: '우리 동네 무료 물놀이장·바닥분수',
       teaser: '구·시마다 흩어진 무료 물놀이터를 한곳에 모아드릴게요.',
       sections: [
@@ -347,6 +353,8 @@ export const SUMMER: Seg = {
     {
       when: '신청\n선착순',
       type: 'action',
+      imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/3/30/%EA%B5%AD%EB%A6%BD%EC%96%B4%EB%A6%B0%EC%9D%B4%EC%B2%AD%EC%86%8C%EB%85%84%EB%8F%84%EC%84%9C%EA%B4%80.jpg',
+      imageCaption: '출처: Wikipedia Commons (국립어린이청소년도서관)',
       title: '도서관·문화센터 여름방학 프로그램',
       teaser: '여름 독서·체험 프로그램은 신청이 빨리 마감돼요.',
       sections: [
@@ -365,6 +373,8 @@ export const SUMMER: Seg = {
     {
       when: '여름방학',
       type: 'action',
+      imageUrl: 'https://mblogthumb-phinf.pstatic.net/MjAyNDA3MTlfNDkg/MDAxNzIxMzQ5MDE1ODQw.HgdtxizfFxLktCZTN4Ia73zdWQMCsbu_93BUsNR5EpQg.Rxht8uL60_C1UdDGATOTbTRdPmeHcn_gRIHI9906ZaEg.JPEG/CK_yaybe533d.jpg?type=w800',
+      imageCaption: '출처: 국립과천과학관 공식 블로그',
       title: '국립과천과학관 여름방학 특별교육',
       teaser: '유아·초등 대상 과학 체험 교육이에요.',
       sections: [
