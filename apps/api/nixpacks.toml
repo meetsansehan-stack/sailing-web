@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["nodejs_20"]
+nixPkgs = ["nodejs_22"]
 
 [phases.install]
 cmds = ["npx --yes pnpm@11 install --filter @parenting-newsletter/api... --frozen-lockfile"]
