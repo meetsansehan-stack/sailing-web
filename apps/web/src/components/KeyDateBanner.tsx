@@ -149,7 +149,7 @@ export function KeyDateBanner({
   eventsByDate,
   note,
 }: KeyDateBannerProps) {
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const [selectedYmd, setSelectedYmd] = useState(todayYmd);
   const [activeMonth, setActiveMonth] = useState(0);
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);

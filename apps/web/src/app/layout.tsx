@@ -45,6 +45,7 @@ const NAV = [
   { href: '/radar', label: '미리 준비' },
   { href: '/collections', label: '세일링 책장' },
   { href: '/reservations', label: '예약 정보' },
+  { href: '/letter', label: '세일링 레터' },
 ];
 
 const FOOTER_SERVICE = [
@@ -87,7 +88,7 @@ export default function RootLayout({
         <header className="sticky top-0 z-30 border-b border-line bg-white/90 backdrop-blur">
           <nav className="relative max-w-container mx-auto px-5 sm:px-6 h-[80px] flex items-center justify-between gap-4">
             {/* 좌측: 소개 말풍선 + 세일링 레터 */}
-            <div className="hidden items-center gap-3 sm:flex">
+            <div className="hidden items-center gap-3 md:flex">
               <Link href="/about" className="group flex items-center gap-2">
                 <span className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-lg">
                   ⛵
