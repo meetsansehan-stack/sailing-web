@@ -87,20 +87,20 @@ export default function RootLayout({
         <MicroSurvey />
         <header className="sticky top-0 z-30 border-b border-line bg-white/90 backdrop-blur">
           <nav className="relative max-w-container mx-auto px-5 sm:px-6 h-[80px] flex items-center justify-between gap-4">
-            {/* 좌측: 소개 말풍선 + 세일링 레터 */}
-            <div className="hidden items-center gap-3 md:flex">
+            {/* 좌측: 소개 아이콘(모바일) + 말풍선+세일링레터(데스크탑) */}
+            <div className="flex items-center gap-3">
               <Link href="/about" className="group flex items-center gap-2">
                 <span className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-lg">
                   ⛵
                 </span>
-                <span className="relative rounded-card bg-grey-100 px-3 py-1.5 text-small font-medium text-ink-2 transition group-hover:bg-grey-200">
+                <span className="relative hidden rounded-card bg-grey-100 px-3 py-1.5 text-small font-medium text-ink-2 transition group-hover:bg-grey-200 md:inline-block">
                   세일링이 궁금해요
                   <span className="absolute -left-1 top-1/2 h-2 w-2 -translate-y-1/2 rotate-45 bg-grey-100 transition group-hover:bg-grey-200" />
                 </span>
               </Link>
               <Link
                 href="/letter"
-                className="rounded-full px-3 py-1.5 text-body font-medium text-ink-2 transition hover:bg-grey-100"
+                className="hidden rounded-full px-3 py-1.5 text-body font-medium text-ink-2 transition hover:bg-grey-100 md:inline-block"
               >
                 세일링 레터
               </Link>
