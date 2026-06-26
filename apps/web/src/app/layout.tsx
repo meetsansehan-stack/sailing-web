@@ -92,7 +92,7 @@ export default function RootLayout({
         <AnalyticsTracker />
         <MicroSurvey />
         <header className="sticky top-0 z-30 border-b border-line bg-white/90 backdrop-blur">
-          <nav className="max-w-container mx-auto px-5 sm:px-6 h-[80px] flex items-center justify-between gap-4">
+          <nav className="max-w-container mx-auto px-5 sm:px-6 h-16 flex items-center justify-between gap-4">
             {/* 로고 — 좌측, 홈(최신 뉴스) 역할 */}
             <Link
               href="/"
@@ -101,8 +101,17 @@ export default function RootLayout({
               Sailing
             </Link>
 
-            {/* 우측: 데스크탑 메뉴 + 세일링이 궁금해요 + 로그인 */}
+            {/* 우측: 세일링이 궁금해요 + 메뉴 + 로그인 */}
             <div className="hidden items-center gap-1 text-body md:flex">
+              <Link href="/about" className="group mr-1 flex items-center gap-2">
+                <span className="relative rounded-card bg-grey-100 px-3 py-1.5 text-small font-medium text-ink-2 transition group-hover:bg-grey-200">
+                  세일링이 궁금해요
+                  <span className="absolute -right-1 top-1/2 h-2 w-2 -translate-y-1/2 rotate-45 bg-grey-100 transition group-hover:bg-grey-200" />
+                </span>
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-lg">
+                  ⛵
+                </span>
+              </Link>
               {NAV.map((item) => (
                 <Link
                   key={item.href}
@@ -112,15 +121,6 @@ export default function RootLayout({
                   {item.label}
                 </Link>
               ))}
-              <Link href="/about" className="group ml-1 flex items-center gap-2">
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-lg">
-                  ⛵
-                </span>
-                <span className="relative rounded-card bg-grey-100 px-3 py-1.5 text-small font-medium text-ink-2 transition group-hover:bg-grey-200">
-                  세일링이 궁금해요
-                  <span className="absolute -left-1 top-1/2 h-2 w-2 -translate-y-1/2 rotate-45 bg-grey-100 transition group-hover:bg-grey-200" />
-                </span>
-              </Link>
               <Link
                 href="/login"
                 className="ml-2 rounded-full bg-grey-900 px-4 py-1.5 font-semibold text-white transition hover:bg-grey-700"

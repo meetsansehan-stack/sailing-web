@@ -46,9 +46,9 @@ export function MobileNav({ items }: { items: NavItem[] }) {
             aria-hidden
             tabIndex={-1}
             onClick={() => setOpen(false)}
-            className="fixed inset-x-0 bottom-0 top-[80px] z-20 cursor-default bg-black/20"
+            className="fixed inset-x-0 bottom-0 top-16 z-20 cursor-default bg-black/20"
           />
-          <nav className="absolute inset-x-0 top-[80px] z-30 flex flex-col border-b border-line bg-white px-5 py-3 shadow-card">
+          <nav className="absolute inset-x-0 top-16 z-30 flex flex-col border-b border-line bg-white px-5 py-3 shadow-card">
             {items.map((item) => (
               <Link
                 key={item.href}
