@@ -1,0 +1,11 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "buildCommand": "pnpm --filter @parenting-newsletter/web build"
+  },
+  "deploy": {
+    "startCommand": "pnpm --filter @parenting-newsletter/web start",
+    "healthcheckPath": "/",
+    "healthcheckTimeout": 60
+  }
+}
