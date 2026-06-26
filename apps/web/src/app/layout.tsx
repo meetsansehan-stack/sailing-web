@@ -88,7 +88,7 @@ export default function RootLayout({
         <AnalyticsTracker />
         <MicroSurvey />
         <header className="sticky top-0 z-30 border-b border-line bg-white/90 backdrop-blur">
-          <nav className="relative max-w-container mx-auto px-5 sm:px-6 h-[80px] flex items-center justify-between gap-4">
+          <nav className="max-w-container mx-auto px-5 sm:px-6 h-[80px] grid grid-cols-[1fr_auto_1fr] items-center">
             {/* 좌측: 소개 아이콘(모바일) + 말풍선+세일링레터(데스크탑) */}
             <div className="flex items-center gap-3">
               <Link href="/about" className="group flex items-center gap-2">
@@ -111,32 +111,32 @@ export default function RootLayout({
             {/* 중앙: 로고 */}
             <Link
               href="/"
-              className={`${arvo.className} absolute left-1/2 -translate-x-1/2 text-h1 font-bold leading-none tracking-tight text-black`}
+              className={`${arvo.className} text-h1 font-bold leading-none tracking-tight text-black`}
             >
               Sailing
             </Link>
 
-            {/* 우측(데스크탑): 메뉴 + 로그인(면 버튼) — 모바일은 햄버거로 대체 */}
-            <div className="ml-auto hidden items-center gap-1 text-body md:flex">
-              {NAV.map((item) => (
+            {/* 우측: 데스크탑 메뉴 + 로그인 / 모바일 햄버거 */}
+            <div className="flex items-center justify-end gap-1 text-body">
+              <div className="hidden items-center gap-1 md:flex">
+                {NAV.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="rounded-full px-3 py-1.5 font-medium text-ink-2 transition hover:bg-grey-100"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
                 <Link
-                  key={item.href}
-                  href={item.href}
-                  className="rounded-full px-3 py-1.5 font-medium text-ink-2 transition hover:bg-grey-100"
+                  href="/login"
+                  className="ml-2 rounded-full bg-grey-900 px-4 py-1.5 font-semibold text-white transition hover:bg-grey-700"
                 >
-                  {item.label}
+                  로그인
                 </Link>
-              ))}
-              <Link
-                href="/login"
-                className="ml-2 rounded-full bg-grey-900 px-4 py-1.5 font-semibold text-white transition hover:bg-grey-700"
-              >
-                로그인
-              </Link>
+              </div>
+              <MobileNav items={MOBILE_NAV} />
             </div>
-
-            {/* 우측(모바일 <md): 햄버거 드롭다운 */}
-            <MobileNav items={MOBILE_NAV} />
           </nav>
         </header>
         {/* GNB 하단 전폭 배너 — 이번 주 키데이트 (collapse/expand). 날짜 맥락 경로(미리 준비·예약 정보) 상단에서만 노출 */}
