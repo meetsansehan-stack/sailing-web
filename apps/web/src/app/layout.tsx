@@ -45,8 +45,10 @@ const NAV = [
   { href: '/radar', label: '미리 준비' },
   { href: '/collections', label: '세일링 책장' },
   { href: '/reservations', label: '예약 정보' },
-  { href: '/letter', label: '세일링 레터' },
 ];
+
+// 모바일 햄버거 전용 — 세일링 레터 포함 (좌측 데스크탑 메뉴에는 별도 표시)
+const MOBILE_NAV = [...NAV, { href: '/letter', label: '세일링 레터' }];
 
 const FOOTER_SERVICE = [
   { href: '/', label: '홈' },
@@ -134,7 +136,7 @@ export default function RootLayout({
             </div>
 
             {/* 우측(모바일 <md): 햄버거 드롭다운 */}
-            <MobileNav items={NAV} />
+            <MobileNav items={MOBILE_NAV} />
           </nav>
         </header>
         {/* GNB 하단 전폭 배너 — 이번 주 키데이트 (collapse/expand). 날짜 맥락 경로(미리 준비·예약 정보) 상단에서만 노출 */}
