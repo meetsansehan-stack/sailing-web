@@ -96,12 +96,12 @@ export default function RootLayout({
             {/* 로고 — 좌측, 홈(최신 뉴스) 역할 */}
             <Link
               href="/"
-              className={`${arvo.className} text-h1 font-bold leading-none tracking-tight text-black`}
+              className={`${arvo.className} text-[1.8rem] font-bold leading-none tracking-tight text-black`}
             >
               Sailing
             </Link>
 
-            {/* 우측: 데스크탑 메뉴 + 로그인 */}
+            {/* 우측: 데스크탑 메뉴 + 세일링이 궁금해요 + 로그인 */}
             <div className="hidden items-center gap-1 text-body md:flex">
               {NAV.map((item) => (
                 <Link
@@ -112,6 +112,15 @@ export default function RootLayout({
                   {item.label}
                 </Link>
               ))}
+              <Link href="/about" className="group ml-1 flex items-center gap-2">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-lg">
+                  ⛵
+                </span>
+                <span className="relative rounded-card bg-grey-100 px-3 py-1.5 text-small font-medium text-ink-2 transition group-hover:bg-grey-200">
+                  세일링이 궁금해요
+                  <span className="absolute -left-1 top-1/2 h-2 w-2 -translate-y-1/2 rotate-45 bg-grey-100 transition group-hover:bg-grey-200" />
+                </span>
+              </Link>
               <Link
                 href="/login"
                 className="ml-2 rounded-full bg-grey-900 px-4 py-1.5 font-semibold text-white transition hover:bg-grey-700"
