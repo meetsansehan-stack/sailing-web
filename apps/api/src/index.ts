@@ -57,6 +57,23 @@ if (process.env.API_DISABLE_LISTEN !== '1') {
   serve({ fetch: app.fetch, port }, (info) => {
     console.log(`[api] listening on http://localhost:${info.port}`);
   });
+
+  // 데일리 파이프라인 크론 (PIPELINE_CRON_ENABLED=true 일 때만 활성)
+  // KST 00:00 = UTC 15:00 전날 → "0 15 * * *"
+  if (process.env.PIPELINE_CRON_ENABLED === 'true') {
+    const cron = await import('node-cron');
+    const { runFullPipeline } = await import('./pipeline');
+    cron.schedule('0 15 * * *', async () => {
+      console.log('[cron] 데일리 파이프라인 시작 (KST 00:00)');
+      try {
+        const result = await runFullPipeline();
+        console.log(`[cron] 완료 issueDate=${result.issueDate.toISOString().slice(0, 10)} stopped=${result.stopped}`);
+      } catch (err) {
+        console.error('[cron] 파이프라인 실패', err);
+      }
+    }, { timezone: 'UTC' });
+    console.log('[cron] 데일리 파이프라인 스케줄 등록 완료 (매일 KST 00:00)');
+  }
 }
 
 export default app;

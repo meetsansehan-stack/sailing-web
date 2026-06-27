@@ -12,19 +12,21 @@
   },
   "dependencies": {
     "@hono/node-server": "^2.0.2",
-    "tsx": "^4.0.0",
-    "@parenting-newsletter/agents-core": "workspace:*",
-    "@parenting-newsletter/agent-research": "workspace:*",
     "@parenting-newsletter/agent-curation": "workspace:*",
-    "@parenting-newsletter/agent-writer": "workspace:*",
     "@parenting-newsletter/agent-editor": "workspace:*",
     "@parenting-newsletter/agent-hooking": "workspace:*",
+    "@parenting-newsletter/agent-research": "workspace:*",
+    "@parenting-newsletter/agent-writer": "workspace:*",
+    "@parenting-newsletter/agents-core": "workspace:*",
     "@parenting-newsletter/db": "workspace:*",
     "@parenting-newsletter/shared": "workspace:*",
-    "hono": "^4.12.25"
+    "hono": "^4.12.25",
+    "node-cron": "^4.5.0",
+    "tsx": "^4.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "@types/node-cron": "^3.0.11",
     "typescript": "^5.3.3"
   }
 }
