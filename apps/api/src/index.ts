@@ -61,34 +61,36 @@ if (process.env.API_DISABLE_LISTEN !== '1') {
   // 데일리 파이프라인 크론 (PIPELINE_CRON_ENABLED=true 일 때만 활성)
   // KST 00:00 = UTC 15:00 전날 → "0 15 * * *"
   if (process.env.PIPELINE_CRON_ENABLED === 'true') {
-    const cron = await import('node-cron');
-    const { runFullPipeline } = await import('./pipeline');
-    const { prisma } = await import('@parenting-newsletter/db');
-    cron.schedule('0 15 * * *', async () => {
-      console.log('[cron] 데일리 파이프라인 시작 (KST 00:00)');
-      try {
-        const result = await runFullPipeline();
-        const ds = result.issueDate.toISOString().slice(0, 10);
-        console.log(`[cron] 파이프라인 완료 issueDate=${ds} stopped=${result.stopped}`);
+    void (async () => {
+      const cron = await import('node-cron');
+      const { runFullPipeline } = await import('./pipeline');
+      const { prisma } = await import('@parenting-newsletter/db');
+      cron.schedule('0 15 * * *', async () => {
+        console.log('[cron] 데일리 파이프라인 시작 (KST 00:00)');
+        try {
+          const result = await runFullPipeline();
+          const ds = result.issueDate.toISOString().slice(0, 10);
+          console.log(`[cron] 파이프라인 완료 issueDate=${ds} stopped=${result.stopped}`);
 
-        if (result.stopped) {
-          console.warn('[cron] hard 실패로 중단 — 자동 발행 건너뜀');
-          return;
+          if (result.stopped) {
+            console.warn('[cron] hard 실패로 중단 — 자동 발행 건너뜀');
+            return;
+          }
+
+          // 자동 발행: 기사 1건 이상이면 published로 flip
+          const issue = await prisma.dailyIssue.findFirst({ where: { issueDate: result.issueDate } });
+          if (!issue) { console.error('[cron] 이슈 레코드 없음 — 발행 건너뜀'); return; }
+          const count = await prisma.article.count({ where: { issueDate: result.issueDate } });
+          if (count === 0) { console.warn('[cron] 기사 0건 — 발행 건너뜀'); return; }
+          if (issue.status === 'published') { console.log(`[cron] ${ds} 이미 published`); return; }
+          await prisma.dailyIssue.update({ where: { id: issue.id }, data: { status: 'published' } });
+          console.log(`[cron] 자동 발행 완료: ${ds} (기사 ${count}건)`);
+        } catch (err) {
+          console.error('[cron] 파이프라인/발행 실패', err);
         }
-
-        // 자동 발행: 기사 1건 이상이면 published로 flip
-        const issue = await prisma.dailyIssue.findFirst({ where: { issueDate: result.issueDate } });
-        if (!issue) { console.error('[cron] 이슈 레코드 없음 — 발행 건너뜀'); return; }
-        const count = await prisma.article.count({ where: { issueDate: result.issueDate } });
-        if (count === 0) { console.warn('[cron] 기사 0건 — 발행 건너뜀'); return; }
-        if (issue.status === 'published') { console.log(`[cron] ${ds} 이미 published`); return; }
-        await prisma.dailyIssue.update({ where: { id: issue.id }, data: { status: 'published' } });
-        console.log(`[cron] 자동 발행 완료: ${ds} (기사 ${count}건)`);
-      } catch (err) {
-        console.error('[cron] 파이프라인/발행 실패', err);
-      }
-    }, { timezone: 'UTC' });
-    console.log('[cron] 데일리 파이프라인 스케줄 등록 완료 (매일 KST 00:00, 자동 발행 포함)');
+      }, { timezone: 'UTC' });
+      console.log('[cron] 데일리 파이프라인 스케줄 등록 완료 (매일 KST 00:00, 자동 발행 포함)');
+    })();
   }
 }
 
