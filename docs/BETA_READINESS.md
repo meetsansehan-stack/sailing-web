@@ -1,123 +1,109 @@
 # 베타 오픈 준비 체크리스트
 
 > 단일 소스. 베타 = "공개 오픈"이 아니라 **단계적 베타**(2026-06-15 확정).
-> 상태 범례: ✅ 완료 · 🟡 부분/준비됨 · 🔲 미착수 · ⚠️ 재검토/리스크 · 🔒 카드 복구 게이트.
+> 상태 범례: ✅ 완료 · 🟡 부분/준비됨 · 🔲 미착수 · ⚠️ 재검토/리스크.
+> **2026-06-28 전면 갱신** — 배포 완료 기준으로 Phase B 진입 상태 반영.
 
 ## 프레이밍 — 단계적 베타 (3 Phase, 각자 게이트)
 
-| Phase | 무엇 | 목표(잡) | 게이트 |
+| Phase | 무엇 | 목표(잡) | 상태 |
 |---|---|---|---|
-| **A 로컬 데모** | 배포 0, 로컬에서 지인·인터뷰이 시연 | **제품 검증**(공명 시그널) | 없음 — 지금 가능 |
-| **B 클로즈드 초대** | 배포 + 소수(10~30) 초대 | **리텐션·공명 실측** | 🔒 배포(카드 복구) |
-| **C 공개 오픈** | 누구나 + SEO·유통 | **획득** | 법무·SEO 골격 성숙 |
-
-**현재 블로커 = 해외결제 카드 분실** → Phase B/C의 배포(Railway·Vercel)가 막힘.
-그래서 **지금 에너지는 Phase A에 100%** — 배포와 무관하게 진행 가능하고, PMF 진단
-("병목=TAM 아닌 공명+유통, 검증 우선")과 정합. 카드 복구 = B/C의 메타 게이트.
+| **A 로컬 데모** | 배포 0, 로컬에서 지인·인터뷰이 시연 | **제품 검증**(공명 시그널) | ✅ 가능(완료) |
+| **B 클로즈드 초대** | 배포 + 소수(10~30) 초대 | **리텐션·공명 실측** | 🟡 **진입 중** — 인프라 완료, 콘텐츠·계정 남음 |
+| **C 공개 오픈** | 누구나 + SEO·유통 | **획득** | 🔲 도메인·CWV 후 |
 
 ---
 
-## 🔥 지금 당장 (Phase A — 카드 무관, 이번 주 집중)
-
-배포 없이 로컬에서 인터뷰·시연으로 제품을 검증한다. 가장 ROI 높은 구간.
+## Phase A — 로컬 데모 ✅ 완료
 
 ### 콘텐츠·운영
-- [ ] 🟡 매일 발행 루틴 안정화 — `pipeline:daily`(draft) → 검토 → `pipeline:publish`. e2e 작동 검증됨, **매일 도는 습관/스케줄 확정** 필요(스케줄러는 파일만, 미설치).
-- [ ] 🔲 아카이브 두께 확보 — 인터뷰 때 "빈 사이트"로 안 보이게 최소 1~2주치 축적(현 라이브 3일치).
-- [ ] ✅ 발행 게이트(draft/published) — 미검수 자동공개 0. 작동 확인됨.
-- [ ] 🟡 큐레이션 품질 가드 모니터링 — 톤 가드레일·진통제 정합·dedup(이번 세션 보강). 며칠 산출물 눈으로 확인.
+- [x] ✅ 발행 게이트(draft/published) — 미검수 자동공개 0.
+- [x] ✅ 매일 발행 루틴 — `pipeline:daily` → 검토 → `pipeline:publish`. Railway 크론(KST 00:00) 내장 + auto-publish.
+- [ ] 🟡 아카이브 두께 — 인터뷰·시연 때 "빈 사이트"로 안 보이게 1~2주치 권장. **운영 지속 중**.
 
-### QA·UX (로컬)
-- [ ] 🔲 핵심 라우트 200 일괄 점검 — `/`·`/issues`·`/issues/[date]`·`/articles/[id]`·`/radar`·`/reservations`·`/collections`.
-- [ ] 🔲 모바일 반응형 — 부모 = 모바일 우선. 주요 화면 폰 폭 점검.
-- [ ] 🟡 빈/에러 상태 graceful — 배너 null 폴백 등 일부 있음. 전반 점검.
+### QA·UX
+- [x] ✅ 핵심 라우트 200 일괄 점검 — `/`·`/issues`·`/issues/[date]`·`/articles/[id]`·`/radar`·`/reservations`·`/collections` 전부 정상.
+- [x] ✅ 모바일 반응형 — mobile-first 그리드, 필터탭·캘린더 확인.
+- [x] ✅ 빈/에러 상태 graceful — not-found·error.tsx, 빈 /issues 폴백.
 
-### 측정·검증 설계 (도구는 Phase B에서 적재, 설계는 지금)
-- [x] ✅ **핵심 지표 정의** — `docs/METRICS.md`(단일 소스): 북극성·AARRR컷·공명지표↔이벤트 매핑·PMF(Sean Ellis 40%)·kill/learn·베타 목표. 대시보드 연결.
-- [x] ✅ 인터뷰 코딩 시트 — 이미 `docs/ICP_INTERVIEW.md` §8 존재(The Mom Test·판정 기준). METRICS §6 링크.
+### 측정·검증 설계
+- [x] ✅ 핵심 지표 정의 — `docs/METRICS.md`: 북극성·AARRR컷·공명지표·Sean Ellis 40%·kill/learn.
+- [x] ✅ 인터뷰 코딩 시트 — `docs/ICP_INTERVIEW.md` §8(The Mom Test·판정 기준).
 
 ### 획득(검증) — 인터뷰
-- [ ] 🟡 인터뷰 자극물 = 로컬 데모 + 모집 키트(`docs/ICP_INTERVIEW.md`·`ICP_SURVEY.md` 존재).
-- [ ] 🔲 지인 밖 5~10명 모집 시작(7세 예비초1 니치 우선).
+- [ ] 🟡 인터뷰 자극물 = 배포 URL + `docs/ICP_INTERVIEW.md`·`ICP_SURVEY.md`.
+- [ ] 🔲 지인 밖 5~10명 모집(7세 예비초1 니치 우선).
 - [ ] 🔲 서베이 배포(구글폼판) + 핫 ICP 인터뷰.
 
 ---
 
-## Phase B — 클로즈드 초대 (🔒 카드 복구 후)
+## Phase B — 클로즈드 초대 🟡 진입 중
 
-배포해서 소수에게 실제로 쓰게 한다. 리텐션·공명을 행동 데이터로 측정.
+### 배포·인프라 ✅ 전부 완료
+- [x] ✅ Railway(API) 배포 — `https://parenting-newsletterapi-production.up.railway.app` 정상.
+- [x] ✅ Vercel(Web) 배포 — `https://sailing-web-web.vercel.app` 정상.
+- [x] ✅ GitHub 자동배포 웹훅 — `meetsansehan-stack/sailing-web` 연결, main push → 자동배포 확인(2026-06-28).
+- [x] ✅ CORS — `CORS_ALLOWED_ORIGINS=https://sailing-web-web.vercel.app` (Railway), `*` 아님.
+- [x] ✅ 웹↔API 연결 — 운영 홈에서 실기사 SSR 렌더링 확인(2026-06-28).
+- [x] ✅ PREVIEW_TOKEN / ADMIN_API_TOKEN — 64자 강한 랜덤값(2026-06-28 확인).
+- [x] ✅ 백업 — `db:backup`/`db:restore`(Prisma→JSON 9모델, 라운드트립 검증). `docs/BACKUP.md`.
+- [ ] 🟡 Supabase 플랫폼 백업(1차) — 대시보드서 사용자가 직접 활성화 필요.
+- [ ] 🔲 최소 에러 모니터링(Sentry 또는 Railway 로그 루틴).
 
-### 배포·인프라 (런북 = `docs/DEPLOY.md`)
-- [~] 🟡 Railway(API) 배포 — `railway.json`·`nixpacks.toml`·PORT 주입 **설정 完**. **잔여: Railway 콘솔서 repo 연결 + env 주입 + 도메인 확인.**
-- [~] 🟡 Vercel(웹) 배포 — `vercel.json`·`transpilePackages`·Next.js 15 **설정 完**. **잔여: Vercel 콘솔서 repo 연결 + env 주입 + 도메인 확인.**
-- [~] 🟡 배포 순서 = **API 먼저**(웹 ISR가 빌드 시 API 호출). `docs/DEPLOY.md` §1→§2 순서 명시.
-- [ ] 🔲 CORS(`CORS_ALLOWED_ORIGINS`→Vercel 실URL) — `docs/DEPLOY.md` §3.
-- [~] 🟡 `PREVIEW_TOKEN` = Railway에만(웹 불필요). 게이트 검증.
-- [~] 🟡 백업 UX — **앱 논리 백업(2차) 完**: `db:backup`/`db:restore`(Prisma→JSON 9모델, dry-run·--commit, 라운드트립 드릴 검증). `docs/BACKUP.md`. **잔여**: Supabase 플랫폼 백업(1차, 플랜 의존)은 사용자가 대시보드서 확인·활성화.
-- [ ] 🔲 최소 에러 모니터링(로그 확인 루틴).
+### 법무·프라이버시·보안 ✅ 대부분 완료
+- [x] ✅ 개인정보처리방침 `/privacy` — 실 수집 데이터 기반, 사업자정보·보호책임자·위탁업체 실값 기입 완료.
+- [x] ✅ 동의 UX — SubscribeCTA 처리방침·약관 동의 간주 + 만 14세 이상 문구.
+- [x] ✅ 이용약관 `/terms` — 정보제공 면책·지식재산권·준거법.
+- [x] ✅ 아동 PII 0 — Subscriber=부모 이메일·동의만, AnalyticsEvent=익명 anonId·meta만. 생일·발달·진단 서버 0.
+- [x] ✅ 익명 재식별 불가 — anonId=클라 생성 난수, meta 2KB 상한.
+- [x] ✅ 보안 검토 1차 (2026-06-17) — adminAuth fail-closed, rate limit(subscribe 5회/10분·analytics 100회/분), enumeration 제거, supabase.ts 분리.
+- [x] ✅ Supabase RLS — 운영 DB 전 10개 테이블 rowsecurity=ON 확인(2026-06-28).
+- [x] ✅ Next.js 15 — SSRF/DoS 취약점 패치 버전(15.5.19) 적용.
+- [x] ✅ hono 4.12.25 — CORS 취약점 패치.
+- [ ] ⚠️ 이미지 저작권 — 원문 og:image 핫링킹. Phase C 전 결론 필요.
+- [ ] ⚠️ 출시 전 법무 검토 1회 — CLAUDE.md 의무사항.
 
-### 법무·프라이버시·보안 (CLAUDE.md "출시 전 1회" — Phase B 필수)
-- [~] 🟡 **개인정보처리방침** (2026-06-17, `8eafc59`) — `/privacy` 초안 게시. 실제 수집(이메일·동의·익명 anonId·익명분석)에 맞춤. **[사업자정보·보호책임자·위탁업체] placeholder = 확정 후 치환 + 출시 전 법무 검토 필요.**
-- [x] ✅ **동의 UX** (2026-06-17) — SubscribeCTA에 처리방침·약관 동의 간주 + 만 14세 이상 문구(비강제 뉴스레터형). 아동 정보는 서버 미수집(로컬-퍼스트)이라 방침에 명시.
-- [~] 🟡 **이용약관·면책** (2026-06-17, `8eafc59`) — `/terms` 초안 게시. 정보제공 매체 면책(의료·법률 자문 아님·콘텐츠 정확성·외부 링크)·지식재산권·준거법. 법무 검토 대기.
-- [x] ✅ **아동 PII 0 검증** (2026-06-17) — DB 스키마 감사: Subscriber=부모 이메일·동의·anonId·authUserId만 / AnalyticsEvent=익명 anonId·type·path·meta만. 생일·지역·발달·진단 0. 로컬-퍼스트 설계 확인. (단 analytics `path`/`meta`는 PII-free가 클라 책임 = 계약 문서화 필요.)
-- [x] ✅ **익명 재식별 불가** (2026-06-17) — anonId=클라 생성 난수, 서버에 식별자 연결 없음. meta 2KB 상한 추가(`d2922df`).
-- [~] 🟡 **보안 검토 1회** (2026-06-17 1차 완료, `d2922df`) — **발견·수정**: 인증 미들웨어가 코드 전체 0개 → 운영·뮤테이션 엔드포인트(pipeline/agents/qa run·구독 DELETE) 무인증 = 비용 DoS($3~6/회). adminAuth(fail-closed, Bearer) 게이트 추가. **🔴 미해결(아래 RLS)**. secret 노출 0 확인(.env 미추적·SERVICE_ROLE non-public). 잔여: rate limit 0(Phase C 전), `alreadySubscribed` 이메일 enumeration(경미), supabase.ts 브라우저/서버 클라 한 파일 혼재(footgun).
-- [ ] 🔴 **Supabase RLS ENABLE 적용** — Prisma 생성 테이블은 RLS 기본 OFF. anon 키(웹 공개)로 PostgREST Data API 직접 접근 시 Subscriber(이메일) 등 전 테이블 노출 위험. **현재 Data API가 PGRST002 503(스키마캐시 못읽음)이라 우연히 미노출이나 견고치 않음.** 마이그레이션 작성됨(`20260617000000_enable_rls`, 9테이블 ENABLE, 정책0=deny-all, Prisma는 owner라 무영향). **적용 대기**(프로덕션).
-- [ ] ⚠️ **이미지 저작권 재검토** — 현재 원문 og:image 핫링킹(저작권 "베타 전 재검토"로 보류 중). Phase B 전 결론.
-- [~] 🟡 **의존성 취약점 audit** (2026-06-17 `pnpm audit`) — 27건(high 8·mod 16·low 3). **고침**: `hono` 4.12.18→**4.12.25**(우리 공개 API CORS 패치, 직접 해당. CORS 동작 검증=허용 origin만 반영). **연기(Phase C 전)**: `next` 14→15(5 high DoS/SSRF — **React 18→19 동반 이중 메이저, 14.x 백포트 없음**. closed 베타엔 악용도 낮음, 공개 전 별도 마이그레이션). **수용(실위험 ≈0)**: `esbuild`(dev-only·macOS·tsx transform, 취약점은 Windows dev서버 한정), `form-data`·`hono`-MCP(Anthropic SDK 내부·서버측·통제 파이프라인). 전이 override는 샌드박스 네트워크 제약으로 미적용 — 네트워크 환경서 재시도 or next-15 작업과 함께.
+### 계정·온보딩
+- [x] ✅ 익명 읽기 먼저(획득 안 막음) — 기본 동작.
+- [ ] 🔲 라이트 소셜 로그인(카카오·구글) — 현 `/login` 스텁. 구독·저장 시점 유도. (보류 중 — 배포 후 redirect URL 확정 후 착수)
+- [ ] 🔲 연령·지역 개인화 = **로컬(클라)** — V1 핵심, 서버 PII 0. MVP 출시 후로 미룸.
+- [ ] 🔲 가벼운 온보딩 — 강한 온보딩 동결(검증 우선).
 
-### 계정·온보딩 (라이트·progressive)
-- [ ] 🟡 익명 읽기 먼저(획득 안 막음) — 기본 동작.
-- [ ] 🔲 라이트 소셜 로그인(카카오·구글) — 현 login 스텁. 구독·저장 시점에만 유도.
-- [ ] 🔲 이메일 수집(V2 메일 토대).
-- [ ] 🔲 연령·지역 개인화 입력 = **로컬(클라)** — V1 핵심, 서버 PII 0.
-- [ ] 🔲 가벼운 온보딩 — 강한 온보딩 설계는 동결(검증 우선). 최소만.
+### 분석 적재 ✅ 전부 완료
+- [x] ✅ 익명 분석 day1 — page_view·cta 퍼널·outbound_click·page_exit. PII 0.
+- [x] ✅ 세션화 + 체류시간(durationMs) + 스크롤 깊이(scrollDepthPct) — METRICS §7.
+- [x] ✅ in-app micro-survey — Sean Ellis 40% 1문항(세션 3PV+8초, 1기기 1회).
+- [x] ✅ 리텐션 코호트 — 주간 재방문률, 대시보드 8주 테이블.
+- [x] ✅ 운영 대시보드 `/dashboard?key=` — 구독 퍼널·일별 추이·세션·인기 경로·survey 결과·코호트.
 
-### 분석 적재
-- [x] ✅ 익명 분석 day1 — 자체 적재(page_view·cta 퍼널·outbound_click). PII 0. **운영 대시보드 `/dashboard?key=`**(GET /api/analytics/summary): 구독 퍼널·일별 추이·인기 경로·고유 방문자.
-- [ ] 🔲 익명 집계 서버 적재(세그=시군구+연령밴드+활동유형 = 벤치마크 해자) — 세션화·체류시간은 METRICS §7 후속.
-
-### 운영 자동화
-- [ ] 🟡 스케줄러 실설치 — `cp scripts/com.sailing.daily-pipeline.plist ~/Library/LaunchAgents/ && launchctl load`. 또는 수동 데일리 확정.
-- [ ] 🔲 링크 헬스체크 + graceful degradation(원문 404 시 버튼 숨김) — STRATEGY §11.2 TODO.
+### 브랜드·고객 접점 ✅ 완료
+- [x] ✅ 파비콘(돛단배 SVG)·OG 카드(1200×630)·PWA manifest.
+- [x] ✅ About 실콘텐츠, Footer 문의메일·사업자.
+- [x] ✅ 전용 이메일 `with.sailing@gmail.com` 배선.
 
 ---
 
-## Phase C — 공개 오픈 (SEO·유통 성숙)
+## Phase C — 공개 오픈 🔲 준비 중
 
-누구나 들어오고, 검색·공유로 유입된다. "골격은 출시 전, 근육은 후속"(STRATEGY §10).
+### SEO 골격 ✅ 완료
+- [x] ✅ `sitemap.ts` — 정적 9페이지 + 발행 이슈·기사 동적(2026-06-17).
+- [x] ✅ `robots.ts` — /dashboard·/style·/login disallow + sitemap 링크.
+- [x] ✅ per-page generateMetadata + OG·twitter 카드 — 기사·이슈 상세, 카카오 공유(2026-06-17).
+- [ ] 🔲 구글 서치콘솔 등록.
+- [ ] 🔲 네이버 서치어드바이저 등록.
+- [ ] 🔲 JSON-LD(Article·Event)·CWV 튜닝·내부 링크(후속).
 
-### SEO 골격 (retrofit 비싸니 공개 전)
-- [ ] 🟡 SSR/SSG·URL 스킴 고정 — Next SSR 사용 중, 스킴 고정 확인.
-- [ ] 🔲 `sitemap.ts`(동적) + `robots.ts` — **현재 둘 다 없음**.
-- [ ] 🔲 per-page 메타 + **OG**(카카오 공유) — 루트 title만 있음, generateMetadata·openGraph 없음.
-- [ ] 🔲 구글 서치콘솔 + 네이버 서치어드바이저 등록.
-- [ ] 🔲 (후속) JSON-LD(Article·Event)·CWV 튜닝·내부 링크.
-
-### 유통·시즌 (demand mining 실탄)
-- [ ] 🔲 시즌 앵커 콘텐츠 — 여름 무료 물놀이·공연 유입 → 9월 처음학교로 입학 "미리 준비" 전환.
-- [ ] 🔲 캘린더 배너 = 입학·여름 키데이트 진입점(실데이터 배선 ✅ 이번 세션).
+### 유통·시즌
+- [x] ✅ 캘린더 배너 실데이터 배선 — eventStartDate·eventEndDate·deadline span 모델.
+- [x] ✅ /radar 미리 준비 허브 — live 2개(summer·admission) + soon 예고편.
+- [ ] 🔲 시즌 앵커 콘텐츠 — 여름 무료 물놀이 → 9월 처음학교로 "미리 준비" 전환.
 - [ ] 🔲 초대 → 공개 확장 채널 문구.
 
 ### 도메인·브랜드
-- [ ] 🔲 도메인 구매(Cloudflare/.com 원가 or 가비아/.co.kr) + DNS.
-- [ ] 🔲 사업자 정보·표기(정보제공 매체 기준 검토).
+- [ ] 🔲 도메인 구매(Cloudflare/.com 또는 가비아/.co.kr) + DNS.
+- [ ] 🔲 CORS 도메인 추가(`CORS_ALLOWED_ORIGINS`에 실 도메인 append).
 
 ### 성능·신뢰
 - [ ] 🔲 CWV 기본 통과.
-- [ ] 🟡 출처 등급 배지·신뢰 표시 — 구현됨(credibility.ts). 노출 확인.
+- [x] ✅ 출처 등급 배지 — `credibility.ts` 구현·노출.
 - [ ] 🔲 접근성 기본(aria) 점검.
-
----
-
-## 카드 블로커 우회 (의사결정 대기)
-
-Phase B/C가 카드에 막혀 있다. 선택지(아직 미결):
-- **a. 카드 복구 대기** — 가장 깔끔, 단 타임라인 불확실.
-- **b. 무료 배포 대안(Render/Fly)** — 콜드스타트 트레이드오프(세션#8서 Railway 택한 이유와 충돌). 단기 클로즈드 베타엔 감당 가능할 수도.
-- **c. API 키(종량)** — 안정 무인 운영의 정석이나 결제 수단 필요(동일 블로커).
-
-→ **권고**: 카드 풀릴 때까지 Phase A(로컬 검증)에 집중하고, B 진입 직전에 a/b를 다시 판단.
-검증 결과가 좋으면 무료 대안으로라도 클로즈드를 빨리 여는 게 맞고, 미지근하면
-배포 서두를 이유가 없다(빌딩 < 검증).
