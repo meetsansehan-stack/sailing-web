@@ -33,3 +33,5 @@ npm-debug.log*
 
 # Prisma migrations는 커밋 — 스키마 이력·배포 재현. (CLAUDE.md: 직접 "수정" 금지일 뿐 버전관리는 함)
 packages/db/backups/
+.vercel
+.env*
