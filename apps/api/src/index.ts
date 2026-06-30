@@ -1,3 +1,12 @@
+import * as Sentry from '@sentry/node';
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN_API,
+  environment: process.env.NODE_ENV,
+  enabled: process.env.NODE_ENV === 'production',
+  tracesSampleRate: 0.1,
+});
+
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { serve } from '@hono/node-server';
@@ -60,6 +69,12 @@ app.route('/api/subscribers', subscribersRoute);
 app.route('/api/analytics', analyticsRoute);
 app.route('/api/qa', qaRoute);
 app.route('/api/letters', lettersRoute);
+
+// 처리되지 않은 에러를 Sentry에 캡처
+app.onError((err, c) => {
+  Sentry.captureException(err);
+  return c.json({ error: 'Internal Server Error' }, 500);
+});
 
 // 직접 실행되면 (tsx watch / node) HTTP 서버 시작.
 // API_DISABLE_LISTEN=1 이면 listen 생략(테스트/serverless에서 default export만 사용).

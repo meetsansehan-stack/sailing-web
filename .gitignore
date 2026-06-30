@@ -27,6 +27,9 @@ packages/db/scripts/demand/out/
 .DS_Store
 Thumbs.db
 
+# Test output
+test-results/
+
 # Logs
 *.log
 npm-debug.log*

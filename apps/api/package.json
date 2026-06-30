@@ -20,6 +20,7 @@
     "@parenting-newsletter/agents-core": "workspace:*",
     "@parenting-newsletter/db": "workspace:*",
     "@parenting-newsletter/shared": "workspace:*",
+    "@sentry/node": "^10.62.0",
     "hono": "^4.12.25",
     "node-cron": "^4.5.0",
     "tsx": "^4.0.0"

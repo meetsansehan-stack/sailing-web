@@ -8,7 +8,8 @@ packages:
 allowBuilds:
   '@prisma/client': true
   '@prisma/engines': true
+  '@sentry/cli': true
   esbuild: true
   prisma: true
-  sharp: set this to true or false
+  sharp: true
   unrs-resolver: true

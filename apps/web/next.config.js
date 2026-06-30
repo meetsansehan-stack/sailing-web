@@ -1,3 +1,5 @@
+const { withSentryConfig } = require('@sentry/nextjs');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -8,4 +10,13 @@ const nextConfig = {
   transpilePackages: ['@parenting-newsletter/shared'],
 };
 
-module.exports = nextConfig;
+module.exports = withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT_WEB,
+  // 소스맵 업로드 — SENTRY_AUTH_TOKEN 있을 때만 활성화 (CI/CD에서 설정)
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: !process.env.CI,
+  // 소스맵을 번들에 포함시키지 않음 (업로드 후 삭제)
+  hideSourceMaps: true,
+  disableLogger: true,
+});
