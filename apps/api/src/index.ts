@@ -31,6 +31,7 @@ import booksRoute from './routes/books';
 import subscribersRoute from './routes/subscribers';
 import analyticsRoute from './routes/analytics';
 import qaRoute from './routes/qa';
+import lettersRoute from './routes/letters';
 
 // 운영·뮤테이션 엔드포인트 = admin 인증(fail-closed). 비용 DoS·무단 트리거 차단.
 // 라우트 마운트보다 먼저 등록해야 적용됨. 공개 GET·구독/분석 POST는 게이트 밖.
@@ -38,6 +39,16 @@ import { adminAuth } from './middleware/admin';
 app.use('/api/pipeline/*', adminAuth);
 app.use('/api/agents/*', adminAuth);
 app.use('/api/qa/*', adminAuth);
+app.use('/api/letters/admin', adminAuth);
+app.use('/api/letters/admin/*', adminAuth);
+app.use('/api/letters', async (c, next) => {
+  if (c.req.method !== 'GET') return adminAuth(c, next);
+  return next();
+});
+app.use('/api/letters/*', async (c, next) => {
+  if (c.req.method !== 'GET') return adminAuth(c, next);
+  return next();
+});
 
 app.route('/api/articles', articlesRoute);
 app.route('/api/issues', issuesRoute);
@@ -48,6 +59,7 @@ app.route('/api/books', booksRoute);
 app.route('/api/subscribers', subscribersRoute);
 app.route('/api/analytics', analyticsRoute);
 app.route('/api/qa', qaRoute);
+app.route('/api/letters', lettersRoute);
 
 // 직접 실행되면 (tsx watch / node) HTTP 서버 시작.
 // API_DISABLE_LISTEN=1 이면 listen 생략(테스트/serverless에서 default export만 사용).

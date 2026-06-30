@@ -7,6 +7,8 @@ import { MainContainer } from '@/src/components/MainContainer';
 import { MobileNav } from '@/src/components/MobileNav';
 import AnalyticsTracker from '@/src/components/AnalyticsTracker';
 import MicroSurvey from '@/src/components/MicroSurvey';
+import SubscribeBar from '@/src/components/SubscribeBar';
+import LoginModal from '@/src/components/LoginModal';
 import './globals.css';
 
 // 로고 워드마크 전용 폰트 (라틴 전용 → 영문 "Sailing"에 적용)
@@ -52,6 +54,7 @@ const MOBILE_NAV = [
   { href: '/collections', label: '세일링 책장' },
   { href: '/letter', label: '세일링 레터' },
   { href: '/reservations', label: '예약 정보' },
+  { href: '/subscribe', label: '레터 구독' },
 ];
 
 const FOOTER_SERVICE = [
@@ -126,12 +129,7 @@ export default function RootLayout({
                     {item.label}
                   </Link>
                 ))}
-                <Link
-                  href="/login"
-                  className="ml-2 rounded-full bg-grey-900 px-4 py-1.5 font-semibold text-white transition hover:bg-grey-700"
-                >
-                  로그인
-                </Link>
+                <LoginModal />
               </div>
               <MobileNav items={MOBILE_NAV} />
             </div>
@@ -142,6 +140,7 @@ export default function RootLayout({
           <WeeklyHero />
         </CalendarGate>
         <MainContainer>{children}</MainContainer>
+        <SubscribeBar />
         <footer className="bg-white border-t mt-12">
           <div className="max-w-container mx-auto px-5 sm:px-6 py-10">
             <div className="grid gap-8 sm:grid-cols-3">

@@ -203,6 +203,40 @@ model Subscriber {
   @@index([createdAt])
 }
 
+// 세일링 레터 — 주간 뉴스레터. 발송 전 초안(sentAt=null), 발송 후 아카이브.
+model Letter {
+  id          String       @id @default(cuid())
+  slug        String       @unique           // URL slug (예: 2026-06-24)
+  subject     String                         // 이메일 제목 = 아카이브 타이틀
+  previewText String?                        // 이메일 미리보기 텍스트 (~50자)
+  editorNote  String?      @db.Text          // 에디터 메시지·인트로 (마크다운, 선택)
+  sentAt      DateTime?                      // null = 초안
+  sentCount   Int          @default(0)
+  items       LetterItem[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([sentAt])
+}
+
+// 레터 내 아티클 — 카테고리별 큐레이션 아이템.
+// articleId: 파이프라인 Article과 연결 가능(선택). 없으면 독립 콘텐츠(마이그레이션 등).
+model LetterItem {
+  id          String   @id @default(cuid())
+  letterId    String
+  letter      Letter   @relation(fields: [letterId], references: [id], onDelete: Cascade)
+  order       Int                            // 레터 내 표시 순서 (0-based)
+  category    String                         // 섹션명 (손과 감각 / 관계와 언어 / 세상과 미래 / 뇌와 실패 / 놀이와 자연 등 자유 문자열)
+  title       String                         // 대제목
+  subtitle    String?                        // 소제목 (선택)
+  body        String   @db.Text             // 본문 마크다운
+  quote       String?                        // 핵심 인용구 (선택)
+  url         String?                        // 원문 링크 (선택)
+  articleId   String?                        // 파이프라인 Article 참조 (선택)
+
+  @@index([letterId, order])
+}
+
 // 익명 분석 이벤트 — PII 0(익명 기기 난수만). CTA·페이지뷰·전환 측정.
 model AnalyticsEvent {
   id        String   @id @default(cuid())

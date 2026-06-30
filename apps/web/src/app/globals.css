@@ -8,6 +8,30 @@ html {
   scroll-behavior: smooth;
 }
 
+/* 레터·기사 마크다운 본문 렌더 */
+.prose-korean {
+  color: #17171c;
+  line-height: 1.8;
+  font-size: 15px;
+}
+.prose-korean h1 { font-size: 1.5rem; font-weight: 700; margin: 2rem 0 0.75rem; }
+.prose-korean h2 { font-size: 1.25rem; font-weight: 700; margin: 1.75rem 0 0.5rem; }
+.prose-korean h3 { font-size: 1.1rem; font-weight: 600; margin: 1.5rem 0 0.5rem; }
+.prose-korean p  { margin: 0.75rem 0; }
+.prose-korean ul { margin: 0.75rem 0; padding-left: 1.5rem; list-style-type: disc; }
+.prose-korean ol { margin: 0.75rem 0; padding-left: 1.5rem; list-style-type: decimal; }
+.prose-korean li { margin: 0.35rem 0; }
+.prose-korean strong { font-weight: 700; }
+.prose-korean em { font-style: italic; }
+.prose-korean a  { color: #2563eb; text-decoration: underline; text-underline-offset: 2px; }
+.prose-korean blockquote {
+  border-left: 3px solid #e2e8f0;
+  margin: 1rem 0;
+  padding: 0.5rem 1rem;
+  color: #64748b;
+}
+.prose-korean hr { border: none; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+
 body {
   font-family: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont,
     system-ui, 'Roboto', sans-serif;

@@ -12,6 +12,7 @@
   "dependencies": {
     "@parenting-newsletter/shared": "workspace:*",
     "@supabase/supabase-js": "^2.105.4",
+    "marked": "^18.0.5",
     "next": "^15.5.19",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
