@@ -4,6 +4,7 @@ import {
   AGE_GROUP_LABEL,
   OPERATOR_LABEL,
   PRICING_LABEL,
+  REGION_GROUPS,
   VENUE_TYPES,
   VENUE_TYPE_LABEL,
   type AgeGroup,
@@ -14,9 +15,7 @@ import {
 import {
   filterVenues,
   getAllVenues,
-  getVenueCountByRegion,
 } from '@/src/data/venues';
-import { RegionDropdown } from '@/src/components/RegionDropdown';
 
 type SearchParams = {
   type?: string;
@@ -37,9 +36,8 @@ export default async function ReservationsPage({ searchParams }: { searchParams?
   const filterAge = sp?.age as AgeGroup | undefined;
   const filterRegion = sp?.region;
 
-  const [allVenues, venueCountByRegion, filtered] = await Promise.all([
+  const [allVenues, filtered] = await Promise.all([
     getAllVenues(),
-    getVenueCountByRegion(),
     filterVenues({
       type: filterType,
       pricing: filterPricing,
@@ -87,10 +85,9 @@ export default async function ReservationsPage({ searchParams }: { searchParams?
           {AGE_GROUPS.map((a) => ({ value: a, label: AGE_GROUP_LABEL[a] }))}
         </FilterRow>
 
-        <div className="flex flex-wrap items-center gap-1.5">
-          <span className="mr-1 w-10 flex-shrink-0 text-small font-semibold text-ink-3">지역</span>
-          <RegionDropdown venueCountByRegion={venueCountByRegion} />
-        </div>
+        <FilterRow label="지역" current={filterRegion ?? null} buildHref={buildHref} field="region">
+          {REGION_GROUPS.map((g) => ({ value: g.label, label: g.label }))}
+        </FilterRow>
 
         <FilterRow
           label="가격"

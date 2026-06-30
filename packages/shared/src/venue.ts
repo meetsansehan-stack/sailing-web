@@ -73,6 +73,17 @@ export const REGIONS = [
 
 export type Region = (typeof REGIONS)[number];
 
+export const REGION_GROUPS = [
+  { label: '수도권', regions: ['서울', '경기', '인천'] },
+  { label: '부울경', regions: ['부산', '울산', '경남'] },
+  { label: '대구경북', regions: ['대구', '경북'] },
+  { label: '충청·세종', regions: ['충북', '충남', '대전', '세종'] },
+  { label: '전라·광주', regions: ['전북', '전남', '광주'] },
+  { label: '강원·제주', regions: ['강원', '제주'] },
+] as const;
+
+export type RegionGroupLabel = (typeof REGION_GROUPS)[number]['label'];
+
 export type ReservableVenue = {
   id: string;
   name: string;

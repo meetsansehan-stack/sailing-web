@@ -1,6 +1,7 @@
 import { cache } from 'react';
 import {
   ageGroupMatchesVenue,
+  REGION_GROUPS,
   type AgeGroup,
   type Pricing,
   type ReservableVenue,
@@ -52,7 +53,14 @@ export async function filterVenues(filters: {
   return all.filter((v) => {
     if (filters.type && v.type !== filters.type) return false;
     if (filters.operator && v.operator !== filters.operator) return false;
-    if (filters.region && getVenueRegion(v) !== filters.region) return false;
+    if (filters.region) {
+      const group = REGION_GROUPS.find((g) => g.label === filters.region);
+      if (group) {
+        if (!(group.regions as readonly string[]).includes(getVenueRegion(v))) return false;
+      } else {
+        if (getVenueRegion(v) !== filters.region) return false;
+      }
+    }
     if (filters.age && !ageGroupMatchesVenue(v, filters.age)) return false;
     if (filters.pricing) {
       // "free"로 필터 시 무료·일부무료 모두 포함

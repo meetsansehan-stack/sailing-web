@@ -677,5 +677,178 @@ export const venues: ReservableVenue[] = [
       "공연예매",
       "키즈페스티벌"
     ]
+  },
+  {
+    "id": "venue-서울역사-어린이박물관",
+    "name": "서울역사 어린이박물관",
+    "type": "museum",
+    "ageRange": "4-10",
+    "entryMinAge": 0,
+    "region": "서울 종로구",
+    "reservationUrl": "https://museum.seoul.go.kr/chd/index.do",
+    "reservationChannel": "서울역사박물관",
+    "operator": "metro",
+    "pricing": "free",
+    "schedule": "화~일 10:00-17:20 (월 휴관)",
+    "description": "서울 역사를 어린이 눈높이로 체험. 사전예약·단체 입장 운영, 무료 관람. 종로구 새문안로 55.",
+    "credibilityScore": 0.90,
+    "tags": [
+      "사전예약",
+      "서울역사",
+      "무료"
+    ]
+  },
+  {
+    "id": "venue-국립현대미술관-어린이미술관",
+    "name": "국립현대미술관 어린이미술관",
+    "type": "museum",
+    "ageRange": "4-12",
+    "entryMinAge": 0,
+    "region": "경기 과천",
+    "reservationUrl": "https://www.mmca.go.kr/",
+    "reservationChannel": "국립현대미술관",
+    "operator": "national",
+    "pricing": "mixed",
+    "schedule": "화~일 10:00-18:00 (월 휴관)",
+    "description": "과천관 내 어린이미술관. 감각·체험 기반 기획전시 운영(현재: '오~감각미술관' 2027.2월까지). 통합예약 필수.",
+    "credibilityScore": 0.93,
+    "tags": [
+      "사전예약",
+      "미술체험",
+      "과천"
+    ]
+  },
+  {
+    "id": "venue-세종문화회관-어린이공연",
+    "name": "세종문화회관 어린이 공연",
+    "type": "show",
+    "ageRange": "4-12",
+    "region": "서울 종로구",
+    "reservationUrl": "https://www.sejongpac.or.kr/",
+    "reservationChannel": "세종문화회관",
+    "operator": "metro",
+    "pricing": "mixed",
+    "schedule": "시즌별 공연 일정",
+    "description": "서울시 대표 공연시설. 어린이 오케스트라·가족 음악회·꿈나무 기획공연 연중 운영. 자체 예매.",
+    "credibilityScore": 0.91,
+    "tags": [
+      "공연예매",
+      "음악회"
+    ]
+  },
+  {
+    "id": "venue-국립극단-어린이청소년극장",
+    "name": "국립극단 어린이청소년극장",
+    "type": "show",
+    "ageRange": "4-13",
+    "region": "서울 종로구",
+    "reservationUrl": "https://www.ntck.or.kr/",
+    "reservationChannel": "국립극단",
+    "operator": "national",
+    "pricing": "paid",
+    "schedule": "시즌별 공연 일정 (예매문의 평일 10~18시)",
+    "description": "국립 어린이청소년 전문 극단. 창작극·동화 기반 공연 전문. 홍익대 대학로 캠퍼스 내, 1600-6261.",
+    "credibilityScore": 0.92,
+    "tags": [
+      "공연예매",
+      "창작극"
+    ]
+  },
+  {
+    "id": "venue-경기도박물관",
+    "name": "경기도박물관 어린이 프로그램",
+    "type": "museum",
+    "ageRange": "4-12",
+    "entryMinAge": 0,
+    "region": "경기 용인",
+    "reservationUrl": "https://musenet.ggcf.kr/",
+    "reservationChannel": "경기문화재단",
+    "operator": "metro",
+    "pricing": "mixed",
+    "schedule": "화~일 10:00-18:00 (월 휴관)",
+    "description": "경기 역사·문화 주제 박물관. 어린이 상시 체험 프로그램 운영. 용인 기흥 상갈.",
+    "credibilityScore": 0.89,
+    "tags": [
+      "어린이프로그램",
+      "경기역사"
+    ]
+  },
+  {
+    "id": "venue-광주시립미술관-어린이갤러리",
+    "name": "광주시립미술관 어린이갤러리",
+    "type": "museum",
+    "ageRange": "3-12",
+    "entryMinAge": 0,
+    "region": "광주 북구",
+    "reservationUrl": "https://artmuse.gwangju.go.kr/",
+    "reservationChannel": "광주광역시",
+    "operator": "metro",
+    "pricing": "free",
+    "schedule": "화~일 10:00-18:00 (월 휴관)",
+    "description": "광주시립미술관 본관 내 어린이갤러리. 연간 기획전 운영(2026: 3/31~12/31). 온라인 사전예약, 무료. 북구 운암동.",
+    "credibilityScore": 0.89,
+    "tags": [
+      "사전예약",
+      "미술체험",
+      "무료"
+    ]
+  },
+  {
+    "id": "venue-국립항공박물관",
+    "name": "국립항공박물관",
+    "type": "museum",
+    "ageRange": "4-12",
+    "entryMinAge": 0,
+    "region": "서울 강서구",
+    "reservationUrl": "https://www.aviation.or.kr/",
+    "reservationChannel": "국립항공박물관",
+    "operator": "national",
+    "pricing": "mixed",
+    "schedule": "화~일 10:00-18:00 (월 휴관)",
+    "description": "한국 항공 역사·기술 체험관. 시뮬레이터·실물 항공기 전시. 어린이 체험교육 사전예약. 강서구 하늘길.",
+    "credibilityScore": 0.91,
+    "tags": [
+      "사전예약",
+      "항공체험",
+      "시뮬레이터"
+    ]
+  },
+  {
+    "id": "venue-노원수학문화관",
+    "name": "노원수학문화관",
+    "type": "program",
+    "ageRange": "5-12",
+    "region": "서울 노원구",
+    "reservationUrl": "https://www.nowon.kr/math/main",
+    "reservationChannel": "노원구청",
+    "operator": "district",
+    "pricing": "mixed",
+    "schedule": "개인·가족·단체 교육 예약, 강연·행사·영화 운영",
+    "description": "수학 주제 체험 문화 시설. 개인·가족·단체 교육 예약 분리, 강연·전시·영화 복합 운영. 노원구 한글비석로.",
+    "credibilityScore": 0.86,
+    "tags": [
+      "사전예약",
+      "수학체험",
+      "구민시설"
+    ]
+  },
+  {
+    "id": "venue-서초수학박물관",
+    "name": "서초수학박물관",
+    "type": "museum",
+    "ageRange": "5-12",
+    "region": "서울 서초구",
+    "reservationUrl": "https://www.scmathmuseum.com/",
+    "reservationChannel": "서초수학박물관",
+    "operator": "district",
+    "pricing": "mixed",
+    "schedule": "목 17:00~ 개인 관람 / 평일 단체 예약 도슨트 프로그램",
+    "description": "수학의 역사·원리를 체험하는 박물관. 개인 관람은 목요일 오후 한정, 단체·학교는 평일 사전예약 도슨트 운영. 서초구 방배동.",
+    "credibilityScore": 0.84,
+    "tags": [
+      "사전예약",
+      "수학체험",
+      "도슨트"
+    ]
   }
 ];
