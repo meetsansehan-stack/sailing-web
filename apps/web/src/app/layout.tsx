@@ -44,6 +44,7 @@ export const metadata: Metadata = {
 
 const NAV = [
   { href: '/radar', label: '미리 준비' },
+  { href: '/reservations', label: '예약 정보' },
   { href: '/collections', label: '세일링 책장' },
   { href: '/letter', label: '세일링 레터' },
 ];
