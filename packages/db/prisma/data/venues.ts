@@ -600,5 +600,82 @@ export const venues: ReservableVenue[] = [
       "신라역사",
       "무료"
     ]
+  },
+  {
+    "id": "venue-국립청주박물관-어린이박물관",
+    "name": "국립청주박물관 어린이박물관",
+    "type": "museum",
+    "ageRange": "4-10",
+    "entryMinAge": 0,
+    "region": "충북 청주",
+    "reservationUrl": "https://cheongju.museum.go.kr/child/index.do",
+    "reservationChannel": "국립청주박물관",
+    "operator": "national",
+    "pricing": "free",
+    "schedule": "화~일 09:00-18:00 (월 휴관)",
+    "description": "백제·충청 역사 주제 어린이체험전시. 회차당 정원제 사전예약(kguide.kr), 무료. 청주 상당구.",
+    "credibilityScore": 0.92,
+    "tags": [
+      "사전예약",
+      "백제역사",
+      "무료"
+    ]
+  },
+  {
+    "id": "venue-국립나주박물관-어린이박물관",
+    "name": "국립나주박물관 어린이박물관",
+    "type": "museum",
+    "ageRange": "3-10",
+    "entryMinAge": 0,
+    "region": "전남 나주",
+    "reservationUrl": "https://naju.museum.go.kr/",
+    "reservationChannel": "국립나주박물관",
+    "operator": "national",
+    "pricing": "free",
+    "schedule": "화~일 09:00-18:00, 유아놀이터 1일 7회차 (월 휴관)",
+    "description": "마한·나주 지역 역사 주제 어린이체험전시. 유아놀이터 회차당 20명 사전예약, 새 어린이박물관 시범운영 중(2026). 무료.",
+    "credibilityScore": 0.92,
+    "tags": [
+      "사전예약",
+      "마한역사",
+      "무료"
+    ]
+  },
+  {
+    "id": "venue-국립세종도서관",
+    "name": "국립세종도서관 어린이자료실",
+    "type": "library",
+    "ageRange": "0-12",
+    "region": "세종 세종시",
+    "reservationUrl": "https://sejong.nl.go.kr/",
+    "reservationChannel": "국립세종도서관",
+    "operator": "national",
+    "pricing": "free",
+    "schedule": "화~일 09:00-18:00 (월 휴관)",
+    "description": "어린이자료실 단체방문·교육프로그램 사전신청. 사서추천 연령별 도서 큐레이션, 어린이 독서문화 행사 정기 운영.",
+    "credibilityScore": 0.92,
+    "tags": [
+      "사전신청",
+      "도서프로그램",
+      "무료"
+    ]
+  },
+  {
+    "id": "venue-성남아트센터",
+    "name": "성남아트센터 어린이 공연",
+    "type": "show",
+    "ageRange": "3-12",
+    "region": "경기 성남",
+    "reservationUrl": "https://www.snart.or.kr/",
+    "reservationChannel": "성남문화재단",
+    "operator": "district",
+    "pricing": "paid",
+    "schedule": "시즌별 공연 일정 / 키즈 페스티벌 연중",
+    "description": "성남문화재단 운영 어린이 공연. 키즈 페스티벌(가족음악극·전래동화클래식·인형극) 연중 기획, 아트리움 어린이예술놀이터. 자체 예매.",
+    "credibilityScore": 0.88,
+    "tags": [
+      "공연예매",
+      "키즈페스티벌"
+    ]
   }
 ];
